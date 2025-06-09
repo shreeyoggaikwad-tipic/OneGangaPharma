@@ -353,22 +353,50 @@ export default function Dashboard() {
       {/* Analytics Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-blue-600" />
-              Sales Trend (Last 7 Days)
+              Sales Trend ({timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)})
             </CardTitle>
+            <div className="flex gap-2">
+              <Select value={timePeriod} onValueChange={setTimePeriod}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={reportType} onValueChange={setReportType}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sales">Sales</SelectItem>
+                  <SelectItem value="orders">Orders</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'sales' ? `₹${(value as number).toLocaleString()}` : value,
+                    name === 'sales' ? 'Sales' : 'Orders'
+                  ]}
+                  labelFormatter={(label) => label}
+                />
                 <Area
                   type="monotone"
-                  dataKey="sales"
+                  dataKey={reportType}
                   stroke="#3B82F6"
                   fill="#3B82F6"
                   fillOpacity={0.1}
