@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BarChart,
   Bar,
@@ -49,6 +57,9 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
+  const [timePeriod, setTimePeriod] = useState("weekly");
+  const [reportType, setReportType] = useState("sales");
+
   // Get dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery<any>({
     queryKey: ["/api/admin/dashboard-stats"],
@@ -69,16 +80,73 @@ export default function Dashboard() {
     queryKey: ["/api/admin/prescriptions"],
   });
 
-  // Sample data for charts
-  const salesData = [
-    { name: "Mon", sales: 1200, orders: 8 },
-    { name: "Tue", sales: 1900, orders: 12 },
-    { name: "Wed", sales: 800, orders: 6 },
-    { name: "Thu", sales: 1600, orders: 11 },
-    { name: "Fri", sales: 2200, orders: 15 },
-    { name: "Sat", sales: 2800, orders: 18 },
-    { name: "Sun", sales: 1400, orders: 9 },
-  ];
+  // Generate sales data based on selected time period
+  const getSalesData = () => {
+    const today = new Date();
+    const data = [];
+    
+    switch (timePeriod) {
+      case "weekly":
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 15000) + 10000,
+            orders: Math.floor(Math.random() * 20) + 10,
+            label: date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+          });
+        }
+        break;
+      
+      case "monthly":
+        for (let i = 11; i >= 0; i--) {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - i);
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 200000) + 150000,
+            orders: Math.floor(Math.random() * 300) + 200,
+            label: date.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+          });
+        }
+        break;
+      
+      case "quarterly":
+        for (let i = 7; i >= 0; i--) {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - (i * 3));
+          const quarter = Math.floor(date.getMonth() / 3) + 1;
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 600000) + 400000,
+            orders: Math.floor(Math.random() * 800) + 500,
+            label: `Q${quarter} ${date.getFullYear()}`
+          });
+        }
+        break;
+      
+      case "yearly":
+        for (let i = 4; i >= 0; i--) {
+          const date = new Date(today);
+          date.setFullYear(date.getFullYear() - i);
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 2000000) + 1500000,
+            orders: Math.floor(Math.random() * 3000) + 2000,
+            label: date.getFullYear().toString()
+          });
+        }
+        break;
+      
+      default:
+        return [];
+    }
+    
+    return data;
+  };
+
+  const salesData = getSalesData();
 
   const categoryData = [
     { name: "General", value: 45, color: "#0088FE" },
