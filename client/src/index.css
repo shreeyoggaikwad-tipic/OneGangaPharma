@@ -14,7 +14,7 @@
   --border: hsl(214.3, 31.8%, 91.4%);
   --input: hsl(214.3, 31.8%, 91.4%);
   --primary: hsl(184, 90%, 24%);
-  --primary-foreground: hsl(210, 40%, 98%);
+  --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(210, 40%, 96%);
   --secondary-foreground: hsl(222.2, 84%, 4.9%);
   --accent: hsl(210, 40%, 96%);
@@ -207,4 +207,27 @@
   .no-print {
     display: none !important;
   }
+}
+
+/* Button text visibility fixes */
+button[class*="bg-primary"], .bg-primary {
+  color: white !important;
+}
+
+button:not([class*="variant"]), button[data-variant="default"] {
+  background-color: hsl(184, 90%, 24%) !important;
+  color: white !important;
+}
+
+button:not([class*="variant"]):hover, button[data-variant="default"]:hover {
+  background-color: hsl(184, 90%, 20%) !important;
+}
+
+/* Ensure footer is visible */
+footer {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: hsl(var(--muted-foreground)) !important;
+  color: white !important;
 }
