@@ -68,6 +68,7 @@ export default function Checkout() {
   const [selectedShippingAddress, setSelectedShippingAddress] = useState<number | null>(null);
   const [sameAsBilling, setSameAsBilling] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState<number | null>(null);
+  const [uploadedPrescription, setUploadedPrescription] = useState<any>(null);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [addressType, setAddressType] = useState<"billing" | "shipping">("billing");
 
@@ -127,10 +128,19 @@ export default function Checkout() {
     mutationFn: (orderData: any) => apiRequest("POST", "/api/orders", orderData),
     onSuccess: (response: any) => {
       const order = response.json ? response.json() : response;
-      toast({
-        title: "Order Placed",
-        description: "Your order has been placed successfully!",
-      });
+      const hasScheduleH = hasScheduleHMedicines;
+      
+      if (hasScheduleH) {
+        toast({
+          title: "Order Placed - Pending Review",
+          description: "Your order has been placed and is awaiting prescription review. You'll be notified once approved.",
+        });
+      } else {
+        toast({
+          title: "Order Confirmed",
+          description: "Your order has been confirmed and will be processed shortly!",
+        });
+      }
       setLocation(`/orders`);
     },
     onError: (error: Error) => {
@@ -181,10 +191,11 @@ export default function Checkout() {
       return;
     }
 
-    if (hasScheduleHMedicines && !selectedPrescription) {
+    // For Schedule H medicines, prescription is required but order can be placed pending review
+    if (hasScheduleHMedicines && !selectedPrescription && !uploadedPrescription) {
       toast({
         title: "Prescription Required",
-        description: "Please select an approved prescription for Schedule H medicines.",
+        description: "Please upload or select a prescription for Schedule H medicines.",
         variant: "destructive",
       });
       return;
@@ -199,8 +210,9 @@ export default function Checkout() {
       })),
       billingAddressId: selectedBillingAddress,
       shippingAddressId: selectedShippingAddress,
-      prescriptionId: selectedPrescription,
+      prescriptionId: selectedPrescription || uploadedPrescription?.id,
       totalAmount: subtotal,
+      hasScheduleH: hasScheduleHMedicines,
     };
 
     createOrderMutation.mutate(orderData);

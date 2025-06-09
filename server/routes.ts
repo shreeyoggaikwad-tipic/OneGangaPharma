@@ -397,7 +397,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/orders", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const { items, billingAddressId, shippingAddressId, prescriptionId, totalAmount } = req.body;
+      const { items, billingAddressId, shippingAddressId, prescriptionId, totalAmount, hasScheduleH } = req.body;
+      
+      // Determine order status based on whether it contains Schedule H medicines
+      let orderStatus = "confirmed"; // Default for non-Schedule H orders
+      let notificationMessage = `Your order has been confirmed and will be processed shortly.`;
+      
+      if (hasScheduleH) {
+        orderStatus = "pending_prescription_review";
+        notificationMessage = `Your order has been placed and is awaiting prescription review. You'll be notified once approved.`;
+      }
       
       const orderData = {
         userId: req.user.id,
@@ -406,7 +415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         shippingAddressId,
         prescriptionId: prescriptionId || null,
         paymentMethod: "cod",
-        status: "placed",
+        status: orderStatus,
       };
 
       const order = await storage.createOrder(orderData, items);
@@ -414,13 +423,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Clear cart after successful order
       await storage.clearCart(req.user.id);
       
-      // Create notification
+      // Create notification for customer
       await storage.createNotification({
         userId: req.user.id,
         type: "order_update",
-        title: "Order Placed",
-        message: `Your order ${order.orderNumber} has been placed successfully.`,
+        title: "Order Placed Successfully",
+        message: notificationMessage,
       });
+      
+      // If order has Schedule H medicines, notify admin for prescription review
+      if (hasScheduleH) {
+        const adminUsers = await storage.getUserByEmail("admin@test.com");
+        if (adminUsers) {
+          await storage.createNotification({
+            userId: adminUsers.id,
+            type: "order_prescription_review",
+            title: "Order Needs Prescription Review",
+            message: `Order #${order.orderNumber} contains Schedule H medicines and requires prescription approval.`,
+          });
+        }
+      }
       
       res.json(order);
     } catch (error) {
