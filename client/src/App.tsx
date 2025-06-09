@@ -109,6 +109,11 @@ function Router() {
             <BulkUpload />
           </ProtectedRoute>
         </Route>
+        <Route path="/admin/notifications">
+          <ProtectedRoute requiredRole="admin">
+            <AdminNotifications />
+          </ProtectedRoute>
+        </Route>
         
         {/* Fallback to 404 */}
         <Route component={NotFound} />

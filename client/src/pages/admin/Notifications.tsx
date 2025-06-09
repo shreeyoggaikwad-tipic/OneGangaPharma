@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -270,26 +269,44 @@ export default function AdminNotifications() {
         </Card>
       </div>
 
-      {/* Filter Tabs */}
-      <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)} className="mb-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all" className="flex items-center gap-2">
-            All ({counts.all})
-          </TabsTrigger>
-          <TabsTrigger value="unread" className="flex items-center gap-2">
-            Unread ({counts.unread})
-          </TabsTrigger>
-          <TabsTrigger value="orders" className="flex items-center gap-2">
-            Orders ({counts.orders})
-          </TabsTrigger>
-          <TabsTrigger value="prescriptions" className="flex items-center gap-2">
-            Prescriptions ({counts.prescriptions})
-          </TabsTrigger>
-          <TabsTrigger value="system" className="flex items-center gap-2">
-            System ({counts.system})
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {/* Filter Buttons */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        <Button
+          variant={filter === "all" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("all")}
+        >
+          All ({counts.all})
+        </Button>
+        <Button
+          variant={filter === "unread" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("unread")}
+        >
+          Unread ({counts.unread})
+        </Button>
+        <Button
+          variant={filter === "orders" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("orders")}
+        >
+          Orders ({counts.orders})
+        </Button>
+        <Button
+          variant={filter === "prescriptions" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("prescriptions")}
+        >
+          Prescriptions ({counts.prescriptions})
+        </Button>
+        <Button
+          variant={filter === "system" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("system")}
+        >
+          System ({counts.system})
+        </Button>
+      </div>
 
       {/* Notifications List */}
       <div className="space-y-4">
