@@ -86,13 +86,13 @@ export default function Dashboard() {
   });
 
   // Fetch real sales data from orders
-  const { data: salesData = [] } = useQuery({
+  const { data: salesData = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/sales-analytics", timePeriod],
     enabled: !!timePeriod,
   });
 
   // Fetch real category data from medicines
-  const { data: categoryData = [] } = useQuery({
+  const { data: categoryData = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/category-analytics"],
   });
 
@@ -323,27 +323,33 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'sales' ? `₹${(value as number).toLocaleString()}` : value,
-                    name === 'sales' ? 'Sales' : 'Orders'
-                  ]}
-                  labelFormatter={(label) => label}
-                />
-                <Area
-                  type="monotone"
-                  dataKey={reportType}
-                  stroke="#3B82F6"
-                  fill="#3B82F6"
-                  fillOpacity={0.1}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {salesData && salesData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={salesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    formatter={(value, name) => [
+                      name === 'sales' ? `₹${(value as number).toLocaleString()}` : value,
+                      name === 'sales' ? 'Sales' : 'Orders'
+                    ]}
+                    labelFormatter={(label) => label}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey={reportType}
+                    stroke="#3B82F6"
+                    fill="#3B82F6"
+                    fillOpacity={0.1}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                <p>No sales data available for the selected period</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -355,25 +361,31 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {categoryData && categoryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoryData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => [`${value} medicines`, 'Count']} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                <p>No category data available</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

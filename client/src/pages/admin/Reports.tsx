@@ -50,101 +50,50 @@ export default function Reports() {
   const [timePeriod, setTimePeriod] = useState("weekly");
 
   // Get dashboard stats
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats = {}, isLoading: statsLoading } = useQuery<any>({
     queryKey: ["/api/admin/dashboard-stats"],
   });
 
   // Get medicines for top selling report
-  const { data: medicines = [] } = useQuery({
+  const { data: medicines = [] } = useQuery<any[]>({
     queryKey: ["/api/medicines"],
   });
 
   // Get orders for sales analysis
-  const { data: orders = [] } = useQuery({
+  const { data: orders = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/orders"],
   });
 
-  // Generate sales data based on selected time period
-  const getSalesData = () => {
-    const today = new Date();
-    const data = [];
-    
-    switch (timePeriod) {
-      case "weekly":
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          data.push({
-            date: date.toISOString().split('T')[0],
-            sales: Math.floor(Math.random() * 15000) + 10000,
-            orders: Math.floor(Math.random() * 20) + 10,
-            label: date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+  // Fetch real sales data from database
+  const { data: salesData = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/sales-analytics", timePeriod],
+    enabled: !!timePeriod,
+  });
+
+  // Fetch real category data from database
+  const { data: categoryData = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/category-analytics"],
+  });
+
+  // Calculate top medicines from real order data
+  const topMedicines = orders.reduce((acc: any[], order: any) => {
+    if (order.items) {
+      order.items.forEach((item: any) => {
+        const existing = acc.find(m => m.name === item.medicine.name);
+        if (existing) {
+          existing.sold += item.quantity;
+          existing.revenue += item.quantity * item.price;
+        } else {
+          acc.push({
+            name: item.medicine.name,
+            sold: item.quantity,
+            revenue: item.quantity * item.price
           });
         }
-        break;
-      
-      case "monthly":
-        for (let i = 11; i >= 0; i--) {
-          const date = new Date(today);
-          date.setMonth(date.getMonth() - i);
-          data.push({
-            date: date.toISOString().split('T')[0],
-            sales: Math.floor(Math.random() * 200000) + 150000,
-            orders: Math.floor(Math.random() * 300) + 200,
-            label: date.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-          });
-        }
-        break;
-      
-      case "quarterly":
-        for (let i = 7; i >= 0; i--) {
-          const date = new Date(today);
-          date.setMonth(date.getMonth() - (i * 3));
-          const quarter = Math.floor(date.getMonth() / 3) + 1;
-          data.push({
-            date: date.toISOString().split('T')[0],
-            sales: Math.floor(Math.random() * 600000) + 400000,
-            orders: Math.floor(Math.random() * 800) + 500,
-            label: `Q${quarter} ${date.getFullYear()}`
-          });
-        }
-        break;
-      
-      case "yearly":
-        for (let i = 4; i >= 0; i--) {
-          const date = new Date(today);
-          date.setFullYear(date.getFullYear() - i);
-          data.push({
-            date: date.toISOString().split('T')[0],
-            sales: Math.floor(Math.random() * 2000000) + 1500000,
-            orders: Math.floor(Math.random() * 3000) + 2000,
-            label: date.getFullYear().toString()
-          });
-        }
-        break;
-      
-      default:
-        return [];
+      });
     }
-    
-    return data;
-  };
-
-  const salesData = getSalesData();
-
-  const topMedicines = [
-    { name: "Paracetamol 500mg", sold: 150, revenue: 6825 },
-    { name: "Vitamin D3 Tablets", sold: 89, revenue: 11125 },
-    { name: "Cough Syrup", sold: 67, revenue: 5963 },
-    { name: "Antibiotic Tablets", sold: 45, revenue: 8347 },
-    { name: "Ashwagandha Capsules", sold: 32, revenue: 9568 },
-  ];
-
-  const categoryData = [
-    { name: "General", value: 65, color: "#0ea5e9", sales: 45000 },
-    { name: "Schedule H", value: 25, color: "#f59e0b", sales: 28000 },
-    { name: "Ayurvedic", value: 10, color: "#10b981", sales: 12000 },
-  ];
+    return acc;
+  }, []).sort((a, b) => b.sold - a.sold).slice(0, 5);
 
   const exportReport = (type: string) => {
     // In a real application, this would generate and download actual reports

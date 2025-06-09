@@ -599,16 +599,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSalesAnalytics(timePeriod: string): Promise<any[]> {
-    // Get basic sales data from delivered orders
-    const deliveredOrders = await db
-      .select({
-        totalAmount: orders.totalAmount,
-        placedAt: orders.placedAt,
-        status: orders.status
-      })
-      .from(orders)
-      .where(eq(orders.status, "delivered"));
-
+    // Get all orders for analytics
+    const allOrders = await db.select().from(orders);
+    
     const today = new Date();
     const data = [];
     
@@ -617,17 +610,23 @@ export class DatabaseStorage implements IStorage {
         for (let i = 6; i >= 0; i--) {
           const date = new Date(today);
           date.setDate(date.getDate() - i);
-          const dayStart = new Date(date.setHours(0, 0, 0, 0));
-          const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+          const dayStart = new Date(date);
+          dayStart.setHours(0, 0, 0, 0);
+          const dayEnd = new Date(date);
+          dayEnd.setHours(23, 59, 59, 999);
           
-          const dayOrders = deliveredOrders.filter(order => {
-            const orderDate = new Date(order.placedAt || new Date());
+          const dayOrders = allOrders.filter(order => {
+            if (!order.placedAt) return false;
+            const orderDate = new Date(order.placedAt);
             return orderDate >= dayStart && orderDate <= dayEnd;
           });
           
+          const deliveredOrders = dayOrders.filter(order => order.status === "delivered");
+          const totalSales = deliveredOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+          
           data.push({
             date: date.toISOString().split('T')[0],
-            sales: dayOrders.reduce((sum: number, order: any) => sum + Number(order.totalAmount || 0), 0),
+            sales: totalSales,
             orders: dayOrders.length,
             label: date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
           });
@@ -635,11 +634,13 @@ export class DatabaseStorage implements IStorage {
         break;
       
       default:
-        // For other periods, return basic current data
+        const deliveredOrders = allOrders.filter(order => order.status === "delivered");
+        const totalSales = deliveredOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+        
         data.push({
           date: today.toISOString().split('T')[0],
-          sales: deliveredOrders.reduce((sum, order) => sum + order.totalAmount, 0),
-          orders: deliveredOrders.length,
+          sales: totalSales,
+          orders: allOrders.length,
           label: "Total"
         });
     }
