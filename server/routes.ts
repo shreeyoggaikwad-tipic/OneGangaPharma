@@ -10,8 +10,11 @@ import {
   insertMedicineSchema,
   insertCartItemSchema,
   insertOrderSchema,
-  insertPrescriptionSchema 
+  insertPrescriptionSchema,
+  notifications
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -606,7 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/notifications/:id", isAuthenticated, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      await db.delete(notifications).where(eq(notifications.id, id));
+      await storage.deleteNotification(id);
       res.json({ message: "Notification deleted successfully" });
     } catch (error) {
       console.error("Delete notification error:", error);
