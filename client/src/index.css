@@ -228,6 +228,26 @@ footer {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  background-color: hsl(var(--muted-foreground)) !important;
+  background-color: hsl(220, 13%, 18%) !important;
   color: white !important;
+}
+
+/* Footer text and link styling */
+footer h3 {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+footer p, footer span {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.8) !important;
+  text-decoration: none !important;
+}
+
+footer a:hover {
+  color: white !important;
+  text-decoration: underline !important;
 }
