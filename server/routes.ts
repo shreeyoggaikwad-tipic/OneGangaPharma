@@ -94,9 +94,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session middleware
   app.use(getSession());
 
-  // Initialize data
-  await storage.initializeData();
-
   // Auth routes
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {

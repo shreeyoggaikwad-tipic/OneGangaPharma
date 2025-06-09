@@ -19,7 +19,7 @@ import Profile from "@/pages/Profile";
 import Prescriptions from "@/pages/Prescriptions";
 import Dashboard from "@/pages/admin/Dashboard";
 import MedicineManagement from "@/pages/admin/MedicineManagement";
-import OrderManagement from "@/pages/admin/OrderManagement";
+import AdminOrders from "@/pages/admin/Orders";
 import PrescriptionReview from "@/pages/admin/PrescriptionReview";
 import Reports from "@/pages/admin/Reports";
 import BulkUpload from "@/pages/admin/BulkUpload";
@@ -84,7 +84,7 @@ function Router() {
         </Route>
         <Route path="/admin/orders">
           <ProtectedRoute requiredRole="admin">
-            <OrderManagement />
+            <AdminOrders />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/prescriptions">
