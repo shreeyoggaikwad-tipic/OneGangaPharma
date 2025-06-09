@@ -80,6 +80,11 @@ export default function Dashboard() {
     queryKey: ["/api/admin/prescriptions"],
   });
 
+  // Get medicines data
+  const { data: medicines = [] } = useQuery<any[]>({
+    queryKey: ["/api/medicines"],
+  });
+
   // Fetch real sales data from orders
   const { data: salesData = [] } = useQuery({
     queryKey: ["/api/admin/sales-analytics", timePeriod],
@@ -569,22 +574,22 @@ export default function Dashboard() {
             <CardContent className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Active Medicines</span>
-                <span className="font-medium">150+</span>
+                <span className="font-medium">{medicines.filter((m: any) => m.isActive).length}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Customers</span>
-                <span className="font-medium">1,200+</span>
+                <span className="text-sm text-gray-600">Total Orders</span>
+                <span className="font-medium">{orders.length}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">This Month Orders</span>
-                <span className="font-medium">340</span>
+                <span className="text-sm text-gray-600">Today's Orders</span>
+                <span className="font-medium">{stats?.ordersToday || 0}</span>
               </div>
               <Separator />
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Revenue Growth</span>
+                <span className="text-sm text-gray-600">Pending Prescriptions</span>
                 <div className="flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3 text-green-600" />
-                  <span className="font-medium text-green-600">+15%</span>
+                  <FileText className="h-3 w-3 text-blue-600" />
+                  <span className="font-medium text-blue-600">{stats?.pendingPrescriptions || 0}</span>
                 </div>
               </div>
             </CardContent>
