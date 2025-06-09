@@ -1,0 +1,389 @@
+import { useState, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Upload,
+  FileText,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Download,
+  Plus,
+  AlertTriangle,
+} from "lucide-react";
+
+export default function Prescriptions() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+
+  // Get prescriptions
+  const { data: prescriptions = [], isLoading } = useQuery({
+    queryKey: ["/api/prescriptions"],
+  });
+
+  // Upload prescription mutation
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return fetch("/api/prescriptions", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Prescription Uploaded",
+        description: "Your prescription has been uploaded successfully and is under review.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/prescriptions"] });
+      setUploadDialogOpen(false);
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload JPG, PNG, or PDF files only.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload files smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      uploadMutation.mutate(selectedFile);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "approved":
+        return <CheckCircle className="h-4 w-4" />;
+      case "rejected":
+        return <XCircle className="h-4 w-4" />;
+      case "pending":
+        return <Clock className="h-4 w-4" />;
+      default:
+        return <FileText className="h-4 w-4" />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <Skeleton className="h-24 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Prescriptions</h1>
+          <p className="text-muted-foreground">
+            Upload and manage your medical prescriptions
+          </p>
+        </div>
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Prescription
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Upload Prescription</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Upload your prescription</h3>
+                <p className="text-muted-foreground mb-4">
+                  Drag and drop or click to select files
+                </p>
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleFileSelect}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Supported: JPG, PNG, PDF (Max 5MB)
+                </p>
+              </div>
+
+              {selectedFile && (
+                <div className="bg-muted p-4 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span className="font-medium">{selectedFile.name}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setUploadDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpload}
+                  disabled={!selectedFile || uploadMutation.isPending}
+                  className="flex-1"
+                >
+                  {uploadMutation.isPending ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Info Card */}
+      <Card className="mb-6 bg-blue-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-blue-800 mb-1">
+                Prescription Guidelines
+              </h3>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Upload clear, readable images or PDF files of your prescription</li>
+                <li>• Ensure all medicine names and dosages are visible</li>
+                <li>• Prescriptions are reviewed by our licensed pharmacists</li>
+                <li>• Approved prescriptions can be used for Schedule H medicine orders</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Prescriptions List */}
+      {prescriptions.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">No prescriptions yet</h2>
+            <p className="text-muted-foreground mb-6">
+              Upload your first prescription to order Schedule H medicines
+            </p>
+            <Button onClick={() => setUploadDialogOpen(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Prescription
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {prescriptions.map((prescription: any) => (
+            <Card key={prescription.id}>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
+                      <FileText className="h-6 w-6 text-blue-600" />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold">{prescription.fileName}</h3>
+                        <Badge className={getStatusColor(prescription.status)}>
+                          {getStatusIcon(prescription.status)}
+                          <span className="ml-1 capitalize">{prescription.status}</span>
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            Uploaded: {new Date(prescription.uploadedAt).toLocaleDateString("en-IN", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        
+                        {prescription.reviewedAt && (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>
+                              Reviewed: {new Date(prescription.reviewedAt).toLocaleDateString("en-IN", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {prescription.reviewNotes && (
+                        <div className="mt-3 p-3 bg-muted rounded-lg">
+                          <p className="text-sm">
+                            <strong>Review Notes:</strong> {prescription.reviewNotes}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {prescription.status === "pending" && (
+                      <Badge variant="outline" className="text-orange-600 border-orange-200">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Under Review
+                      </Badge>
+                    )}
+                    
+                    {prescription.status === "approved" && (
+                      <Badge variant="outline" className="text-green-600 border-green-200">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Available for Orders
+                      </Badge>
+                    )}
+                    
+                    {prescription.status === "rejected" && (
+                      <Badge variant="outline" className="text-red-600 border-red-200">
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Rejected
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Quick Stats */}
+      {prescriptions.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-lg">Prescription Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {prescriptions.filter((p: any) => p.status === "approved").length}
+                </div>
+                <div className="text-sm text-green-700">Approved</div>
+              </div>
+              
+              <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-600">
+                  {prescriptions.filter((p: any) => p.status === "pending").length}
+                </div>
+                <div className="text-sm text-yellow-700">Under Review</div>
+              </div>
+              
+              <div className="text-center p-4 bg-red-50 rounded-lg">
+                <div className="text-2xl font-bold text-red-600">
+                  {prescriptions.filter((p: any) => p.status === "rejected").length}
+                </div>
+                <div className="text-sm text-red-700">Rejected</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,238 @@
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+  decimal,
+  varchar,
+  uuid,
+  jsonb,
+  date,
+  index
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
+
+// Session storage table for authentication
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Users table with role-based access
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull().default("customer"), // admin, customer
+  firstName: varchar("first_name", { length: 100 }),
+  lastName: varchar("last_name", { length: 100 }),
+  phone: varchar("phone", { length: 20 }),
+  gender: varchar("gender", { length: 10 }),
+  dateOfBirth: date("date_of_birth"),
+  profileImageUrl: varchar("profile_image_url"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Address book for shipping and billing
+export const addresses = pgTable("addresses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  type: varchar("type", { length: 20 }).notNull(), // billing, shipping
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  addressLine1: varchar("address_line_1", { length: 255 }).notNull(),
+  addressLine2: varchar("address_line_2", { length: 255 }),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 100 }).notNull(),
+  postalCode: varchar("postal_code", { length: 20 }).notNull(),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Medicine categories
+export const medicineCategories = pgTable("medicine_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  isScheduleH: boolean("is_schedule_h").default(false),
+});
+
+// Medicines master table
+export const medicines = pgTable("medicines", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  dosage: varchar("dosage", { length: 100 }),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  categoryId: integer("category_id").notNull(),
+  manufacturer: varchar("manufacturer", { length: 255 }),
+  requiresPrescription: boolean("requires_prescription").default(false),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Medicine inventory with batch tracking
+export const medicineInventory = pgTable("medicine_inventory", {
+  id: serial("id").primaryKey(),
+  medicineId: integer("medicine_id").notNull(),
+  batchNumber: varchar("batch_number", { length: 100 }).notNull(),
+  expiryDate: date("expiry_date").notNull(),
+  quantity: integer("quantity").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Prescription uploads
+export const prescriptions = pgTable("prescriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  filePath: varchar("file_path", { length: 500 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, approved, rejected
+  reviewedBy: integer("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
+// Shopping cart
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  medicineId: integer("medicine_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  addedAt: timestamp("added_at").defaultNow(),
+});
+
+// Orders
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
+  status: varchar("status", { length: 20 }).notNull().default("placed"), // placed, confirmed, out_for_delivery, delivered, cancelled
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: varchar("payment_method", { length: 20 }).notNull().default("cod"),
+  prescriptionId: integer("prescription_id"),
+  billingAddressId: integer("billing_address_id").notNull(),
+  shippingAddressId: integer("shipping_address_id").notNull(),
+  deliveryNotes: text("delivery_notes"),
+  placedAt: timestamp("placed_at").defaultNow(),
+  deliveredAt: timestamp("delivered_at"),
+});
+
+// Order items
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull(),
+  medicineId: integer("medicine_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+});
+
+// Notifications
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  type: varchar("type", { length: 50 }).notNull(), // order_update, prescription_status, low_stock, etc.
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  addresses: many(addresses),
+  prescriptions: many(prescriptions),
+  cartItems: many(cartItems),
+  orders: many(orders),
+  notifications: many(notifications),
+}));
+
+export const addressesRelations = relations(addresses, ({ one }) => ({
+  user: one(users, { fields: [addresses.userId], references: [users.id] }),
+}));
+
+export const medicinesRelations = relations(medicines, ({ one, many }) => ({
+  category: one(medicineCategories, { fields: [medicines.categoryId], references: [medicineCategories.id] }),
+  inventory: many(medicineInventory),
+  cartItems: many(cartItems),
+  orderItems: many(orderItems),
+}));
+
+export const medicineInventoryRelations = relations(medicineInventory, ({ one }) => ({
+  medicine: one(medicines, { fields: [medicineInventory.medicineId], references: [medicines.id] }),
+}));
+
+export const prescriptionsRelations = relations(prescriptions, ({ one, many }) => ({
+  user: one(users, { fields: [prescriptions.userId], references: [users.id] }),
+  reviewer: one(users, { fields: [prescriptions.reviewedBy], references: [users.id] }),
+  orders: many(orders),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  user: one(users, { fields: [cartItems.userId], references: [users.id] }),
+  medicine: one(medicines, { fields: [cartItems.medicineId], references: [medicines.id] }),
+}));
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, { fields: [orders.userId], references: [users.id] }),
+  prescription: one(prescriptions, { fields: [orders.prescriptionId], references: [prescriptions.id] }),
+  billingAddress: one(addresses, { fields: [orders.billingAddressId], references: [addresses.id] }),
+  shippingAddress: one(addresses, { fields: [orders.shippingAddressId], references: [addresses.id] }),
+  items: many(orderItems),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, { fields: [orderItems.orderId], references: [orders.id] }),
+  medicine: one(medicines, { fields: [orderItems.medicineId], references: [medicines.id] }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, { fields: [notifications.userId], references: [users.id] }),
+}));
+
+// Zod schemas for validation
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertAddressSchema = createInsertSchema(addresses).omit({ id: true, createdAt: true });
+export const insertMedicineSchema = createInsertSchema(medicines).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMedicineInventorySchema = createInsertSchema(medicineInventory).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPrescriptionSchema = createInsertSchema(prescriptions).omit({ id: true, uploadedAt: true });
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, addedAt: true });
+export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, orderNumber: true, placedAt: true });
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
+
+// Type exports
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Address = typeof addresses.$inferSelect;
+export type InsertAddress = z.infer<typeof insertAddressSchema>;
+export type Medicine = typeof medicines.$inferSelect;
+export type InsertMedicine = z.infer<typeof insertMedicineSchema>;
+export type MedicineInventory = typeof medicineInventory.$inferSelect;
+export type InsertMedicineInventory = z.infer<typeof insertMedicineInventorySchema>;
+export type Prescription = typeof prescriptions.$inferSelect;
+export type InsertPrescription = z.infer<typeof insertPrescriptionSchema>;
+export type CartItem = typeof cartItems.$inferSelect;
+export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type MedicineCategory = typeof medicineCategories.$inferSelect;

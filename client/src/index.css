@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(180, 100%, 99%);
+  --foreground: hsl(200, 15%, 18%);
+  --muted: hsl(180, 10%, 96%);
+  --muted-foreground: hsl(200, 8%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(200, 15%, 18%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(200, 15%, 18%);
+  --border: hsl(180, 10%, 90%);
+  --input: hsl(180, 10%, 90%);
+  --primary: hsl(184, 90%, 24%);
+  --primary-foreground: hsl(180, 100%, 99%);
+  --secondary: hsl(180, 10%, 96%);
+  --secondary-foreground: hsl(200, 15%, 18%);
+  --accent: hsl(180, 10%, 96%);
+  --accent-foreground: hsl(200, 15%, 18%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(184, 90%, 24%);
+  --radius: 0.5rem;
+  
+  /* Medical theme colors */
+  --medical-teal: hsl(184, 90%, 24%);
+  --medical-green: hsl(162, 75%, 36%);
+  --medical-light: hsl(180, 100%, 99%);
+  --medical-surface: hsl(0, 0%, 100%);
+  --medical-text: hsl(200, 15%, 18%);
+  
+  /* Chart colors */
+  --chart-1: hsl(184, 90%, 24%);
+  --chart-2: hsl(162, 75%, 36%);
+  --chart-3: hsl(200, 80%, 50%);
+  --chart-4: hsl(45, 85%, 55%);
+  --chart-5: hsl(280, 65%, 60%);
+}
+
+.dark {
+  --background: hsl(200, 20%, 6%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(200, 15%, 12%);
+  --muted-foreground: hsl(200, 8%, 65%);
+  --popover: hsl(200, 20%, 6%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(200, 20%, 6%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(200, 15%, 12%);
+  --input: hsl(200, 15%, 12%);
+  --primary: hsl(184, 90%, 24%);
+  --primary-foreground: hsl(180, 100%, 99%);
+  --secondary: hsl(200, 15%, 12%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(200, 15%, 12%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(184, 90%, 24%);
+  
+  /* Medical theme colors for dark mode */
+  --medical-teal: hsl(184, 90%, 24%);
+  --medical-green: hsl(162, 75%, 36%);
+  --medical-light: hsl(200, 20%, 6%);
+  --medical-surface: hsl(200, 15%, 10%);
+  --medical-text: hsl(0, 0%, 98%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--medical-teal) 0%, var(--medical-green) 100%);
+  }
+  
+  .medicine-card:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+  
+  .schedule-h-badge {
+    background: linear-gradient(45deg, hsl(0, 84%, 60%), hsl(0, 70%, 70%));
+  }
+  
+  .pwa-install {
+    display: none;
+  }
+}
+
+/* Custom styles for medical app */
+.medical-primary {
+  color: var(--medical-teal);
+}
+
+.medical-bg-primary {
+  background-color: var(--medical-teal);
+}
+
+.medical-text {
+  color: var(--medical-text);
+}
+
+.medical-surface {
+  background-color: var(--medical-surface);
+}
+
+.medical-light {
+  background-color: var(--medical-light);
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Progress bar styles */
+.progress-bar {
+  @apply flex items-center justify-between mb-4;
+}
+
+.progress-step {
+  @apply flex flex-col items-center;
+}
+
+.progress-step-icon {
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-white text-sm;
+}
+
+.progress-step-line {
+  @apply flex-1 h-1 mx-2;
+}
+
+/* Notification toast styles */
+.notification-toast {
+  @apply fixed top-20 right-4 bg-white shadow-lg rounded-lg p-4 border-l-4 border-green-500 z-50;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .mobile-menu {
+    @apply block md:hidden bg-white border-t;
+  }
+  
+  .mobile-cart-button {
+    @apply fixed bottom-4 right-4 bg-medical-teal text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30;
+  }
+}
+
+/* Print styles for prescriptions */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

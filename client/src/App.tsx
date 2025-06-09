@@ -1,0 +1,124 @@
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/useAuth";
+import Layout from "@/components/Layout";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
+// Pages
+import Landing from "@/pages/Landing";
+import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import Medicines from "@/pages/Medicines";
+import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
+import Orders from "@/pages/Orders";
+import Profile from "@/pages/Profile";
+import Prescriptions from "@/pages/Prescriptions";
+import Dashboard from "@/pages/admin/Dashboard";
+import MedicineManagement from "@/pages/admin/MedicineManagement";
+import OrderManagement from "@/pages/admin/OrderManagement";
+import PrescriptionReview from "@/pages/admin/PrescriptionReview";
+import Reports from "@/pages/admin/Reports";
+import BulkUpload from "@/pages/admin/BulkUpload";
+import NotFound from "@/pages/not-found";
+
+function Router() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <Layout>
+      <Switch>
+        {/* Public routes */}
+        <Route path="/" component={isAuthenticated ? Home : Landing} />
+        <Route path="/medicines" component={Medicines} />
+        <Route path="/login" component={Login} />
+        
+        {/* Protected customer routes */}
+        <Route path="/cart">
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/checkout">
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/orders">
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/profile">
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/prescriptions">
+          <ProtectedRoute>
+            <Prescriptions />
+          </ProtectedRoute>
+        </Route>
+        
+        {/* Protected admin routes */}
+        <Route path="/admin/dashboard">
+          <ProtectedRoute requiredRole="admin">
+            <Dashboard />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/medicines">
+          <ProtectedRoute requiredRole="admin">
+            <MedicineManagement />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/orders">
+          <ProtectedRoute requiredRole="admin">
+            <OrderManagement />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/prescriptions">
+          <ProtectedRoute requiredRole="admin">
+            <PrescriptionReview />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/reports">
+          <ProtectedRoute requiredRole="admin">
+            <Reports />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/bulk-upload">
+          <ProtectedRoute requiredRole="admin">
+            <BulkUpload />
+          </ProtectedRoute>
+        </Route>
+        
+        {/* Fallback to 404 */}
+        <Route component={NotFound} />
+      </Switch>
+    </Layout>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
