@@ -614,6 +614,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sales Analytics endpoint
+  app.get("/api/admin/sales-analytics", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const timePeriod = req.query.timePeriod as string || "weekly";
+      const salesData = await storage.getSalesAnalytics(timePeriod);
+      res.json(salesData);
+    } catch (error) {
+      console.error("Error fetching sales analytics:", error);
+      res.status(500).json({ message: "Failed to fetch sales analytics" });
+    }
+  });
+
+  // Category Analytics endpoint
+  app.get("/api/admin/category-analytics", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const categoryData = await storage.getCategoryAnalytics();
+      res.json(categoryData);
+    } catch (error) {
+      console.error("Error fetching category analytics:", error);
+      res.status(500).json({ message: "Failed to fetch category analytics" });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

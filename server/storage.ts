@@ -104,6 +104,10 @@ export interface IStorage {
     pendingPrescriptions: number;
   }>;
 
+  // Analytics
+  getSalesAnalytics(timePeriod: string): Promise<any[]>;
+  getCategoryAnalytics(): Promise<any[]>;
+
   // Initialize data
   initializeData(): Promise<void>;
 }
@@ -592,6 +596,172 @@ export class DatabaseStorage implements IStorage {
       lowStockCount: lowStockResult?.count || 0,
       pendingPrescriptions: pendingPrescriptionsResult?.count || 0,
     };
+  }
+
+  async getSalesAnalytics(timePeriod: string): Promise<any[]> {
+    const today = new Date();
+    const data = [];
+    
+    switch (timePeriod) {
+      case "weekly":
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          const startOfDay = new Date(date);
+          startOfDay.setHours(0, 0, 0, 0);
+          const endOfDay = new Date(date);
+          endOfDay.setHours(23, 59, 59, 999);
+          
+          const [salesResult] = await db
+            .select({ totalSales: sum(orders.totalAmount) })
+            .from(orders)
+            .where(and(
+              eq(orders.status, "delivered"),
+              gte(orders.placedAt, startOfDay),
+              lte(orders.placedAt, endOfDay)
+            ));
+            
+          const [ordersResult] = await db
+            .select({ count: count() })
+            .from(orders)
+            .where(and(
+              gte(orders.placedAt, startOfDay),
+              lte(orders.placedAt, endOfDay)
+            ));
+          
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Number(salesResult?.totalSales || 0),
+            orders: ordersResult?.count || 0,
+            label: date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+          });
+        }
+        break;
+      
+      case "monthly":
+        for (let i = 11; i >= 0; i--) {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - i);
+          const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+          const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+          
+          const [salesResult] = await db
+            .select({ totalSales: sum(orders.totalAmount) })
+            .from(orders)
+            .where(and(
+              eq(orders.status, "delivered"),
+              gte(orders.placedAt, startOfMonth),
+              lte(orders.placedAt, endOfMonth)
+            ));
+            
+          const [ordersResult] = await db
+            .select({ count: count() })
+            .from(orders)
+            .where(and(
+              gte(orders.placedAt, startOfMonth),
+              lte(orders.placedAt, endOfMonth)
+            ));
+          
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Number(salesResult?.totalSales || 0),
+            orders: ordersResult?.count || 0,
+            label: date.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+          });
+        }
+        break;
+      
+      case "quarterly":
+        for (let i = 7; i >= 0; i--) {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - (i * 3));
+          const quarter = Math.floor(date.getMonth() / 3) + 1;
+          const startOfQuarter = new Date(date.getFullYear(), (quarter - 1) * 3, 1);
+          const endOfQuarter = new Date(date.getFullYear(), quarter * 3, 0, 23, 59, 59, 999);
+          
+          const [salesResult] = await db
+            .select({ totalSales: sum(orders.totalAmount) })
+            .from(orders)
+            .where(and(
+              eq(orders.status, "delivered"),
+              gte(orders.placedAt, startOfQuarter),
+              lte(orders.placedAt, endOfQuarter)
+            ));
+            
+          const [ordersResult] = await db
+            .select({ count: count() })
+            .from(orders)
+            .where(and(
+              gte(orders.placedAt, startOfQuarter),
+              lte(orders.placedAt, endOfQuarter)
+            ));
+          
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Number(salesResult?.totalSales || 0),
+            orders: ordersResult?.count || 0,
+            label: `Q${quarter} ${date.getFullYear()}`
+          });
+        }
+        break;
+      
+      case "yearly":
+        for (let i = 4; i >= 0; i--) {
+          const year = today.getFullYear() - i;
+          const startOfYear = new Date(year, 0, 1);
+          const endOfYear = new Date(year, 11, 31, 23, 59, 59, 999);
+          
+          const [salesResult] = await db
+            .select({ totalSales: sum(orders.totalAmount) })
+            .from(orders)
+            .where(and(
+              eq(orders.status, "delivered"),
+              gte(orders.placedAt, startOfYear),
+              lte(orders.placedAt, endOfYear)
+            ));
+            
+          const [ordersResult] = await db
+            .select({ count: count() })
+            .from(orders)
+            .where(and(
+              gte(orders.placedAt, startOfYear),
+              lte(orders.placedAt, endOfYear)
+            ));
+          
+          data.push({
+            date: startOfYear.toISOString().split('T')[0],
+            sales: Number(salesResult?.totalSales || 0),
+            orders: ordersResult?.count || 0,
+            label: year.toString()
+          });
+        }
+        break;
+      
+      default:
+        return [];
+    }
+    
+    return data;
+  }
+
+  async getCategoryAnalytics(): Promise<any[]> {
+    const categoryStats = await db
+      .select({
+        name: medicineCategories.name,
+        count: count(medicines.id)
+      })
+      .from(medicineCategories)
+      .leftJoin(medicines, eq(medicineCategories.id, medicines.categoryId))
+      .where(eq(medicines.isActive, true))
+      .groupBy(medicineCategories.id, medicineCategories.name);
+
+    const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D"];
+    
+    return categoryStats.map((category, index) => ({
+      name: category.name,
+      value: category.count,
+      color: colors[index % colors.length]
+    }));
   }
 
   async initializeData(): Promise<void> {
