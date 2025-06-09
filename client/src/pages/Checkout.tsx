@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -71,6 +71,9 @@ export default function Checkout() {
   const [uploadedPrescription, setUploadedPrescription] = useState<any>(null);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [addressType, setAddressType] = useState<"billing" | "shipping">("billing");
+  const [showUploadPrescription, setShowUploadPrescription] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get cart items
   const { data: cartItems = [] } = useQuery<any[]>({
@@ -117,6 +120,36 @@ export default function Checkout() {
     onError: (error: Error) => {
       toast({
         title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Upload prescription mutation
+  const uploadPrescriptionMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return fetch("/api/prescriptions", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+    },
+    onSuccess: async (response) => {
+      const result = await response.json();
+      setUploadedPrescription(result);
+      setSelectedPrescription(null); // Clear existing selection
+      toast({
+        title: "Prescription Uploaded",
+        description: "Your prescription has been uploaded and will be reviewed with your order.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/prescriptions"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -222,6 +255,55 @@ export default function Checkout() {
     setAddressType(type);
     addressForm.setValue("type", type);
     setShowAddressDialog(true);
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload JPG, PNG, or PDF files only.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload files smaller than 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUploadPrescription = () => {
+    if (!selectedFile) {
+      toast({
+        title: "No File Selected",
+        description: "Please select a file to upload.",
+        variant: "destructive",
+      });
+      return;
+    }
+    uploadPrescriptionMutation.mutate(selectedFile);
+  };
+
+  const clearUploadedPrescription = () => {
+    setUploadedPrescription(null);
+    setSelectedFile(null);
+    setShowUploadPrescription(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   if (cartItems.length === 0) {
@@ -383,48 +465,148 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                {approvedPrescriptions.length > 0 ? (
+                <div className="space-y-4">
+                  {/* Existing Approved Prescriptions */}
+                  {approvedPrescriptions.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-muted-foreground">Previously Approved Prescriptions:</p>
+                      {approvedPrescriptions.map((prescription: any) => (
+                        <div
+                          key={prescription.id}
+                          className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                            selectedPrescription === prescription.id && !uploadedPrescription
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                          onClick={() => {
+                            setSelectedPrescription(prescription.id);
+                            clearUploadedPrescription();
+                          }}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="font-medium">{prescription.fileName}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Uploaded: {new Date(prescription.uploadedAt).toLocaleDateString()}
+                              </p>
+                              <Badge variant="default" className="bg-green-100 text-green-800 mt-1">
+                                Approved
+                              </Badge>
+                            </div>
+                            {selectedPrescription === prescription.id && !uploadedPrescription && (
+                              <Check className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Upload New Prescription */}
                   <div className="space-y-3">
-                    {approvedPrescriptions.map((prescription: any) => (
-                      <div
-                        key={prescription.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          selectedPrescription === prescription.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                        onClick={() => setSelectedPrescription(prescription.id)}
-                      >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {approvedPrescriptions.length > 0 ? "Or Upload New Prescription:" : "Upload Prescription:"}
+                      </p>
+                      {!showUploadPrescription && !uploadedPrescription && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowUploadPrescription(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Upload New
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Show uploaded prescription if exists */}
+                    {uploadedPrescription && (
+                      <div className="p-4 border border-primary rounded-lg bg-primary/5">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium">{prescription.fileName}</p>
+                            <p className="font-medium">{uploadedPrescription.fileName}</p>
                             <p className="text-sm text-muted-foreground">
-                              Uploaded: {new Date(prescription.uploadedAt).toLocaleDateString()}
+                              Just uploaded - pending review
                             </p>
-                            <Badge variant="default" className="bg-green-100 text-green-800 mt-1">
-                              Approved
+                            <Badge variant="secondary" className="bg-orange-100 text-orange-800 mt-1">
+                              Pending Review
                             </Badge>
                           </div>
-                          {selectedPrescription === prescription.id && (
+                          <div className="flex items-center gap-2">
                             <Check className="h-5 w-5 text-primary" />
-                          )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={clearUploadedPrescription}
+                            >
+                              Remove
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* Upload form */}
+                    {showUploadPrescription && !uploadedPrescription && (
+                      <div className="p-4 border border-dashed border-gray-300 rounded-lg">
+                        <div className="space-y-4">
+                          <div className="text-center">
+                            <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm font-medium">Upload Prescription</p>
+                            <p className="text-xs text-muted-foreground">
+                              JPG, PNG, or PDF files up to 10MB
+                            </p>
+                          </div>
+                          
+                          <Input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={handleFileSelect}
+                            className="w-full"
+                          />
+                          
+                          {selectedFile && (
+                            <div className="text-sm text-muted-foreground">
+                              Selected: {selectedFile.name}
+                            </div>
+                          )}
+                          
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleUploadPrescription}
+                              disabled={!selectedFile || uploadPrescriptionMutation.isPending}
+                              className="flex-1"
+                            >
+                              {uploadPrescriptionMutation.isPending ? "Uploading..." : "Upload"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setShowUploadPrescription(false);
+                                setSelectedFile(null);
+                                if (fileInputRef.current) fileInputRef.current.value = "";
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No prescription option */}
+                    {approvedPrescriptions.length === 0 && !showUploadPrescription && !uploadedPrescription && (
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                          <strong>Note:</strong> You can place this order now and upload your prescription afterward. 
+                          The order will be processed once your prescription is reviewed and approved by our pharmacist.
+                        </p>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-center py-4 space-y-4">
-                    <p className="text-muted-foreground mb-4">
-                      No approved prescriptions found. You can upload a prescription after placing the order.
-                    </p>
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-blue-800">
-                        <strong>Note:</strong> You can place this order now and upload your prescription afterward. 
-                        The order will be processed once your prescription is reviewed and approved by our pharmacist.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                </div>
               </CardContent>
             </Card>
           )}
