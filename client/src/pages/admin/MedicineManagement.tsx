@@ -96,7 +96,6 @@ export default function MedicineManagement() {
 
   // Get medicines
   const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: ["/api/medicines", searchQuery],
     queryKey: searchQuery ? ["/api/medicines", { search: searchQuery }] : ["/api/medicines"],
   });
 

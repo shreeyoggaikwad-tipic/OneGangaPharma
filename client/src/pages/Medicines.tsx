@@ -36,7 +36,6 @@ export default function Medicines() {
 
   // Get medicines
   const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: ["/api/medicines", searchQuery],
     queryKey: searchQuery ? ["/api/medicines", { search: searchQuery }] : ["/api/medicines"],
   });
 
@@ -67,7 +66,7 @@ export default function Medicines() {
 
   // Filter and sort medicines
   const filteredMedicines = useMemo(() => {
-    let filtered = medicines;
+    let filtered = medicines as any[];
 
     // Filter by category
     if (selectedCategory !== "all") {
