@@ -503,7 +503,7 @@ export default function MedicineManagement() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories.map((category: any) => (
+                        {(categories as any[]).map((category: any) => (
                           <SelectItem key={category.id} value={category.id.toString()}>
                             {category.name}
                           </SelectItem>
