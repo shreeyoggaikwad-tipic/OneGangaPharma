@@ -68,6 +68,17 @@ export default function Medicines() {
   const filteredMedicines = useMemo(() => {
     let filtered = medicines as any[];
 
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((medicine: any) => 
+        medicine.name.toLowerCase().includes(query) ||
+        medicine.description?.toLowerCase().includes(query) ||
+        medicine.manufacturer?.toLowerCase().includes(query) ||
+        medicine.category?.name.toLowerCase().includes(query)
+      );
+    }
+
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter((medicine: any) => 
@@ -92,7 +103,7 @@ export default function Medicines() {
     });
 
     return filtered;
-  }, [medicines, selectedCategory, sortBy]);
+  }, [medicines, selectedCategory, sortBy, searchQuery]);
 
   const handleAddToCart = (medicineId: number) => {
     if (!isAuthenticated) {
