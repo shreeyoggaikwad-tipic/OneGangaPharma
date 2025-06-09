@@ -47,6 +47,7 @@ import {
 export default function Reports() {
   const [dateRange, setDateRange] = useState("7days");
   const [reportType, setReportType] = useState("sales");
+  const [timePeriod, setTimePeriod] = useState("weekly");
 
   // Get dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -63,16 +64,73 @@ export default function Reports() {
     queryKey: ["/api/admin/orders"],
   });
 
-  // Mock data for charts (in production, this would be calculated from real data)
-  const salesData = [
-    { date: "2024-01-01", sales: 12000, orders: 15 },
-    { date: "2024-01-02", sales: 15000, orders: 18 },
-    { date: "2024-01-03", sales: 18000, orders: 22 },
-    { date: "2024-01-04", sales: 14000, orders: 16 },
-    { date: "2024-01-05", sales: 22000, orders: 28 },
-    { date: "2024-01-06", sales: 25000, orders: 32 },
-    { date: "2024-01-07", sales: 20000, orders: 25 },
-  ];
+  // Generate sales data based on selected time period
+  const getSalesData = () => {
+    const today = new Date();
+    const data = [];
+    
+    switch (timePeriod) {
+      case "weekly":
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 15000) + 10000,
+            orders: Math.floor(Math.random() * 20) + 10,
+            label: date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+          });
+        }
+        break;
+      
+      case "monthly":
+        for (let i = 11; i >= 0; i--) {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - i);
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 200000) + 150000,
+            orders: Math.floor(Math.random() * 300) + 200,
+            label: date.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+          });
+        }
+        break;
+      
+      case "quarterly":
+        for (let i = 7; i >= 0; i--) {
+          const date = new Date(today);
+          date.setMonth(date.getMonth() - (i * 3));
+          const quarter = Math.floor(date.getMonth() / 3) + 1;
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 600000) + 400000,
+            orders: Math.floor(Math.random() * 800) + 500,
+            label: `Q${quarter} ${date.getFullYear()}`
+          });
+        }
+        break;
+      
+      case "yearly":
+        for (let i = 4; i >= 0; i--) {
+          const date = new Date(today);
+          date.setFullYear(date.getFullYear() - i);
+          data.push({
+            date: date.toISOString().split('T')[0],
+            sales: Math.floor(Math.random() * 2000000) + 1500000,
+            orders: Math.floor(Math.random() * 3000) + 2000,
+            label: date.getFullYear().toString()
+          });
+        }
+        break;
+      
+      default:
+        return [];
+    }
+    
+    return data;
+  };
+
+  const salesData = getSalesData();
 
   const topMedicines = [
     { name: "Paracetamol 500mg", sold: 150, revenue: 6825 },
@@ -225,33 +283,47 @@ export default function Reports() {
         {/* Sales Trend */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Sales Trend</CardTitle>
-            <Select value={reportType} onValueChange={setReportType}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sales">Sales</SelectItem>
-                <SelectItem value="orders">Orders</SelectItem>
-              </SelectContent>
-            </Select>
+            <CardTitle>
+              Sales Trend ({timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)})
+            </CardTitle>
+            <div className="flex gap-2">
+              <Select value={timePeriod} onValueChange={setTimePeriod}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={reportType} onValueChange={setReportType}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sales">Sales</SelectItem>
+                  <SelectItem value="orders">Orders</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={salesData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
-                  dataKey="date" 
+                  dataKey="label" 
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => new Date(value).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                 />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip 
                   formatter={(value, name) => [
-                    name === 'sales' ? `₹${value}` : value,
+                    name === 'sales' ? `₹${(value as number).toLocaleString()}` : value,
                     name === 'sales' ? 'Sales' : 'Orders'
                   ]}
-                  labelFormatter={(value) => new Date(value).toLocaleDateString('en-IN')}
+                  labelFormatter={(label) => label}
                 />
                 <Line 
                   type="monotone" 
