@@ -8,6 +8,7 @@ import {
   insertUserSchema, 
   insertAddressSchema, 
   insertMedicineSchema,
+  insertMedicineInventorySchema,
   insertCartItemSchema,
   insertOrderSchema,
   insertPrescriptionSchema,
@@ -305,6 +306,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get low stock error:", error);
       res.status(500).json({ message: "Failed to get low stock medicines" });
+    }
+  });
+
+  // Medicine inventory routes
+  app.post("/api/admin/inventory", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const inventoryData = insertMedicineInventorySchema.parse(req.body);
+      const inventory = await storage.createMedicineInventory(inventoryData);
+      res.json(inventory);
+    } catch (error) {
+      console.error("Create inventory error:", error);
+      res.status(500).json({ message: "Failed to create inventory" });
+    }
+  });
+
+  app.get("/api/admin/inventory/:medicineId", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const medicineId = parseInt(req.params.medicineId);
+      const inventory = await storage.getMedicineInventory(medicineId);
+      res.json(inventory);
+    } catch (error) {
+      console.error("Get inventory error:", error);
+      res.status(500).json({ message: "Failed to get inventory" });
+    }
+  });
+
+  app.put("/api/admin/inventory/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = insertMedicineInventorySchema.partial().parse(req.body);
+      const inventory = await storage.updateMedicineInventory(id, updateData);
+      res.json(inventory);
+    } catch (error) {
+      console.error("Update inventory error:", error);
+      res.status(500).json({ message: "Failed to update inventory" });
     }
   });
 
