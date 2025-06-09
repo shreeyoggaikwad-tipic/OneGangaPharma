@@ -107,9 +107,30 @@ export default function Medicines() {
   };
 
   const getStockStatus = (stock: number) => {
-    if (stock === 0) return { label: "Out of Stock", variant: "destructive" as const };
-    if (stock < 20) return { label: "Low Stock", variant: "secondary" as const };
-    return { label: "In Stock", variant: "default" as const };
+    if (stock === 0) return { 
+      label: "Out of Stock", 
+      variant: "destructive" as const,
+      color: "text-red-600",
+      bgColor: "bg-red-50"
+    };
+    if (stock <= 10) return { 
+      label: "Critical Low", 
+      variant: "outline" as const,
+      color: "text-orange-600", 
+      bgColor: "bg-orange-50"
+    };
+    if (stock <= 20) return { 
+      label: "Low Stock", 
+      variant: "secondary" as const,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50"
+    };
+    return { 
+      label: "In Stock", 
+      variant: "default" as const,
+      color: "text-green-600",
+      bgColor: "bg-green-50"
+    };
   };
 
   return (

@@ -251,9 +251,34 @@ export default function MedicineManagement() {
   };
 
   const getStockStatus = (stock: number) => {
-    if (stock === 0) return { label: "Out of Stock", variant: "destructive" as const, color: "text-red-600" };
-    if (stock < 20) return { label: "Low Stock", variant: "secondary" as const, color: "text-orange-600" };
-    return { label: "In Stock", variant: "default" as const, color: "text-green-600" };
+    if (stock === 0) return { 
+      label: "Out of Stock", 
+      variant: "destructive" as const, 
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-200"
+    };
+    if (stock <= 10) return { 
+      label: "Critical Low", 
+      variant: "outline" as const, 
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200"
+    };
+    if (stock <= 20) return { 
+      label: "Low Stock", 
+      variant: "secondary" as const, 
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200"
+    };
+    return { 
+      label: "Well Stocked", 
+      variant: "default" as const, 
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200"
+    };
   };
 
   return (

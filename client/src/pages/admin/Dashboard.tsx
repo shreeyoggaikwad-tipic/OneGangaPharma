@@ -407,34 +407,93 @@ export default function Dashboard() {
 
         {/* Alerts & Notifications */}
         <div className="space-y-6">
-          {/* Low Stock Alert */}
-          <Card className="border-orange-200 bg-orange-50">
+          {/* Smart Stock Status */}
+          <Card className={`${lowStockMedicines.length === 0 
+            ? 'border-green-200 bg-green-50' 
+            : lowStockMedicines.some((m: any) => m.totalStock === 0)
+              ? 'border-red-200 bg-red-50'
+              : 'border-orange-200 bg-orange-50'
+          }`}>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-orange-800">
-                <AlertTriangle className="h-5 w-5" />
-                Stock Alerts
+              <CardTitle className={`flex items-center gap-2 ${
+                lowStockMedicines.length === 0 
+                  ? 'text-green-800' 
+                  : lowStockMedicines.some((m: any) => m.totalStock === 0)
+                    ? 'text-red-800'
+                    : 'text-orange-800'
+              }`}>
+                {lowStockMedicines.length === 0 ? (
+                  <CheckCircle className="h-5 w-5" />
+                ) : lowStockMedicines.some((m: any) => m.totalStock === 0) ? (
+                  <XCircle className="h-5 w-5" />
+                ) : (
+                  <AlertTriangle className="h-5 w-5" />
+                )}
+                Stock Status
               </CardTitle>
             </CardHeader>
             <CardContent>
               {lowStockMedicines.length === 0 ? (
-                <p className="text-orange-700 text-sm">All medicines are well stocked</p>
-              ) : (
                 <div className="space-y-2">
-                  {lowStockMedicines.slice(0, 3).map((medicine: any) => (
-                    <div key={medicine.id} className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-orange-800">{medicine.name}</p>
-                      <Badge variant="outline" className="text-orange-700 border-orange-300">
-                        {medicine.totalStock} left
-                      </Badge>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <p className="text-green-700 text-sm font-medium">All medicines are well stocked</p>
+                  </div>
+                  <p className="text-green-600 text-xs">Inventory levels are healthy across all products</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Critical (Out of Stock) */}
+                  {lowStockMedicines.filter((m: any) => m.totalStock === 0).length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <p className="text-red-800 text-xs font-semibold uppercase tracking-wide">Critical - Out of Stock</p>
+                      </div>
+                      {lowStockMedicines.filter((m: any) => m.totalStock === 0).slice(0, 2).map((medicine: any) => (
+                        <div key={medicine.id} className="flex items-center justify-between bg-red-100 rounded-lg p-2 border border-red-200">
+                          <p className="text-sm font-medium text-red-900">{medicine.name}</p>
+                          <Badge variant="destructive" className="text-xs">
+                            Out of Stock
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                  {lowStockMedicines.length > 3 && (
-                    <Link href="/admin/medicines">
-                      <Button variant="outline" size="sm" className="w-full mt-2">
-                        View All ({lowStockMedicines.length})
-                      </Button>
-                    </Link>
                   )}
+
+                  {/* Low Stock Warning */}
+                  {lowStockMedicines.filter((m: any) => m.totalStock > 0 && m.totalStock <= 10).length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <p className="text-orange-800 text-xs font-semibold uppercase tracking-wide">Low Stock Warning</p>
+                      </div>
+                      {lowStockMedicines.filter((m: any) => m.totalStock > 0 && m.totalStock <= 10).slice(0, 2).map((medicine: any) => (
+                        <div key={medicine.id} className="flex items-center justify-between bg-orange-100 rounded-lg p-2 border border-orange-200">
+                          <p className="text-sm font-medium text-orange-900">{medicine.name}</p>
+                          <Badge variant="outline" className="text-orange-700 border-orange-400 bg-orange-50">
+                            {medicine.totalStock} left
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <Link href="/admin/medicines">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={`w-full mt-2 ${
+                        lowStockMedicines.some((m: any) => m.totalStock === 0)
+                          ? 'border-red-300 text-red-700 hover:bg-red-50'
+                          : 'border-orange-300 text-orange-700 hover:bg-orange-50'
+                      }`}
+                    >
+                      Manage Inventory ({lowStockMedicines.length})
+                      <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </Link>
                 </div>
               )}
             </CardContent>
