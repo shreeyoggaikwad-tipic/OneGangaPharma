@@ -199,7 +199,7 @@ export default function MedicineManagement() {
   });
 
   // Filter medicines
-  const filteredMedicines = medicines.filter((medicine: any) => {
+  const filteredMedicines = (medicines as any[]).filter((medicine: any) => {
     if (selectedCategory !== "all" && medicine.category?.name !== selectedCategory) {
       return false;
     }
@@ -294,7 +294,7 @@ export default function MedicineManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category: any) => (
+                {(categories as any[]).map((category: any) => (
                   <SelectItem key={category.id} value={category.name}>
                     {category.name}
                   </SelectItem>

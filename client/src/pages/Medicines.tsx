@@ -144,7 +144,7 @@ export default function Medicines() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category: any) => (
+                {(categories as any[]).map((category: any) => (
                   <SelectItem key={category.id} value={category.name}>
                     {category.name}
                   </SelectItem>
@@ -171,7 +171,7 @@ export default function Medicines() {
       {/* Results Count */}
       <div className="mb-4">
         <p className="text-muted-foreground">
-          {filteredMedicines.length} medicine(s) found
+          {(filteredMedicines as any[]).length} medicine(s) found
         </p>
       </div>
 
@@ -189,7 +189,7 @@ export default function Medicines() {
             </Card>
           ))}
         </div>
-      ) : filteredMedicines.length === 0 ? (
+      ) : (filteredMedicines as any[]).length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -201,7 +201,7 @@ export default function Medicines() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredMedicines.map((medicine: any) => {
+          {(filteredMedicines as any[]).map((medicine: any) => {
             const stockStatus = getStockStatus(medicine.totalStock);
             return (
               <Card key={medicine.id} className="medicine-card hover:shadow-md transition-all">
