@@ -214,7 +214,7 @@ export default function PrescriptionReview() {
                           <div>
                             <div className="font-medium">{prescription.fileName}</div>
                             <div className="text-sm text-muted-foreground">
-                              {(prescription.fileSize / 1024 / 1024).toFixed(2)} MB
+                              {prescription.fileSize ? (prescription.fileSize / 1024 / 1024).toFixed(2) + ' MB' : 'Size unknown'}
                             </div>
                           </div>
                         </div>
@@ -305,6 +305,58 @@ export default function PrescriptionReview() {
                                           <p className="mt-1 p-2 bg-muted rounded">{selectedPrescription.reviewNotes}</p>
                                         </div>
                                       )}
+                                    </CardContent>
+                                  </Card>
+
+                                  {/* Prescription Image */}
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-sm flex items-center gap-2">
+                                        <Eye className="h-4 w-4" />
+                                        Prescription Image
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <div className="border rounded-lg p-4 bg-gray-50">
+                                          <img
+                                            src={`/uploads/${selectedPrescription.fileName}`}
+                                            alt="Prescription"
+                                            className="w-full max-w-lg mx-auto rounded-lg shadow-sm"
+                                            onError={(e) => {
+                                              e.currentTarget.style.display = 'none';
+                                              e.currentTarget.nextElementSibling.style.display = 'block';
+                                            }}
+                                          />
+                                          <div className="text-center py-8 text-muted-foreground" style={{display: 'none'}}>
+                                            <FileText className="h-12 w-12 mx-auto mb-2" />
+                                            <p>Image not available</p>
+                                          </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <Button variant="outline" size="sm" asChild>
+                                            <a 
+                                              href={`/uploads/${selectedPrescription.fileName}`} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="flex items-center gap-2"
+                                            >
+                                              <Eye className="h-4 w-4" />
+                                              View Full Size
+                                            </a>
+                                          </Button>
+                                          <Button variant="outline" size="sm" asChild>
+                                            <a 
+                                              href={`/uploads/${selectedPrescription.fileName}`} 
+                                              download={selectedPrescription.fileName}
+                                              className="flex items-center gap-2"
+                                            >
+                                              <Download className="h-4 w-4" />
+                                              Download
+                                            </a>
+                                          </Button>
+                                        </div>
+                                      </div>
                                     </CardContent>
                                   </Card>
 

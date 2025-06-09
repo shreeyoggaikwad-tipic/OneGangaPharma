@@ -401,14 +401,16 @@ export default function Checkout() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4">
+                  <div className="text-center py-4 space-y-4">
                     <p className="text-muted-foreground mb-4">
-                      No approved prescriptions found. Please upload a prescription first.
+                      No approved prescriptions found. You can upload a prescription after placing the order.
                     </p>
-                    <Button variant="outline" onClick={() => setLocation("/prescriptions")}>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Prescription
-                    </Button>
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Note:</strong> You can place this order now and upload your prescription afterward. 
+                        The order will be processed once your prescription is reviewed and approved by our pharmacist.
+                      </p>
+                    </div>
                   </div>
                 )}
               </CardContent>
