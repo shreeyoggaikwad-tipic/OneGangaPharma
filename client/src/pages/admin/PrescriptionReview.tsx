@@ -325,7 +325,10 @@ export default function PrescriptionReview() {
                                             className="w-full max-w-lg mx-auto rounded-lg shadow-sm"
                                             onError={(e) => {
                                               e.currentTarget.style.display = 'none';
-                                              e.currentTarget.nextElementSibling.style.display = 'block';
+                                              const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                              if (nextElement) {
+                                                nextElement.style.display = 'block';
+                                              }
                                             }}
                                           />
                                           <div className="text-center py-8 text-muted-foreground" style={{display: 'none'}}>

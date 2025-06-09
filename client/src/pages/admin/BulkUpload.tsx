@@ -319,11 +319,7 @@ export default function BulkUpload() {
   };
 
   const downloadTemplate = () => {
-    const template = [
-      'name,description,price,dosage,category,manufacturer,stock,batch,expiryDate,requiresPrescription',
-      'Paracetamol 500mg,Pain relief and fever reducer,45.50,500mg,Schedule H,Cipla Ltd,100,BATCH001,2025-12-31,true',
-      'Vitamin D3 Tablets,Essential vitamin supplement,125.00,60000 IU,General,Sun Pharma,50,BATCH002,2025-06-30,false'
-    ].join('\n');
+    const template = 'name,description,price,dosage,category,manufacturer,stock,batch,expiryDate,requiresPrescription';
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);

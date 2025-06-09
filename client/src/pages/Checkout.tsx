@@ -72,17 +72,17 @@ export default function Checkout() {
   const [addressType, setAddressType] = useState<"billing" | "shipping">("billing");
 
   // Get cart items
-  const { data: cartItems = [] } = useQuery({
+  const { data: cartItems = [] } = useQuery<any[]>({
     queryKey: ["/api/cart"],
   });
 
   // Get addresses
-  const { data: addresses = [] } = useQuery({
+  const { data: addresses = [] } = useQuery<any[]>({
     queryKey: ["/api/addresses"],
   });
 
   // Get prescriptions
-  const { data: prescriptions = [] } = useQuery({
+  const { data: prescriptions = [] } = useQuery<any[]>({
     queryKey: ["/api/prescriptions"],
   });
 
@@ -300,7 +300,7 @@ export default function Checkout() {
                 <Checkbox
                   id="sameAsBilling"
                   checked={sameAsBilling}
-                  onCheckedChange={setSameAsBilling}
+                  onCheckedChange={(checked) => setSameAsBilling(checked === true)}
                 />
                 <Label htmlFor="sameAsBilling">Same as billing address</Label>
               </div>
