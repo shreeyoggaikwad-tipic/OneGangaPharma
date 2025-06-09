@@ -124,7 +124,7 @@ export default function Layout({ children }: LayoutProps) {
             <Link href="/login">
               <Button
                 variant="default"
-                className="w-full justify-start"
+                className="w-full justify-start text-white bg-primary hover:bg-primary/90"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t('auth.login')}
@@ -242,7 +242,7 @@ export default function Layout({ children }: LayoutProps) {
                 </>
               ) : (
                 <Link href="/login">
-                  <Button>{t('auth.login')}</Button>
+                  <Button className="text-white bg-primary hover:bg-primary/90">{t('auth.login')}</Button>
                 </Link>
               )}
             </div>
@@ -286,35 +286,35 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
                 <span className="text-xl font-bold">{t('app.title')}</span>
               </div>
-              <p className="text-gray-300 text-sm">{t('app.description')}</p>
+              <p className="text-gray-100 text-sm">{t('app.description')}</p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-gray-300">
-                <li><Link href="/medicines" className="hover:text-white">Medicines</Link></li>
-                <li><Link href="/prescriptions" className="hover:text-white">Upload Prescription</Link></li>
-                <li><Link href="/orders" className="hover:text-white">Track Order</Link></li>
+              <h3 className="font-semibold mb-4 text-white">Quick Links</h3>
+              <ul className="space-y-2 text-gray-100">
+                <li><Link href="/medicines" className="hover:text-white transition-colors">Medicines</Link></li>
+                <li><Link href="/prescriptions" className="hover:text-white transition-colors">Upload Prescription</Link></li>
+                <li><Link href="/orders" className="hover:text-white transition-colors">Track Order</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-300">
-                <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+              <h3 className="font-semibold mb-4 text-white">Support</h3>
+              <ul className="space-y-2 text-gray-100">
+                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Contact Info</h3>
-              <div className="space-y-2 text-gray-300 text-sm">
+              <h3 className="font-semibold mb-4 text-white">Contact Info</h3>
+              <div className="space-y-2 text-gray-100 text-sm">
                 <p>📞 +91 9876543210</p>
                 <p>✉️ support@shardamed.com</p>
                 <p>📍 Mumbai, Maharashtra</p>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300 text-sm">
+          <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-100 text-sm">
             <p>&copy; 2024 {t('app.title')}. All rights reserved. Licensed pharmacy.</p>
           </div>
         </div>
