@@ -121,7 +121,7 @@ export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
-  status: varchar("status", { length: 20 }).notNull().default("placed"), // placed, confirmed, out_for_delivery, delivered, cancelled
+  status: varchar("status", { length: 50 }).notNull().default("placed"), // placed, confirmed, pending_prescription_review, out_for_delivery, delivered, cancelled
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   paymentMethod: varchar("payment_method", { length: 20 }).notNull().default("cod"),
   prescriptionId: integer("prescription_id"),
