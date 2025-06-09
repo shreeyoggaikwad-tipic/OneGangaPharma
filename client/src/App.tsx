@@ -23,6 +23,8 @@ import AdminOrders from "@/pages/admin/Orders";
 import PrescriptionReview from "@/pages/admin/PrescriptionReview";
 import Reports from "@/pages/admin/Reports";
 import BulkUpload from "@/pages/admin/BulkUpload";
+import Notifications from "@/pages/Notifications";
+import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -68,6 +70,11 @@ function Router() {
         <Route path="/prescriptions">
           <ProtectedRoute>
             <Prescriptions />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/notifications">
+          <ProtectedRoute>
+            <Notifications />
           </ProtectedRoute>
         </Route>
         
