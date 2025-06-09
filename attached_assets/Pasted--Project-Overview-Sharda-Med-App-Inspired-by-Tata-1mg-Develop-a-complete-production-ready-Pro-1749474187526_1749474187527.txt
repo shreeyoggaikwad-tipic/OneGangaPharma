@@ -1,0 +1,320 @@
+🧪 Project Overview: Sharda Med App (Inspired by Tata 1mg)
+Develop a complete, production-ready Progressive Web App (PWA) for a single medical shop. This app must cover the frontend (React), backend, and database, with full authentication, admin dashboard, medicine management, and customer-facing features. The app must be fully functional — nothing should be left for future.
+
+✅ Critical Requirements
+React frontend with PWA capabilities (offline support, installable)
+
+Backend + database integration (Node/Express or preferred stack)
+
+Mobile-first, fully responsive design for all screen resolutions
+
+Role-based access for Admin and Customer
+
+Dummy data seeded for all modules
+
+Test logins:
+
+Admin: admin@test.com / admin123
+
+Customer: customer@test.com / password123
+
+🧩 Core Modules (Fully Functional)
+1. Authentication (Role-Based)
+Secure login (JWT or session)
+
+Roles: Admin & Customer
+
+Session persistence and protected routes
+
+2. Customer Profile
+Fields:
+
+Full name
+
+Email (readonly)
+
+Phone number
+
+Gender
+
+Date of birth
+
+Manage:
+
+Edit profile
+
+View saved addresses
+
+View prescription history
+
+3. Address Book (Billing & Shipping Support)
+Manage multiple addresses
+
+Each address includes:
+
+Full name
+
+Phone number
+
+Address line 1 & 2
+
+City, State, Postal Code
+
+Mark address as Billing or Shipping
+
+“Same as Billing Address” toggle available during checkout
+
+4. Medicine Catalog
+Browse and search for medicines
+
+Filter by:
+
+Name
+
+Category (e.g., General, Schedule H)
+
+Availability
+
+Each item includes:
+
+Name
+
+Description
+
+Dosage
+
+Price
+
+Category
+
+Requires prescription (Schedule H flag)
+
+Available stock (based on batch)
+
+Users can freely add any medicine to cart — no restriction during browsing
+
+5. Medicine Inventory (Admin)
+Admin dashboard includes full medicine + batch tracking
+
+Each medicine includes:
+
+Name
+
+Description
+
+Dosage
+
+Price
+
+Category (Schedule H / General)
+
+Requires prescription (boolean)
+
+Batch-level tracking:
+
+Batch number
+
+Expiry date
+
+Quantity (stock)
+
+6. Bulk Add Medicines (Admin)
+CSV upload support for adding medicines + inventory in bulk
+
+Format:
+
+pgsql
+Copy
+Edit
+name,description,price,dosage,category,stock,batch,expiryDate,requiresPrescription
+UI preview, error validation, and post-import logs
+
+7. Cart & Checkout
+Users can freely add any medicine (including Schedule H) to cart
+
+At checkout, system will:
+
+Scan cart for Schedule H medicines
+
+If found: enforce prescription upload requirement
+
+Address selection:
+
+Use saved or new address
+
+Toggle for "Same as Billing Address"
+
+Prescription upload options:
+
+Upload new file
+
+Select from previous uploads
+
+Payment: Cash on Delivery (COD) only
+
+8. Prescription Upload & History
+Upload prescription:
+
+During checkout (required if Schedule H found)
+
+From profile (for future use)
+
+View history with:
+
+Status (Pending, Approved, Rejected)
+
+Date
+
+Linked order (if used)
+
+Admin:
+
+View uploaded files
+
+Approve or reject
+
+See linked order details
+
+9. Order Management
+Customer:
+
+View all past orders
+
+Repeat previous orders
+
+Track delivery status
+
+Admin:
+
+View, edit, update orders
+
+See customer details and prescription
+
+Update status
+
+10. Delivery Tracker
+Status flow:
+
+mathematica
+Copy
+Edit
+Placed → Confirmed → Out for Delivery → Delivered
+Shown to customers visually on each order
+
+11. Admin Dashboard
+Features:
+
+Manage medicines and inventory
+
+Approve prescriptions
+
+View and manage all orders
+
+Inventory low stock alerts
+
+Bulk upload medicines
+
+Dashboard widgets:
+
+Total sales
+
+Low stock medicines
+
+Most ordered medicines
+
+12. Reports & Analytics
+Graphs and tables for:
+
+Daily/Weekly/Monthly sales
+
+Top-selling medicines
+
+Stock alerts (low inventory)
+
+CSV export option for admins
+
+13. Notifications (In-App)
+Customer:
+
+Order updates: Placed, Confirmed, Delivered
+
+Admin:
+
+Prescription upload alerts
+
+Low stock alerts
+
+14. Multilingual Support
+App language toggle:
+
+English, Hindi, Marathi (e.g.)
+
+i18n with JSON/localized files
+
+Translate:
+
+Login, cart, dashboard, checkout, headers
+
+🔐 Role-Based Access Control (RBAC)
+👤 Customer
+Feature	Access
+Login/Register	✅
+Edit profile	✅
+Add/Edit/Delete addresses	✅
+Browse and search medicines	✅
+Add any medicines to cart	✅
+Upload prescription (checkout or profile)	✅
+Checkout with shipping & billing address	✅
+View and track orders	✅
+View prescription history	✅
+Receive notifications	✅
+
+🛠️ Admin
+Feature	Access
+Full dashboard access	✅
+Manage medicines & batches	✅
+Bulk add via CSV	✅
+View and approve prescriptions	✅
+View all orders & customers	✅
+Update delivery status	✅
+View analytics & sales	✅
+Receive low stock alerts	✅
+
+🧪 Testing & Dummy Data
+Seeded data:
+
+Dummy customers
+
+Medicines with Schedule H category
+
+Inventory batches
+
+Orders with and without prescriptions
+
+Test credentials:
+
+Customer: customer@test.com / password123
+
+Admin: admin@test.com / admin123
+
+🎨 Design & PWA Guidelines
+Fully responsive for all screen sizes
+
+Mobile-first layout
+
+Installable (via PWA manifest)
+
+Offline support (via service workers)
+
+Optimized performance and caching
+
+Minimal, professional, and intuitive design
+
+🚫 Excluded Features
+No online payments
+
+No doctor consultations
+
+No lab diagnostics or health check modules
+
+No “coming soon” screens or unimplemented routes
