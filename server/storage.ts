@@ -470,8 +470,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-    // Generate order number
-    const orderNumber = `SMD${Date.now()}`;
+    // Generate shorter order number (SMD + 8 digits)
+    const timestamp = Date.now().toString();
+    const orderNumber = `SMD${timestamp.slice(-8)}`;
     
     const [newOrder] = await db
       .insert(orders)
