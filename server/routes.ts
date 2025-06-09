@@ -546,7 +546,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const prescription = await storage.updatePrescriptionStatus(id, status, req.user.id, notes);
       
-      // Create notification for customer
+      // If prescription is approved, automatically approve any pending orders using this prescription
+      if (status === "approved") {
+        // Find orders that are pending prescription review with this prescription
+        const allOrders = await storage.getAllOrders();
+        const pendingOrders = allOrders.filter(order => 
+          order.prescriptionId === prescription.id && 
+          order.status === "pending_prescription_review"
+        );
+        
+        // Approve all pending orders with this prescription
+        for (const order of pendingOrders) {
+          await storage.updateOrderStatus(order.id, "confirmed");
+          
+          // Notify customer that their order is now confirmed
+          await storage.createNotification({
+            userId: order.userId,
+            type: "order_update",
+            title: "Order Confirmed",
+            message: `Your order #${order.orderNumber} has been confirmed and will be processed shortly.`,
+          });
+        }
+      }
+      
+      // Create notification for customer about prescription status
       await storage.createNotification({
         userId: prescription.userId,
         type: "prescription_status",
