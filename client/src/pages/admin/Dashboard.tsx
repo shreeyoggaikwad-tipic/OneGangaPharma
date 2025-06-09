@@ -38,7 +38,7 @@ import {
   CheckCircle,
   XCircle,
   Truck,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Bell,
   Settings,
@@ -227,7 +227,7 @@ export default function Dashboard() {
                     <span className="text-sm">+12% from yesterday</span>
                   </div>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-200" />
+                <IndianRupee className="h-8 w-8 text-green-200" />
               </div>
             </CardContent>
           </Card>

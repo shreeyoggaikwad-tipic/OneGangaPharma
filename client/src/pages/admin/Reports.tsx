@@ -41,7 +41,7 @@ import {
   Calendar,
   Download,
   FileText,
-  DollarSign,
+  IndianRupee,
 } from "lucide-react";
 
 export default function Reports() {
@@ -158,7 +158,7 @@ export default function Reports() {
                       +12% from last period
                     </p>
                   </div>
-                  <DollarSign className="h-8 w-8 text-blue-600" />
+                  <IndianRupee className="h-8 w-8 text-blue-600" />
                 </div>
               </CardContent>
             </Card>
