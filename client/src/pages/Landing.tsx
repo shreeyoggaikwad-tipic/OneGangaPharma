@@ -98,8 +98,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <History className="h-6 w-6 text-purple-600" />
                   </div>
-                  <h3 className="font-semibold mb-2">Order History</h3>
-                  <p className="text-sm text-muted-foreground">View past orders</p>
+                  <h3 className="font-semibold mb-2">{t('order.orderHistory')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('order.recentOrders')}</p>
                 </CardContent>
               </Card>
             </Link>
