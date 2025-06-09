@@ -603,6 +603,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/notifications/:id", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      await db.delete(notifications).where(eq(notifications.id, id));
+      res.json({ message: "Notification deleted successfully" });
+    } catch (error) {
+      console.error("Delete notification error:", error);
+      res.status(500).json({ message: "Failed to delete notification" });
+    }
+  });
+
   // Dashboard stats
   app.get("/api/admin/dashboard-stats", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {

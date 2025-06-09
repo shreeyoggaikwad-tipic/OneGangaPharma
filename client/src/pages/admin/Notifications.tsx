@@ -456,17 +456,47 @@ export default function AdminNotifications() {
                           <span className="capitalize">{notification.type.replace('_', ' ')}</span>
                         </div>
                       </div>
-                      {!notification.isRead && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => markAsReadMutation.mutate(notification.id)}
-                          disabled={markAsReadMutation.isPending}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {!notification.isRead && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => markAsReadMutation.mutate(notification.id)}
+                            disabled={markAsReadMutation.isPending}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Notification</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this notification? This action cannot be undone and will permanently remove the notification from the system.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete Notification
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </div>
                 </div>
