@@ -73,7 +73,7 @@ export default function BulkUpload() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Get categories for validation
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [] } = useQuery<any[]>({
     queryKey: ["/api/medicine-categories"],
   });
 

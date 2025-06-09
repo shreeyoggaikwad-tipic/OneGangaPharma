@@ -52,7 +52,7 @@ export default function PrescriptionReview() {
   const [reviewNotes, setReviewNotes] = useState("");
 
   // Get pending prescriptions
-  const { data: prescriptions = [], isLoading } = useQuery({
+  const { data: prescriptions = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/prescriptions"],
   });
 
