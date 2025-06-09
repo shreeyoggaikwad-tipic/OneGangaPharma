@@ -43,7 +43,7 @@ export default function AdminNotifications() {
 
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
-      await apiRequest(`/api/notifications/${notificationId}/read`, "PUT");
+      await apiRequest("PUT", `/api/notifications/${notificationId}/read`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
@@ -66,7 +66,7 @@ export default function AdminNotifications() {
       const unreadNotifications = notifications.filter(n => !n.isRead);
       await Promise.all(
         unreadNotifications.map(n => 
-          apiRequest(`/api/notifications/${n.id}/read`, "PUT")
+          apiRequest("PUT", `/api/notifications/${n.id}/read`)
         )
       );
     },
