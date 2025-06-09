@@ -37,6 +37,16 @@
   --chart-3: hsl(200, 80%, 50%);
   --chart-4: hsl(45, 85%, 55%);
   --chart-5: hsl(280, 65%, 60%);
+  
+  /* Sidebar colors */
+  --sidebar-background: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(200, 15%, 18%);
+  --sidebar-primary: hsl(184, 90%, 24%);
+  --sidebar-primary-foreground: hsl(180, 100%, 99%);
+  --sidebar-accent: hsl(180, 10%, 96%);
+  --sidebar-accent-foreground: hsl(200, 15%, 18%);
+  --sidebar-border: hsl(180, 10%, 90%);
+  --sidebar-ring: hsl(184, 90%, 24%);
 }
 
 .dark {
@@ -66,6 +76,16 @@
   --medical-light: hsl(200, 20%, 6%);
   --medical-surface: hsl(200, 15%, 10%);
   --medical-text: hsl(0, 0%, 98%);
+  
+  /* Sidebar colors for dark mode */
+  --sidebar-background: hsl(200, 20%, 6%);
+  --sidebar-foreground: hsl(0, 0%, 98%);
+  --sidebar-primary: hsl(184, 90%, 24%);
+  --sidebar-primary-foreground: hsl(180, 100%, 99%);
+  --sidebar-accent: hsl(200, 15%, 12%);
+  --sidebar-accent-foreground: hsl(0, 0%, 98%);
+  --sidebar-border: hsl(200, 15%, 12%);
+  --sidebar-ring: hsl(184, 90%, 24%);
 }
 
 @layer base {
@@ -159,7 +179,8 @@
   }
   
   .mobile-cart-button {
-    @apply fixed bottom-4 right-4 bg-medical-teal text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30;
+    @apply fixed bottom-4 right-4 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-30;
+    background-color: var(--medical-teal);
   }
 }
 
