@@ -6,6 +6,7 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -83,6 +84,10 @@ export default function Profile() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
   
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState<any>(null);
@@ -133,6 +138,7 @@ export default function Profile() {
         description: "Your profile has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
@@ -161,6 +167,7 @@ export default function Profile() {
       setShowAddressDialog(false);
       setEditingAddress(null);
       addressForm.reset();
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
@@ -180,6 +187,7 @@ export default function Profile() {
         description: "Address has been deleted successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/addresses"] });
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({

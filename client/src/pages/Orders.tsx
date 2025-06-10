@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,10 @@ import {
 
 export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
 
   // Get orders
   const { data: orders = [], isLoading } = useQuery({
