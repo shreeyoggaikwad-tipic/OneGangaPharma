@@ -172,7 +172,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
+    <div className="w-full max-w-full overflow-x-hidden px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -428,20 +428,20 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Orders & Alerts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="w-full max-w-full grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {/* Recent Orders */}
-        <div className="lg:col-span-2">
-          <Card>
+        <div className="lg:col-span-2 w-full min-w-0">
+          <Card className="w-full">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-blue-600" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   Recent Orders
                 </CardTitle>
                 <Link href="/admin/orders">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     View All
-                    <ArrowRight className="h-4 w-4 ml-1" />
+                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
                   </Button>
                 </Link>
               </div>
@@ -466,35 +466,35 @@ export default function Dashboard() {
                     const isExpanded = expandedOrder === order.id;
                     
                     return (
-                      <div key={order.id} className="border rounded-lg hover:shadow-md transition-all duration-200">
+                      <div key={order.id} className="w-full border rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden">
                         {/* Main Order Row */}
-                        <div className="flex items-center justify-between p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                              <Package className="h-4 w-4 text-blue-600" />
+                        <div className="flex items-center justify-between p-3 sm:p-4 gap-2">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                            <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                             </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium text-sm">{order.orderNumber}</p>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                <p className="font-medium text-xs sm:text-sm truncate">{order.orderNumber}</p>
                                 {hasScheduleH && (
-                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200 hidden sm:flex">
                                     <FileText className="h-3 w-3 mr-1" />
                                     Schedule H
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500 truncate">
                                 {order.user?.firstName} {order.user?.lastName}
                               </p>
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                             <div className="text-right">
-                              <p className="font-medium text-sm">₹{parseFloat(order.totalAmount).toLocaleString()}</p>
-                              <Badge className={`${getStatusColor(order.status)} text-xs flex items-center gap-1`}>
+                              <p className="font-medium text-xs sm:text-sm">₹{parseFloat(order.totalAmount).toLocaleString()}</p>
+                              <Badge className={`${getStatusColor(order.status)} text-xs flex items-center gap-1 justify-center`}>
                                 {getStatusIcon(order.status)}
-                                {order.status.replace('_', ' ')}
+                                <span className="hidden sm:inline">{order.status.replace('_', ' ')}</span>
                               </Badge>
                             </div>
                             
@@ -503,12 +503,12 @@ export default function Dashboard() {
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleOrderExpansion(order.id)}
-                              className="p-1 h-8 w-8"
+                              className="p-1 h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0"
                             >
                               {isExpanded ? (
-                                <ChevronUp className="h-4 w-4" />
+                                <ChevronUp className="h-3 w-3 sm:h-4 sm:w-4" />
                               ) : (
-                                <ChevronDown className="h-4 w-4" />
+                                <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
                               )}
                             </Button>
                           </div>
@@ -634,16 +634,16 @@ export default function Dashboard() {
         </div>
 
         {/* Alerts & Notifications */}
-        <div className="space-y-6">
+        <div className="w-full min-w-0 space-y-4 sm:space-y-6">
           {/* Smart Stock Status */}
-          <Card className={`${lowStockMedicines.length === 0 
+          <Card className={`w-full ${lowStockMedicines.length === 0 
             ? 'border-green-200 bg-green-50' 
             : lowStockMedicines.some((m: any) => m.totalStock === 0)
               ? 'border-red-200 bg-red-50'
               : 'border-orange-200 bg-orange-50'
           }`}>
             <CardHeader className="pb-3">
-              <CardTitle className={`flex items-center gap-2 ${
+              <CardTitle className={`flex items-center gap-2 text-sm sm:text-base ${
                 lowStockMedicines.length === 0 
                   ? 'text-green-800' 
                   : lowStockMedicines.some((m: any) => m.totalStock === 0)
@@ -651,11 +651,11 @@ export default function Dashboard() {
                     : 'text-orange-800'
               }`}>
                 {lowStockMedicines.length === 0 ? (
-                  <CheckCircle className="h-5 w-5" />
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 ) : lowStockMedicines.some((m: any) => m.totalStock === 0) ? (
-                  <XCircle className="h-5 w-5" />
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 ) : (
-                  <AlertTriangle className="h-5 w-5" />
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
                 )}
                 Stock Status
               </CardTitle>
