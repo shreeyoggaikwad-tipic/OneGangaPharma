@@ -163,6 +163,11 @@ export default function Checkout() {
       const order = response.json ? response.json() : response;
       const hasScheduleH = hasScheduleHMedicines;
       
+      // Invalidate cart and orders cache to refresh data immediately
+      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      
       if (hasScheduleH) {
         toast({
           title: "Order Placed - Pending Review",
@@ -174,7 +179,11 @@ export default function Checkout() {
           description: "Your order has been confirmed and will be processed shortly!",
         });
       }
-      setLocation(`/orders`);
+      
+      // Add small delay to ensure cache invalidation completes before navigation
+      setTimeout(() => {
+        setLocation(`/orders`);
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
