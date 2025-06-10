@@ -280,12 +280,14 @@ export default function Prescriptions() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                      <div className="flex flex-col gap-2 mb-2">
                         <h3 className="font-semibold text-sm sm:text-base truncate">{prescription.fileName}</h3>
-                        <Badge className={`${getStatusColor(prescription.status)} flex-shrink-0`}>
-                          {getStatusIcon(prescription.status)}
-                          <span className="ml-1 capitalize">{prescription.status}</span>
-                        </Badge>
+                        <div className="flex">
+                          <Badge className={`${getStatusColor(prescription.status)} inline-flex items-center w-fit`}>
+                            {getStatusIcon(prescription.status)}
+                            <span className="ml-1 capitalize">{prescription.status}</span>
+                          </Badge>
+                        </div>
                       </div>
                       
                       <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
