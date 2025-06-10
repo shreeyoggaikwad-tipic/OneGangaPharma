@@ -1642,17 +1642,31 @@ const getInitialLanguage = (): Language => {
 
 export function useTranslation() {
   const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Save language preference to localStorage whenever it changes
-    try {
-      localStorage.setItem('sharda-med-language', language);
-    } catch (error) {
-      console.warn('Failed to save language to localStorage:', error);
+    setMounted(true);
+    // Re-check localStorage on mount to ensure consistency
+    const savedLang = getInitialLanguage();
+    if (savedLang !== language) {
+      setLanguage(savedLang);
     }
-  }, [language]);
+  }, []);
 
   useEffect(() => {
+    if (mounted) {
+      // Save language preference to localStorage whenever it changes
+      try {
+        localStorage.setItem('sharda-med-language', language);
+      } catch (error) {
+        console.warn('Failed to save language to localStorage:', error);
+      }
+    }
+  }, [language, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     // Listen for storage changes from other tabs
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'sharda-med-language' && e.newValue) {
@@ -1665,9 +1679,10 @@ export function useTranslation() {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [mounted]);
 
   const t = (key: TranslationKey): string => {
+    if (!mounted) return key; // Return key if not mounted yet
     return translations[language]?.[key] || translations.en[key] || key;
   };
 
@@ -1681,5 +1696,6 @@ export function useTranslation() {
     t,
     language,
     changeLanguage,
+    isReady: mounted,
   };
 }
