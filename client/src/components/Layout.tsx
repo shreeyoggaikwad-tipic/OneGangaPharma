@@ -23,6 +23,8 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
@@ -82,6 +84,9 @@ export default function Layout({ children }: LayoutProps) {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-80">
+        <SheetHeader className="sr-only">
+          <SheetTitle>Navigation Menu</SheetTitle>
+        </SheetHeader>
         <div className="flex flex-col space-y-4 mt-8">
           {navigation.filter(item => item.show).map((item) => (
             <Link key={item.href} href={item.href}>
