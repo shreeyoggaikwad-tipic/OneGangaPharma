@@ -62,11 +62,16 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
+  // Admin users only see dashboard, customer users see regular navigation
+  const isAdmin = user?.role === "admin";
+  
   const navigation = [
-    { name: t('nav.medicines'), href: "/medicines", show: true },
-    { name: t('nav.orders'), href: "/orders", show: isAuthenticated },
-    { name: t('nav.prescriptions'), href: "/prescriptions", show: isAuthenticated },
-    { name: t('nav.dashboard'), href: "/admin/dashboard", show: user?.role === "admin" },
+    // Customer navigation (commented out for admin users)
+    { name: t('nav.medicines'), href: "/medicines", show: !isAdmin },
+    { name: t('nav.orders'), href: "/orders", show: isAuthenticated && !isAdmin },
+    { name: t('nav.prescriptions'), href: "/prescriptions", show: isAuthenticated && !isAdmin },
+    // Admin navigation
+    { name: t('nav.dashboard'), href: "/admin/dashboard", show: isAdmin },
   ];
 
   const MobileNavigation = () => (
@@ -92,27 +97,32 @@ export default function Layout({ children }: LayoutProps) {
           
           {isAuthenticated && (
             <>
-              <Link href="/profile">
-                <Button
-                  variant={location === "/profile" ? "default" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  {t('nav.profile')}
-                </Button>
-              </Link>
-              
-              <Link href="/cart">
-                <Button
-                  variant={location === "/cart" ? "default" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  {t('nav.cart')} {cartCount > 0 && `(${cartCount})`}
-                </Button>
-              </Link>
+              {/* Customer-specific navigation - hidden for admin users */}
+              {!isAdmin && (
+                <>
+                  <Link href="/profile">
+                    <Button
+                      variant={location === "/profile" ? "default" : "ghost"}
+                      className="w-full justify-start"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      {t('nav.profile')}
+                    </Button>
+                  </Link>
+                  
+                  <Link href="/cart">
+                    <Button
+                      variant={location === "/cart" ? "default" : "ghost"}
+                      className="w-full justify-start"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {t('nav.cart')} {cartCount > 0 && `(${cartCount})`}
+                    </Button>
+                  </Link>
+                </>
+              )}
               
               <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
                 {t('auth.logout')}
@@ -187,37 +197,42 @@ export default function Layout({ children }: LayoutProps) {
 
               {isAuthenticated ? (
                 <>
-                  {/* Notifications */}
-                  <Link href="/notifications">
-                    <Button variant="ghost" size="icon" className="relative">
-                      <Bell className="h-5 w-5" />
-                      {unreadNotifications.length > 0 && (
-                        <Badge
-                          variant="destructive"
-                          className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs"
-                        >
-                          {unreadNotifications.length}
-                        </Badge>
-                      )}
-                    </Button>
-                  </Link>
+                  {/* Customer-specific navigation - hidden for admin users */}
+                  {!isAdmin && (
+                    <>
+                      {/* Notifications */}
+                      <Link href="/notifications">
+                        <Button variant="ghost" size="icon" className="relative">
+                          <Bell className="h-5 w-5" />
+                          {unreadNotifications.length > 0 && (
+                            <Badge
+                              variant="destructive"
+                              className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs"
+                            >
+                              {unreadNotifications.length}
+                            </Badge>
+                          )}
+                        </Button>
+                      </Link>
 
-                  {/* Cart */}
-                  <Link href="/cart">
-                    <Button variant="ghost" size="icon" className="relative">
-                      <ShoppingCart className="h-5 w-5" />
-                      {cartCount > 0 && (
-                        <Badge
-                          variant="destructive"
-                          className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs"
-                        >
-                          {cartCount}
-                        </Badge>
-                      )}
-                    </Button>
-                  </Link>
+                      {/* Cart */}
+                      <Link href="/cart">
+                        <Button variant="ghost" size="icon" className="relative">
+                          <ShoppingCart className="h-5 w-5" />
+                          {cartCount > 0 && (
+                            <Badge
+                              variant="destructive"
+                              className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs"
+                            >
+                              {cartCount}
+                            </Badge>
+                          )}
+                        </Button>
+                      </Link>
+                    </>
+                  )}
 
-                  {/* Profile Menu */}
+                  {/* Profile Menu - available for all users */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center space-x-2">
@@ -231,9 +246,12 @@ export default function Layout({ children }: LayoutProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href="/profile">{t('nav.profile')}</Link>
-                      </DropdownMenuItem>
+                      {/* Profile link - hidden for admin users */}
+                      {!isAdmin && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile">{t('nav.profile')}</Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={handleLogout}>
                         {t('auth.logout')}
                       </DropdownMenuItem>

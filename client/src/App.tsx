@@ -28,7 +28,7 @@ import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -38,11 +38,18 @@ function Router() {
     );
   }
 
+  // Determine home component based on user role
+  const getHomeComponent = () => {
+    if (!isAuthenticated) return Landing;
+    if (user?.role === "admin") return Dashboard;
+    return Home;
+  };
+
   return (
     <Layout>
       <Switch>
         {/* Public routes */}
-        <Route path="/" component={isAuthenticated ? Home : Landing} />
+        <Route path="/" component={getHomeComponent()} />
         <Route path="/medicines" component={Medicines} />
         <Route path="/login" component={Login} />
         
