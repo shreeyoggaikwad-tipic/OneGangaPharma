@@ -38,16 +38,16 @@ export default function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Get cart count
+  // Get cart count - only for customer users
   const { data: cartItems = [] } = useQuery({
     queryKey: ["/api/cart"],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !isAdmin,
   });
 
-  // Get notifications count
+  // Get notifications count - only for customer users
   const { data: notifications = [] } = useQuery({
     queryKey: ["/api/notifications"],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !isAdmin,
   });
 
   const unreadNotifications = notifications.filter((n: any) => !n.isRead);

@@ -50,40 +50,45 @@ function Router() {
       <Switch>
         {/* Public routes */}
         <Route path="/" component={getHomeComponent()} />
-        <Route path="/medicines" component={Medicines} />
+        {/* Medicines route - hidden for admin users */}
+        {user?.role !== "admin" && <Route path="/medicines" component={Medicines} />}
         <Route path="/login" component={Login} />
         
-        {/* Protected customer routes */}
-        <Route path="/cart">
-          <ProtectedRoute>
-            <Cart />
-          </ProtectedRoute>
-        </Route>
-        <Route path="/checkout">
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
-        </Route>
-        <Route path="/orders">
-          <ProtectedRoute>
-            <Orders />
-          </ProtectedRoute>
-        </Route>
-        <Route path="/profile">
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        </Route>
-        <Route path="/prescriptions">
-          <ProtectedRoute>
-            <Prescriptions />
-          </ProtectedRoute>
-        </Route>
-        <Route path="/notifications">
-          <ProtectedRoute>
-            <Notifications />
-          </ProtectedRoute>
-        </Route>
+        {/* Protected customer routes - commented out for admin users */}
+        {user?.role !== "admin" && (
+          <>
+            <Route path="/cart">
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/checkout">
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/orders">
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/profile">
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/prescriptions">
+              <ProtectedRoute>
+                <Prescriptions />
+              </ProtectedRoute>
+            </Route>
+            <Route path="/notifications">
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            </Route>
+          </>
+        )}
         
         {/* Protected admin routes */}
         <Route path="/admin/dashboard">
