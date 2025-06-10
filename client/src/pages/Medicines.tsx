@@ -292,7 +292,7 @@ export default function Medicines() {
 
                     {/* Add to Cart Button */}
                     <Button
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium"
                       onClick={() => handleAddToCart(medicine.id)}
                       disabled={medicine.totalStock === 0 || addToCartMutation.isPending}
                     >

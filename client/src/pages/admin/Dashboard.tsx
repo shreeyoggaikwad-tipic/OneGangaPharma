@@ -570,13 +570,13 @@ export default function Dashboard() {
                                           variant="outline"
                                           size="sm"
                                           onClick={() => window.open(`/uploads/${prescription.fileName}`, '_blank')}
-                                          className="text-xs"
+                                          className="text-xs hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
                                         >
                                           <Eye className="h-3 w-3 mr-1" />
                                           View
                                         </Button>
                                         <Link href={`/admin/prescriptions`}>
-                                          <Button variant="outline" size="sm" className="text-xs">
+                                          <Button variant="outline" size="sm" className="text-xs hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
                                             <ExternalLink className="h-3 w-3 mr-1" />
                                             Review
                                           </Button>
@@ -608,14 +608,14 @@ export default function Dashboard() {
                             {/* Quick Actions */}
                             <div className="border-t pt-3 flex gap-2">
                               <Link href={`/admin/orders`}>
-                                <Button variant="outline" size="sm" className="text-xs">
+                                <Button variant="outline" size="sm" className="text-xs hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md">
                                   <Eye className="h-3 w-3 mr-1" />
                                   View Full Order
                                 </Button>
                               </Link>
                               {order.status === 'pending_prescription_review' && (
                                 <Link href="/admin/prescriptions">
-                                  <Button size="sm" className="text-xs bg-orange-600 hover:bg-orange-700">
+                                  <Button size="sm" className="text-xs bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200">
                                     <FileText className="h-3 w-3 mr-1" />
                                     Review Prescription
                                   </Button>

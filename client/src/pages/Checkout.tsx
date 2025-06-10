@@ -442,7 +442,7 @@ export default function Checkout() {
                   <Button
                     variant="outline"
                     onClick={() => openAddressDialog("shipping")}
-                    className="w-full"
+                    className="w-full hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add New Shipping Address
@@ -586,7 +586,7 @@ export default function Checkout() {
                             <Button
                               onClick={handleUploadPrescription}
                               disabled={!selectedFile || uploadPrescriptionMutation.isPending}
-                              className="flex-1"
+                              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all duration-200"
                             >
                               {uploadPrescriptionMutation.isPending ? "Uploading..." : "Upload"}
                             </Button>
@@ -597,6 +597,7 @@ export default function Checkout() {
                                 setSelectedFile(null);
                                 if (fileInputRef.current) fileInputRef.current.value = "";
                               }}
+                              className="hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all duration-200"
                             >
                               Cancel
                             </Button>
@@ -686,7 +687,7 @@ export default function Checkout() {
               </div>
 
               <Button
-                className="w-full"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg py-6"
                 size="lg"
                 onClick={handlePlaceOrder}
                 disabled={createOrderMutation.isPending}
@@ -813,14 +814,14 @@ export default function Checkout() {
                   type="button"
                   variant="outline"
                   onClick={() => setShowAddressDialog(false)}
-                  className="flex-1"
+                  className="flex-1 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all duration-200"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={addAddressMutation.isPending}
-                  className="flex-1"
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   {addAddressMutation.isPending ? "Adding..." : "Add Address"}
                 </Button>
