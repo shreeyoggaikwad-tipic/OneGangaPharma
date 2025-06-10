@@ -1624,21 +1624,57 @@ const translations = {
 type Language = 'en' | 'hi' | 'mr';
 type TranslationKey = keyof typeof translations.en;
 
+// Get initial language from localStorage, with fallback
+const getInitialLanguage = (): Language => {
+  if (typeof window === 'undefined') return 'en';
+  
+  try {
+    const saved = localStorage.getItem('sharda-med-language');
+    if (saved && ['en', 'hi', 'mr'].includes(saved)) {
+      return saved as Language;
+    }
+  } catch (error) {
+    console.warn('Failed to read language from localStorage:', error);
+  }
+  
+  return 'en';
+};
+
 export function useTranslation() {
-  const [language, setLanguage] = useState<Language>(() => {
-    return (localStorage.getItem('language') as Language) || 'en';
-  });
+  const [language, setLanguage] = useState<Language>(() => getInitialLanguage());
 
   useEffect(() => {
-    localStorage.setItem('language', language);
+    // Save language preference to localStorage whenever it changes
+    try {
+      localStorage.setItem('sharda-med-language', language);
+    } catch (error) {
+      console.warn('Failed to save language to localStorage:', error);
+    }
   }, [language]);
+
+  useEffect(() => {
+    // Listen for storage changes from other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'sharda-med-language' && e.newValue) {
+        const newLang = e.newValue as Language;
+        if (['en', 'hi', 'mr'].includes(newLang)) {
+          setLanguage(newLang);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const t = (key: TranslationKey): string => {
     return translations[language]?.[key] || translations.en[key] || key;
   };
 
   const changeLanguage = (newLanguage: Language) => {
-    setLanguage(newLanguage);
+    if (['en', 'hi', 'mr'].includes(newLanguage)) {
+      setLanguage(newLanguage);
+    }
   };
 
   return {
