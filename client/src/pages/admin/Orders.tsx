@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -23,31 +22,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Package,
   Eye,
   Check,
-  X,
   Clock,
   Truck,
   CheckCircle,
   XCircle,
   AlertCircle,
   Search,
-  Filter,
-  Calendar,
   Activity,
   Archive,
   RefreshCw,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminOrders() {
   const { toast } = useToast();
@@ -56,7 +45,6 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("active");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showOrderDialog, setShowOrderDialog] = useState(false);
 
   // Get all orders
   const { data: orders = [], isLoading } = useQuery<any[]>({
@@ -73,7 +61,6 @@ export default function AdminOrders() {
         description: "Order status has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
-      setShowOrderDialog(false);
     },
     onError: (error: Error) => {
       toast({
@@ -152,8 +139,6 @@ export default function AdminOrders() {
     });
   };
 
-  const filteredOrders = getOrdersForTab(activeTab);
-
   const statusOptions = [
     { value: "confirmed", label: "Confirmed" },
     { value: "processing", label: "Processing" },
@@ -162,208 +147,7 @@ export default function AdminOrders() {
     { value: "cancelled", label: "Cancelled" },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-6">
-        <div className="space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-16 bg-gray-200 rounded"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Order Management</h1>
-          <p className="text-muted-foreground">
-            Manage customer orders and update their status
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] })}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <div className="flex items-center gap-2">
-            <Package className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold">{orders.length} Total Orders</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by order number, customer name, or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Smart Order Management Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="active" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Active Orders
-            <Badge variant="secondary" className="ml-2">
-              {categorizedOrders.active.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4" />
-            Completed
-            <Badge variant="secondary" className="ml-2">
-              {categorizedOrders.completed.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="cancelled" className="flex items-center gap-2">
-            <XCircle className="h-4 w-4" />
-            Cancelled
-            <Badge variant="secondary" className="ml-2">
-              {categorizedOrders.cancelled.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="all" className="flex items-center gap-2">
-            <Archive className="h-4 w-4" />
-            All Orders
-            <Badge variant="secondary" className="ml-2">
-              {categorizedOrders.all.length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Active Orders Tab */}
-        <TabsContent value="active">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-blue-600" />
-                Active Orders ({getOrdersForTab("active").length})
-              </CardTitle>
-              <p className="text-muted-foreground text-sm">
-                Orders requiring attention: pending review, confirmed, processing, or shipped
-              </p>
-            </CardHeader>
-            <CardContent>
-              {getOrdersForTab("active").length === 0 ? (
-                <div className="text-center py-12">
-                  <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Active Orders</h3>
-                  <p className="text-muted-foreground">
-                    All orders are either completed or cancelled.
-                  </p>
-                </div>
-              ) : (
-                renderOrderTable(getOrdersForTab("active"))
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Completed Orders Tab */}
-        <TabsContent value="completed">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                Completed Orders ({getOrdersForTab("completed").length})
-              </CardTitle>
-              <p className="text-muted-foreground text-sm">
-                Successfully delivered orders
-              </p>
-            </CardHeader>
-            <CardContent>
-              {getOrdersForTab("completed").length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Completed Orders</h3>
-                  <p className="text-muted-foreground">
-                    No orders have been completed yet.
-                  </p>
-                </div>
-              ) : (
-                renderOrderTable(getOrdersForTab("completed"), true)
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Cancelled Orders Tab */}
-        <TabsContent value="cancelled">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <XCircle className="h-5 w-5 text-red-600" />
-                Cancelled Orders ({getOrdersForTab("cancelled").length})
-              </CardTitle>
-              <p className="text-muted-foreground text-sm">
-                Orders that were cancelled
-              </p>
-            </CardHeader>
-            <CardContent>
-              {getOrdersForTab("cancelled").length === 0 ? (
-                <div className="text-center py-12">
-                  <XCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Cancelled Orders</h3>
-                  <p className="text-muted-foreground">
-                    No orders have been cancelled.
-                  </p>
-                </div>
-              ) : (
-                renderOrderTable(getOrdersForTab("cancelled"), true)
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* All Orders Tab */}
-        <TabsContent value="all">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Archive className="h-5 w-5 text-gray-600" />
-                All Orders ({getOrdersForTab("all").length})
-              </CardTitle>
-              <p className="text-muted-foreground text-sm">
-                Complete order history and archive
-              </p>
-            </CardHeader>
-            <CardContent>
-              {getOrdersForTab("all").length === 0 ? (
-                <div className="text-center py-12">
-                  <Archive className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Orders</h3>
-                  <p className="text-muted-foreground">
-                    No orders have been placed yet.
-                  </p>
-                </div>
-              ) : (
-                renderOrderTable(getOrdersForTab("all"))
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-
-  // Helper method to render order table
+  // Helper function to render order table
   const renderOrderTable = (orders: any[], isReadOnly = false) => (
     <Table>
       <TableHeader>
@@ -504,5 +288,206 @@ export default function AdminOrders() {
         ))}
       </TableBody>
     </Table>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-16 bg-gray-200 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Order Management</h1>
+          <p className="text-muted-foreground">
+            Manage customer orders with smart filtering and lifecycle tracking
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] })}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <div className="flex items-center gap-2">
+            <Package className="h-6 w-6 text-primary" />
+            <span className="text-lg font-semibold">{orders.length} Total Orders</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by order number, customer name, or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Smart Order Management Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="active" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Active Orders
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.active.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Completed
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.completed.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="cancelled" className="flex items-center gap-2">
+            <XCircle className="h-4 w-4" />
+            Cancelled
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.cancelled.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="all" className="flex items-center gap-2">
+            <Archive className="h-4 w-4" />
+            All Orders
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.all.length}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Active Orders Tab */}
+        <TabsContent value="active">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-blue-600" />
+                Active Orders ({getOrdersForTab("active").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Orders requiring attention: pending review, confirmed, processing, or shipped
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("active").length === 0 ? (
+                <div className="text-center py-12">
+                  <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Active Orders</h3>
+                  <p className="text-muted-foreground">
+                    All orders are either completed or cancelled.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("active"))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Completed Orders Tab */}
+        <TabsContent value="completed">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                Completed Orders ({getOrdersForTab("completed").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Successfully delivered orders (read-only)
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("completed").length === 0 ? (
+                <div className="text-center py-12">
+                  <CheckCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Completed Orders</h3>
+                  <p className="text-muted-foreground">
+                    No orders have been completed yet.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("completed"), true)
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Cancelled Orders Tab */}
+        <TabsContent value="cancelled">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <XCircle className="h-5 w-5 text-red-600" />
+                Cancelled Orders ({getOrdersForTab("cancelled").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Orders that were cancelled (read-only)
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("cancelled").length === 0 ? (
+                <div className="text-center py-12">
+                  <XCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Cancelled Orders</h3>
+                  <p className="text-muted-foreground">
+                    No orders have been cancelled.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("cancelled"), true)
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* All Orders Tab */}
+        <TabsContent value="all">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Archive className="h-5 w-5 text-gray-600" />
+                All Orders ({getOrdersForTab("all").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Complete order history and archive
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("all").length === 0 ? (
+                <div className="text-center py-12">
+                  <Archive className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Orders</h3>
+                  <p className="text-muted-foreground">
+                    No orders have been placed yet.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("all"))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
