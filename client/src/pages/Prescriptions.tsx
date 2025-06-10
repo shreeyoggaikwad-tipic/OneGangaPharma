@@ -160,20 +160,21 @@ export default function Prescriptions() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="w-full max-w-full overflow-x-hidden px-3 sm:px-4 lg:px-6 py-4 sm:py-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Prescriptions</h1>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Prescriptions</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Upload and manage your medical prescriptions
           </p>
         </div>
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Upload className="h-4 w-4 mr-2" />
-              Upload Prescription
+              <span className="hidden sm:inline">Upload Prescription</span>
+              <span className="sm:hidden">Upload</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
@@ -233,15 +234,15 @@ export default function Prescriptions() {
       </div>
 
       {/* Info Card */}
-      <Card className="mb-6 bg-blue-50 border-blue-200">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-blue-800 mb-1">
+      <Card className="mb-4 sm:mb-6 bg-blue-50 border-blue-200">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="min-w-0">
+              <h3 className="font-semibold text-blue-800 mb-1 text-sm sm:text-base">
                 Prescription Guidelines
               </h3>
-              <ul className="text-sm text-blue-700 space-y-1">
+              <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
                 <li>• Upload clear, readable images or PDF files of your prescription</li>
                 <li>• Ensure all medicine names and dosages are visible</li>
                 <li>• Prescriptions are reviewed by our licensed pharmacists</li>

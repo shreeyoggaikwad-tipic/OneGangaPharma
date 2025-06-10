@@ -193,23 +193,24 @@ export default function Notifications() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl">
+    <div className="w-full max-w-full overflow-x-hidden px-3 sm:px-4 lg:px-6 py-4 sm:py-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Bell className="h-8 w-8 text-blue-600" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-            <p className="text-gray-600">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Bell className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Notifications</h1>
+            <p className="text-gray-600 text-sm sm:text-base">
               {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}` : 'All notifications read'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/notifications"] })}
+            className="w-full sm:w-auto"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -220,9 +221,11 @@ export default function Notifications() {
               size="sm"
               onClick={() => markAllAsReadMutation.mutate()}
               disabled={markAllAsReadMutation.isPending}
+              className="w-full sm:w-auto"
             >
               <CheckCircle2 className="h-4 w-4 mr-2" />
-              Mark All Read
+              <span className="hidden sm:inline">Mark All Read</span>
+              <span className="sm:hidden">Mark Read</span>
             </Button>
           )}
           <AlertDialog>
@@ -231,9 +234,11 @@ export default function Notifications() {
                 variant="destructive"
                 size="sm"
                 disabled={clearAllNotificationsMutation.isPending || notifications.length === 0}
+                className="w-full sm:w-auto"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Clear All
+                <span className="hidden sm:inline">Clear All</span>
+                <span className="sm:hidden">Clear</span>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -258,11 +263,12 @@ export default function Notifications() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
         <Button
           variant={filter === "all" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("all")}
+          className="flex-1 sm:flex-none"
         >
           All ({notifications.length})
         </Button>
@@ -270,6 +276,7 @@ export default function Notifications() {
           variant={filter === "unread" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("unread")}
+          className="flex-1 sm:flex-none"
         >
           Unread ({unreadCount})
         </Button>
@@ -310,37 +317,48 @@ export default function Notifications() {
           filteredNotifications.map((notification) => (
             <Card 
               key={notification.id} 
-              className={`border-l-4 transition-all hover:shadow-md ${getNotificationColor(notification.type, notification.isRead)}`}
+              className={`w-full border-l-4 transition-all hover:shadow-md ${getNotificationColor(notification.type, notification.isRead)}`}
             >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-4">
                   <div className="flex-shrink-0 mt-1">
-                    {getNotificationIcon(notification.type)}
+                    <div className="hidden sm:block">
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    <div className="sm:hidden">
+                      {(() => {
+                        const icon = getNotificationIcon(notification.type);
+                        return icon.type === ShoppingCart ? <ShoppingCart className="h-4 w-4 text-blue-600" /> :
+                               icon.type === FileText ? <FileText className="h-4 w-4 text-green-600" /> :
+                               icon.type === Package ? <Package className="h-4 w-4 text-orange-600" /> :
+                               <AlertTriangle className="h-4 w-4 text-red-600" />;
+                      })()}
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className={`font-medium ${notification.isRead ? 'text-gray-900' : 'text-gray-900 font-semibold'}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className={`font-medium text-sm sm:text-base ${notification.isRead ? 'text-gray-900' : 'text-gray-900 font-semibold'} truncate`}>
                             {notification.title}
                           </h3>
                           {!notification.isRead && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs flex-shrink-0">
                               New
                             </Badge>
                           )}
                         </div>
-                        <p className={`text-sm ${notification.isRead ? 'text-gray-600' : 'text-gray-700'} mb-2`}>
+                        <p className={`text-xs sm:text-sm ${notification.isRead ? 'text-gray-600' : 'text-gray-700'} mb-2 break-words`}>
                           {notification.message}
                         </p>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 sm:gap-4 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {formatDate(notification.createdAt)}
+                            <Clock className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{formatDate(notification.createdAt)}</span>
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         {!notification.isRead && (
                           <Button
                             variant="ghost"
