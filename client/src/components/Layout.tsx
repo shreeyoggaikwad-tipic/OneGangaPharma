@@ -161,12 +161,12 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
               {navigation.filter(item => item.show).map((item) => (
                 <Link key={item.href} href={item.href}>
                   <Button
                     variant={location === item.href ? "default" : "ghost"}
-                    className="font-medium"
+                    className="font-medium text-sm xl:text-base px-3 xl:px-4"
                   >
                     {item.name}
                   </Button>
@@ -177,8 +177,8 @@ export default function Layout({ children }: LayoutProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
-                    <Globe className="h-4 w-4 mr-1" />
-                    {language.toUpperCase()}
+                    <Globe className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
+                    <span className="hidden lg:inline">{language.toUpperCase()}</span>
                     <ChevronDown className="h-3 w-3 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -276,15 +276,15 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
 
-      {/* Mobile Cart Button */}
-      {isAuthenticated && (
+      {/* Mobile Cart Button - Only for customers */}
+      {isAuthenticated && !isAdmin && (
         <Link href="/cart">
-          <Button className="fixed bottom-4 right-4 md:hidden z-30 w-14 h-14 rounded-full shadow-lg">
-            <ShoppingCart className="h-6 w-6" />
+          <Button className="fixed bottom-4 right-4 lg:hidden z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transform hover:scale-110 transition-all duration-200">
+            <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
             {cartCount > 0 && (
               <Badge
                 variant="secondary"
-                className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center p-0 text-xs"
+                className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center p-0 text-xs bg-red-500 text-white border-2 border-white"
               >
                 {cartCount}
               </Badge>
@@ -294,9 +294,9 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Footer */}
-      <footer className="bg-medical-text text-white py-8 mt-12">
+      <footer className="bg-medical-text text-white py-6 sm:py-8 mt-8 sm:mt-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             <div>
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 medical-bg-primary rounded-lg flex items-center justify-center mr-3">

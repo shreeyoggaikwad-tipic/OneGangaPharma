@@ -172,21 +172,21 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-8">
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
       {/* Header Section */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Welcome back! Here's your pharmacy overview for today.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-sm text-gray-500">Last updated</p>
-            <p className="text-sm font-medium">{new Date().toLocaleTimeString()}</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="text-left sm:text-right">
+            <p className="text-xs sm:text-sm text-gray-500">Last updated</p>
+            <p className="text-xs sm:text-sm font-medium">{new Date().toLocaleTimeString()}</p>
           </div>
-          <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
+          <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 w-full sm:w-auto">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -194,22 +194,22 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-100">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 sm:p-6 border border-blue-100">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
-            <p className="text-gray-600 text-sm">Common tasks and shortcuts</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Quick Actions</h2>
+            <p className="text-gray-600 text-xs sm:text-sm">Common tasks and shortcuts</p>
           </div>
-          <Activity className="h-6 w-6 text-blue-600" />
+          <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Link href="/admin/medicines">
             <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:border-green-300">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                  <Plus className="h-8 w-8 text-white" />
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
+                  <Plus className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1">Add Medicine</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Add Medicine</p>
                 <p className="text-xs text-gray-600">Create new product</p>
               </CardContent>
             </Card>
