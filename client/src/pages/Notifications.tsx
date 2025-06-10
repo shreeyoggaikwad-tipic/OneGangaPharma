@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +44,10 @@ export default function Notifications() {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
 
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ["/api/notifications"],
@@ -83,6 +88,7 @@ export default function Notifications() {
         title: "Success",
         description: "All notifications marked as read",
       });
+      scrollToTop();
     },
     onError: () => {
       toast({
@@ -127,6 +133,7 @@ export default function Notifications() {
         title: "Success",
         description: "All notifications cleared successfully",
       });
+      scrollToTop();
     },
     onError: () => {
       toast({

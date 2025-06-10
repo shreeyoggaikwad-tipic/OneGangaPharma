@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
+import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,10 @@ export default function Cart() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
 
   // Get cart items
   const { data: cartItems = [], isLoading } = useQuery({
@@ -65,6 +70,7 @@ export default function Cart() {
         description: "Item has been removed from your cart.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
@@ -84,6 +90,7 @@ export default function Cart() {
         description: "All items have been removed from your cart.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
