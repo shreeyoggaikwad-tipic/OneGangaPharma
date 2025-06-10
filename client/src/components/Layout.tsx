@@ -95,6 +95,37 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
           ))}
           
+          {/* Language Selector for Mobile */}
+          <div className="py-2 border-t border-gray-200">
+            <div className="text-sm font-medium text-gray-700 mb-2 px-3">Language</div>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                variant={language === 'en' ? "default" : "outline"}
+                size="sm"
+                className="text-xs"
+                onClick={() => changeLanguage('en')}
+              >
+                EN
+              </Button>
+              <Button
+                variant={language === 'hi' ? "default" : "outline"}
+                size="sm"
+                className="text-xs"
+                onClick={() => changeLanguage('hi')}
+              >
+                हिं
+              </Button>
+              <Button
+                variant={language === 'mr' ? "default" : "outline"}
+                size="sm"
+                className="text-xs"
+                onClick={() => changeLanguage('mr')}
+              >
+                मरा
+              </Button>
+            </div>
+          </div>
+          
           {isAuthenticated && (
             <>
               {/* Customer-specific navigation - hidden for admin users */}
@@ -161,7 +192,7 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6">
               {navigation.filter(item => item.show).map((item) => (
                 <Link key={item.href} href={item.href}>
                   <Button
@@ -176,10 +207,10 @@ export default function Layout({ children }: LayoutProps) {
               {/* Language Selector */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
-                    <Globe className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
-                    <span className="hidden lg:inline">{language.toUpperCase()}</span>
-                    <ChevronDown className="h-3 w-3 ml-1" />
+                  <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md px-2 min-w-0">
+                    <Globe className="h-3 w-3 lg:h-4 lg:w-4 mr-1 flex-shrink-0" />
+                    <span className="hidden md:inline text-xs lg:text-sm">{language.toUpperCase()}</span>
+                    <ChevronDown className="h-3 w-3 ml-1 flex-shrink-0" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -266,7 +297,9 @@ export default function Layout({ children }: LayoutProps) {
             </div>
 
             {/* Mobile Menu Button */}
-            <MobileNavigation />
+            <div className="md:hidden">
+              <MobileNavigation />
+            </div>
           </div>
         </div>
       </nav>
