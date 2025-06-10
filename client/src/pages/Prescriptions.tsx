@@ -284,7 +284,7 @@ export default function Prescriptions() {
                         <h3 className="font-semibold text-sm sm:text-base truncate">{prescription.fileName}</h3>
                         <Badge className={`${getStatusColor(prescription.status)} flex-shrink-0`}>
                           {getStatusIcon(prescription.status)}
-                          <span className="ml-1 capitalize hidden sm:inline">{prescription.status}</span>
+                          <span className="ml-1 capitalize">{prescription.status}</span>
                         </Badge>
                       </div>
                       
