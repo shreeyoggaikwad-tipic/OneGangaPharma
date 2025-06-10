@@ -38,16 +38,19 @@ export default function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Admin users only see dashboard, customer users see regular navigation
+  const isAdmin = user?.role === "admin";
+
   // Get cart count - only for customer users
   const { data: cartItems = [] } = useQuery({
     queryKey: ["/api/cart"],
-    enabled: isAuthenticated && !isAdmin,
+    enabled: isAuthenticated && user?.role !== "admin",
   });
 
   // Get notifications count - only for customer users
   const { data: notifications = [] } = useQuery({
     queryKey: ["/api/notifications"],
-    enabled: isAuthenticated && !isAdmin,
+    enabled: isAuthenticated && user?.role !== "admin",
   });
 
   const unreadNotifications = notifications.filter((n: any) => !n.isRead);
@@ -61,9 +64,6 @@ export default function Layout({ children }: LayoutProps) {
       console.error("Logout error:", error);
     }
   };
-
-  // Admin users only see dashboard, customer users see regular navigation
-  const isAdmin = user?.role === "admin";
   
   const navigation = [
     // Customer navigation (commented out for admin users)
