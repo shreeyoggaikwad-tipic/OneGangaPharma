@@ -335,12 +335,12 @@ export default function Checkout() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Checkout</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-4 sm:space-y-6">
           {/* Billing Address */}
           <Card>
             <CardHeader>
@@ -349,31 +349,31 @@ export default function Checkout() {
                 Billing Address
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               {addresses.filter((addr: any) => addr.type === "billing").map((address: any) => (
                 <div
                   key={address.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
                     selectedBillingAddress === address.id
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => setSelectedBillingAddress(address.id)}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium">{address.fullName}</p>
-                      <p className="text-sm text-muted-foreground">{address.phone}</p>
-                      <p className="text-sm text-muted-foreground">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base truncate">{address.fullName}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">{address.phone}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {address.addressLine1}
                         {address.addressLine2 && `, ${address.addressLine2}`}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {address.city}, {address.state} {address.postalCode}
                       </p>
                     </div>
                     {selectedBillingAddress === address.id && (
-                      <Check className="h-5 w-5 text-primary" />
+                      <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                     )}
                   </div>
                 </div>
@@ -647,20 +647,20 @@ export default function Checkout() {
 
         {/* Order Summary */}
         <div>
-          <Card className="sticky top-6">
+          <Card className="xl:sticky xl:top-6">
             <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               {/* Items */}
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {cartItems.map((item: any) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <div className="flex-1">
-                      <p className="font-medium">{item.medicine.name}</p>
+                  <div key={item.id} className="flex justify-between gap-2 text-xs sm:text-sm">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{item.medicine.name}</p>
                       <p className="text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-medium">
+                    <p className="font-medium text-right">
                       ₹{(parseFloat(item.medicine.price) * item.quantity).toFixed(2)}
                     </p>
                   </div>
@@ -671,16 +671,16 @@ export default function Checkout() {
 
               {/* Totals */}
               <div className="space-y-2">
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span>Subtotal</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span>Delivery</span>
                   <span className="text-green-600">Free</span>
                 </div>
                 <Separator />
-                <div className="flex justify-between font-semibold text-lg">
+                <div className="flex justify-between font-semibold text-base sm:text-lg">
                   <span>Total</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>

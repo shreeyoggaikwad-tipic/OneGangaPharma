@@ -209,11 +209,11 @@ export default function Medicines() {
 
       {/* Medicines Grid */}
       {medicinesLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-32 w-full mb-4" />
+              <CardContent className="p-3 sm:p-4">
+                <Skeleton className="h-24 sm:h-32 w-full mb-3 sm:mb-4" />
                 <Skeleton className="h-4 w-3/4 mb-2" />
                 <Skeleton className="h-3 w-1/2 mb-2" />
                 <Skeleton className="h-6 w-full" />
@@ -223,57 +223,59 @@ export default function Medicines() {
         </div>
       ) : (filteredMedicines as any[]).length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center">
-            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">{t('medicine.noMedicinesFound')}</h3>
-            <p className="text-muted-foreground">
+          <CardContent className="p-6 sm:p-8 text-center">
+            <Package className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-semibold mb-2">{t('medicine.noMedicinesFound')}</h3>
+            <p className="text-muted-foreground text-sm sm:text-base">
               {t('medicine.tryDifferentSearch')}
             </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
           {(filteredMedicines as any[]).map((medicine: any) => {
             const stockStatus = getStockStatus(medicine.totalStock);
             return (
-              <Card key={medicine.id} className="medicine-card hover:shadow-md transition-all">
-                <CardContent className="p-4">
+              <Card key={medicine.id} className="medicine-card hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                <CardContent className="p-3 sm:p-4 flex flex-col h-full">
                   {/* Medicine Image Placeholder */}
-                  <div className="h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <Package className="h-12 w-12 text-blue-400" />
+                  <div className="h-24 sm:h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
+                    <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 flex-1 flex flex-col">
                     {/* Name and Badge */}
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-sm leading-tight">{medicine.name}</h3>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-xs sm:text-sm leading-tight flex-1">{medicine.name}</h3>
                       {medicine.requiresPrescription && (
-                        <Badge variant="destructive" className="text-xs ml-2 schedule-h-badge">
+                        <Badge variant="destructive" className="text-xs schedule-h-badge flex-shrink-0">
                           Schedule H
                         </Badge>
                       )}
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 flex-1">
                       {medicine.description}
                     </p>
 
                     {/* Dosage and Manufacturer */}
-                    {medicine.dosage && (
-                      <p className="text-xs text-muted-foreground">
-                        {t('medicine.dosage')}: {medicine.dosage}
-                      </p>
-                    )}
-                    {medicine.manufacturer && (
-                      <p className="text-xs text-muted-foreground">
-                        {t('medicine.manufacturer')}: {medicine.manufacturer}
-                      </p>
-                    )}
+                    <div className="space-y-1">
+                      {medicine.dosage && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {t('medicine.dosage')}: {medicine.dosage}
+                        </p>
+                      )}
+                      {medicine.manufacturer && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {t('medicine.manufacturer')}: {medicine.manufacturer}
+                        </p>
+                      )}
+                    </div>
 
                     {/* Price and Stock */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-primary">
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="text-base sm:text-lg font-bold text-primary">
                         ₹{parseFloat(medicine.price).toFixed(2)}
                       </span>
                       <Badge variant={stockStatus.variant} className="text-xs">
