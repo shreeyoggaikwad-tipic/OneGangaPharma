@@ -269,44 +269,44 @@ export default function Prescriptions() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {prescriptions.map((prescription: any) => (
-            <Card key={prescription.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                      <FileText className="h-6 w-6 text-blue-600" />
+            <Card key={prescription.id} className="w-full">
+              <CardContent className="p-3 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold">{prescription.fileName}</h3>
-                        <Badge className={getStatusColor(prescription.status)}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-sm sm:text-base truncate">{prescription.fileName}</h3>
+                        <Badge className={`${getStatusColor(prescription.status)} flex-shrink-0`}>
                           {getStatusIcon(prescription.status)}
-                          <span className="ml-1 capitalize">{prescription.status}</span>
+                          <span className="ml-1 capitalize hidden sm:inline">{prescription.status}</span>
                         </Badge>
                       </div>
                       
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>
+                      <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">
                             Uploaded: {new Date(prescription.uploadedAt).toLocaleDateString("en-IN", {
                               year: "numeric",
-                              month: "long",
+                              month: "short",
                               day: "numeric",
                             })}
                           </span>
                         </div>
                         
                         {prescription.reviewedAt && (
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4" />
-                            <span>
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">
                               Reviewed: {new Date(prescription.reviewedAt).toLocaleDateString("en-IN", {
                                 year: "numeric",
-                                month: "long",
+                                month: "short",
                                 day: "numeric",
                               })}
                             </span>
@@ -315,8 +315,8 @@ export default function Prescriptions() {
                       </div>
                       
                       {prescription.reviewNotes && (
-                        <div className="mt-3 p-3 bg-muted rounded-lg">
-                          <p className="text-sm">
+                        <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-muted rounded-lg">
+                          <p className="text-xs sm:text-sm break-words">
                             <strong>Review Notes:</strong> {prescription.reviewNotes}
                           </p>
                         </div>
@@ -324,7 +324,7 @@ export default function Prescriptions() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                     {prescription.status === "pending" && (
                       <Badge variant="outline" className="text-orange-600 border-orange-200">
                         <Clock className="h-3 w-3 mr-1" />
