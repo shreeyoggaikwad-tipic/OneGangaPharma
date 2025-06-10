@@ -64,6 +64,10 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
   
   const [selectedBillingAddress, setSelectedBillingAddress] = useState<number | null>(null);
   const [selectedShippingAddress, setSelectedShippingAddress] = useState<number | null>(null);
@@ -117,6 +121,7 @@ export default function Checkout() {
       queryClient.invalidateQueries({ queryKey: ["/api/addresses"] });
       setShowAddressDialog(false);
       addressForm.reset();
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
@@ -147,6 +152,7 @@ export default function Checkout() {
         description: "Your prescription has been uploaded and will be reviewed with your order.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/prescriptions"] });
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
@@ -183,6 +189,7 @@ export default function Checkout() {
       
       // Add small delay to ensure cache invalidation completes before navigation
       setTimeout(() => {
+        scrollToTop();
         setLocation(`/orders`);
       }, 100);
     },
