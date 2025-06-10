@@ -138,11 +138,27 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground shadow hover:bg-primary/90;
+    @apply bg-gradient-to-r from-medical-teal to-medical-green text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-medium rounded-lg;
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80;
+    @apply bg-white text-gray-700 border border-gray-200 shadow-md hover:shadow-lg hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 font-medium rounded-lg;
+  }
+
+  .btn-outline {
+    @apply border-2 border-medical-teal text-medical-teal bg-transparent hover:bg-medical-teal hover:text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium rounded-lg;
+  }
+
+  .btn-success {
+    @apply bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-medium rounded-lg;
+  }
+
+  .btn-warning {
+    @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-medium rounded-lg;
+  }
+
+  .btn-danger {
+    @apply bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-medium rounded-lg;
   }
 
   .card-elevated {

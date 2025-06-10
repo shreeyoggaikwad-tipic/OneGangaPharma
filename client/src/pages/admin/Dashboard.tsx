@@ -186,7 +186,7 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500">Last updated</p>
             <p className="text-sm font-medium">{new Date().toLocaleTimeString()}</p>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -204,38 +204,46 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link href="/admin/medicines">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white">
-              <CardContent className="p-4 text-center">
-                <Plus className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <p className="font-medium text-sm">Add Medicine</p>
-                <p className="text-xs text-gray-500">Create new product</p>
+            <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:border-green-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <Plus className="h-8 w-8 text-white" />
+                </div>
+                <p className="font-semibold text-gray-800 mb-1">Add Medicine</p>
+                <p className="text-xs text-gray-600">Create new product</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/bulk-upload">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white">
-              <CardContent className="p-4 text-center">
-                <Upload className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="font-medium text-sm">Bulk Upload</p>
-                <p className="text-xs text-gray-500">Import CSV data</p>
+            <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <Upload className="h-8 w-8 text-white" />
+                </div>
+                <p className="font-semibold text-gray-800 mb-1">Bulk Upload</p>
+                <p className="text-xs text-gray-600">Import CSV data</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/orders">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white">
-              <CardContent className="p-4 text-center">
-                <Package2 className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <p className="font-medium text-sm">Manage Orders</p>
-                <p className="text-xs text-gray-500">Process orders</p>
+            <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:border-purple-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <Package2 className="h-8 w-8 text-white" />
+                </div>
+                <p className="font-semibold text-gray-800 mb-1">Manage Orders</p>
+                <p className="text-xs text-gray-600">Process orders</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/prescriptions">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white">
-              <CardContent className="p-4 text-center">
-                <FileText className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                <p className="font-medium text-sm">Review Prescriptions</p>
-                <p className="text-xs text-gray-500">Approve requests</p>
+            <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 hover:border-orange-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <FileText className="h-8 w-8 text-white" />
+                </div>
+                <p className="font-semibold text-gray-800 mb-1">Review Prescriptions</p>
+                <p className="text-xs text-gray-600">Approve requests</p>
               </CardContent>
             </Card>
           </Link>

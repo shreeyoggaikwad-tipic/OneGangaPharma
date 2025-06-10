@@ -176,7 +176,7 @@ export default function Layout({ children }: LayoutProps) {
               {/* Language Selector */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
                     <Globe className="h-4 w-4 mr-1" />
                     {language.toUpperCase()}
                     <ChevronDown className="h-3 w-3 ml-1" />
@@ -202,12 +202,12 @@ export default function Layout({ children }: LayoutProps) {
                     <>
                       {/* Notifications */}
                       <Link href="/notifications">
-                        <Button variant="ghost" size="icon" className="relative">
+                        <Button variant="ghost" size="icon" className="relative hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
                           <Bell className="h-5 w-5" />
                           {unreadNotifications.length > 0 && (
                             <Badge
                               variant="destructive"
-                              className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs"
+                              className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-red-500 to-red-600 animate-pulse"
                             >
                               {unreadNotifications.length}
                             </Badge>
@@ -217,12 +217,12 @@ export default function Layout({ children }: LayoutProps) {
 
                       {/* Cart */}
                       <Link href="/cart">
-                        <Button variant="ghost" size="icon" className="relative">
+                        <Button variant="ghost" size="icon" className="relative hover:bg-green-50 hover:text-green-600 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md">
                           <ShoppingCart className="h-5 w-5" />
                           {cartCount > 0 && (
                             <Badge
                               variant="destructive"
-                              className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs"
+                              className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-green-500 to-green-600 animate-pulse"
                             >
                               {cartCount}
                             </Badge>
@@ -235,9 +235,9 @@ export default function Layout({ children }: LayoutProps) {
                   {/* Profile Menu - available for all users */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-primary-foreground" />
+                      <Button variant="ghost" className="flex items-center space-x-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md px-3 py-2">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md">
+                          <User className="h-4 w-4 text-white" />
                         </div>
                         <span className="hidden lg:block font-medium">
                           {user?.firstName} {user?.lastName}
