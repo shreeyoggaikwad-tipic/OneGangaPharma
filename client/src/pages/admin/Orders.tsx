@@ -42,14 +42,19 @@ import {
   AlertCircle,
   Search,
   Filter,
+  Calendar,
+  Activity,
+  Archive,
+  RefreshCw,
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminOrders() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<string>("active");
   const [searchQuery, setSearchQuery] = useState("");
   const [showOrderDialog, setShowOrderDialog] = useState(false);
 
@@ -121,12 +126,33 @@ export default function AdminOrders() {
     updateOrderStatusMutation.mutate({ orderId, status: newStatus });
   };
 
-  const filteredOrders = orders.filter((order: any) => {
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
-    const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  // Smart filtering logic based on order lifecycle
+  const categorizeOrders = () => {
+    const activeStatuses = ["pending_prescription_review", "confirmed", "processing", "shipped"];
+    const completedStatuses = ["delivered"];
+    const cancelledStatuses = ["cancelled"];
+
+    return {
+      active: orders.filter((order: any) => activeStatuses.includes(order.status)),
+      completed: orders.filter((order: any) => completedStatuses.includes(order.status)),
+      cancelled: orders.filter((order: any) => cancelledStatuses.includes(order.status)),
+      all: orders
+    };
+  };
+
+  const categorizedOrders = categorizeOrders();
+
+  const getOrdersForTab = (tab: string) => {
+    const ordersForTab = categorizedOrders[tab as keyof typeof categorizedOrders] || [];
+    return ordersForTab.filter((order: any) => {
+      const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           order.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           `${order.user.firstName} ${order.user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  };
+
+  const filteredOrders = getOrdersForTab(activeTab);
 
   const statusOptions = [
     { value: "confirmed", label: "Confirmed" },
@@ -162,210 +188,321 @@ export default function AdminOrders() {
             Manage customer orders and update their status
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Package className="h-6 w-6 text-primary" />
-          <span className="text-lg font-semibold">{orders.length} Orders</span>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] })}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <div className="flex items-center gap-2">
+            <Package className="h-6 w-6 text-primary" />
+            <span className="text-lg font-semibold">{orders.length} Total Orders</span>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Search Bar */}
       <Card className="mb-6">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="search">Search Orders</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Search by order number or customer email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="w-full md:w-48">
-              <Label htmlFor="status-filter">Filter by Status</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="pending_prescription_review">Pending Review</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="shipped">Shipped</SelectItem>
-                  <SelectItem value="delivered">Delivered</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by order number, customer name, or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Orders Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            All Orders ({filteredOrders.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredOrders.length === 0 ? (
-            <div className="text-center py-12">
-              <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Orders Found</h3>
-              <p className="text-muted-foreground">
-                {statusFilter === "all" 
-                  ? "No orders have been placed yet." 
-                  : `No orders with "${statusFilter}" status found.`}
+      {/* Smart Order Management Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="active" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Active Orders
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.active.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Completed
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.completed.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="cancelled" className="flex items-center gap-2">
+            <XCircle className="h-4 w-4" />
+            Cancelled
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.cancelled.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="all" className="flex items-center gap-2">
+            <Archive className="h-4 w-4" />
+            All Orders
+            <Badge variant="secondary" className="ml-2">
+              {categorizedOrders.all.length}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Active Orders Tab */}
+        <TabsContent value="active">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-blue-600" />
+                Active Orders ({getOrdersForTab("active").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Orders requiring attention: pending review, confirmed, processing, or shipped
               </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order Number</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredOrders.map((order: any) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">
-                      {order.orderNumber}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
-                        <p className="text-sm text-muted-foreground">{order.user.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {order.items?.length || 0} item(s)
-                    </TableCell>
-                    <TableCell>
-                      ₹{parseFloat(order.totalAmount).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit`}>
-                        {getStatusIcon(order.status)}
-                        {order.status.replace('_', ' ')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(order.placedAt).toLocaleDateString("en-IN")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setSelectedOrder(order)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Order Details - {order.orderNumber}</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <Label>Customer</Label>
-                                  <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
-                                  <p className="text-sm text-muted-foreground">{order.user.email}</p>
-                                </div>
-                                <div>
-                                  <Label>Current Status</Label>
-                                  <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit mt-1`}>
-                                    {getStatusIcon(order.status)}
-                                    {order.status.replace('_', ' ')}
-                                  </Badge>
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <Label>Update Status</Label>
-                                <div className="flex gap-2 mt-2">
-                                  {statusOptions.map((status) => (
-                                    <Button
-                                      key={status.value}
-                                      variant={order.status === status.value ? "default" : "outline"}
-                                      size="sm"
-                                      onClick={() => handleStatusUpdate(order.id, status.value)}
-                                      disabled={updateOrderStatusMutation.isPending}
-                                    >
-                                      {status.label}
-                                    </Button>
-                                  ))}
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <Label>Order Items</Label>
-                                <div className="border rounded-lg p-3 mt-2">
-                                  {order.items?.map((item: any, index: number) => (
-                                    <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                                      <div>
-                                        <p className="font-medium">{item.medicine?.name}</p>
-                                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                                      </div>
-                                      <p className="font-medium">₹{parseFloat(item.unitPrice).toLocaleString()}</p>
-                                    </div>
-                                  ))}
-                                  <div className="flex justify-between items-center pt-2 mt-2 border-t font-semibold">
-                                    <span>Total Amount</span>
-                                    <span>₹{parseFloat(order.totalAmount).toLocaleString()}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        
-                        {order.status === "pending_prescription_review" && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleStatusUpdate(order.id, "confirmed")}
-                            disabled={updateOrderStatusMutation.isPending}
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                        )}
-                        
-                        {order.status === "confirmed" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStatusUpdate(order.id, "processing")}
-                            disabled={updateOrderStatusMutation.isPending}
-                          >
-                            Process
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("active").length === 0 ? (
+                <div className="text-center py-12">
+                  <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Active Orders</h3>
+                  <p className="text-muted-foreground">
+                    All orders are either completed or cancelled.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("active"))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Completed Orders Tab */}
+        <TabsContent value="completed">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                Completed Orders ({getOrdersForTab("completed").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Successfully delivered orders
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("completed").length === 0 ? (
+                <div className="text-center py-12">
+                  <CheckCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Completed Orders</h3>
+                  <p className="text-muted-foreground">
+                    No orders have been completed yet.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("completed"), true)
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Cancelled Orders Tab */}
+        <TabsContent value="cancelled">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <XCircle className="h-5 w-5 text-red-600" />
+                Cancelled Orders ({getOrdersForTab("cancelled").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Orders that were cancelled
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("cancelled").length === 0 ? (
+                <div className="text-center py-12">
+                  <XCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Cancelled Orders</h3>
+                  <p className="text-muted-foreground">
+                    No orders have been cancelled.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("cancelled"), true)
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* All Orders Tab */}
+        <TabsContent value="all">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Archive className="h-5 w-5 text-gray-600" />
+                All Orders ({getOrdersForTab("all").length})
+              </CardTitle>
+              <p className="text-muted-foreground text-sm">
+                Complete order history and archive
+              </p>
+            </CardHeader>
+            <CardContent>
+              {getOrdersForTab("all").length === 0 ? (
+                <div className="text-center py-12">
+                  <Archive className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Orders</h3>
+                  <p className="text-muted-foreground">
+                    No orders have been placed yet.
+                  </p>
+                </div>
+              ) : (
+                renderOrderTable(getOrdersForTab("all"))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+
+  // Helper method to render order table
+  const renderOrderTable = (orders: any[], isReadOnly = false) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Order Number</TableHead>
+          <TableHead>Customer</TableHead>
+          <TableHead>Items</TableHead>
+          <TableHead>Total</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Date</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {orders.map((order: any) => (
+          <TableRow key={order.id}>
+            <TableCell className="font-medium">
+              {order.orderNumber}
+            </TableCell>
+            <TableCell>
+              <div>
+                <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
+                <p className="text-sm text-muted-foreground">{order.user.email}</p>
+              </div>
+            </TableCell>
+            <TableCell>
+              {order.items?.length || 0} item(s)
+            </TableCell>
+            <TableCell>
+              ₹{parseFloat(order.totalAmount).toLocaleString()}
+            </TableCell>
+            <TableCell>
+              <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit`}>
+                {getStatusIcon(order.status)}
+                {order.status.replace('_', ' ')}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              {new Date(order.placedAt).toLocaleDateString("en-IN")}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setSelectedOrder(order)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Order Details - {order.orderNumber}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Customer</Label>
+                          <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
+                          <p className="text-sm text-muted-foreground">{order.user.email}</p>
+                        </div>
+                        <div>
+                          <Label>Current Status</Label>
+                          <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit mt-1`}>
+                            {getStatusIcon(order.status)}
+                            {order.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {!isReadOnly && (
+                        <div>
+                          <Label>Update Status</Label>
+                          <div className="flex gap-2 mt-2">
+                            {statusOptions.map((status) => (
+                              <Button
+                                key={status.value}
+                                variant={order.status === status.value ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleStatusUpdate(order.id, status.value)}
+                                disabled={updateOrderStatusMutation.isPending}
+                              >
+                                {status.label}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div>
+                        <Label>Order Items</Label>
+                        <div className="border rounded-lg p-3 mt-2">
+                          {order.items?.map((item: any, index: number) => (
+                            <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                              <div>
+                                <p className="font-medium">{item.medicine?.name}</p>
+                                <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                              </div>
+                              <p className="font-medium">₹{parseFloat(item.unitPrice).toLocaleString()}</p>
+                            </div>
+                          ))}
+                          <div className="flex justify-between items-center pt-2 mt-2 border-t font-semibold">
+                            <span>Total Amount</span>
+                            <span>₹{parseFloat(order.totalAmount).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
+                {!isReadOnly && order.status === "pending_prescription_review" && (
+                  <Button
+                    size="sm"
+                    onClick={() => handleStatusUpdate(order.id, "confirmed")}
+                    disabled={updateOrderStatusMutation.isPending}
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Approve
+                  </Button>
+                )}
+                
+                {!isReadOnly && order.status === "confirmed" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleStatusUpdate(order.id, "processing")}
+                    disabled={updateOrderStatusMutation.isPending}
+                  >
+                    Process
+                  </Button>
+                )}
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
