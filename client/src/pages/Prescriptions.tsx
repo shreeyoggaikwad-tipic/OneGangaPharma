@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,10 @@ export default function Prescriptions() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -73,6 +78,7 @@ export default function Prescriptions() {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({

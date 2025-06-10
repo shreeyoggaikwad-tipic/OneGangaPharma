@@ -4,6 +4,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
+import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,10 @@ export default function Medicines() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { scrollToTop } = useScrollToTop();
+  
+  // Scroll to top on page load
+  useScrollToTopOnMount();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -54,6 +59,7 @@ export default function Medicines() {
         description: "Medicine has been added to your cart.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      scrollToTop();
     },
     onError: (error: Error) => {
       toast({
