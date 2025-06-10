@@ -48,6 +48,10 @@ import {
   Truck,
   IndianRupee,
   Calendar,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Image as ImageIcon,
   Bell,
   Settings,
   RefreshCw,
@@ -59,6 +63,8 @@ import {
 export default function Dashboard() {
   const [timePeriod, setTimePeriod] = useState("weekly");
   const [reportType, setReportType] = useState("sales");
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
+  const [prescriptionView, setPrescriptionView] = useState<{ orderId: number; prescriptionId: number } | null>(null);
 
   // Get dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery<any>({
@@ -128,6 +134,29 @@ export default function Dashboard() {
       default:
         return <Clock className="h-3 w-3" />;
     }
+  };
+
+  // Helper function to check if order has prescription
+  const hasScheduleHMedicines = (order: any) => {
+    return order.items?.some((item: any) => item.medicine?.requiresPrescription);
+  };
+
+  // Helper function to get prescription for order
+  const getOrderPrescription = (order: any) => {
+    if (order.prescriptionId) {
+      return pendingPrescriptions.find((p: any) => p.id === order.prescriptionId);
+    }
+    return null;
+  };
+
+  // Toggle order expansion
+  const toggleOrderExpansion = (orderId: number) => {
+    setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
+  // View prescription
+  const viewPrescription = (orderId: number, prescriptionId: number) => {
+    setPrescriptionView({ orderId, prescriptionId });
   };
 
   if (statsLoading) {
@@ -423,31 +452,173 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {orders.slice(0, 5).map((order: any) => (
-                    <div
-                      key={order.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <Package className="h-4 w-4 text-blue-600" />
+                  {orders.slice(0, 5).map((order: any) => {
+                    const hasScheduleH = hasScheduleHMedicines(order);
+                    const prescription = getOrderPrescription(order);
+                    const isExpanded = expandedOrder === order.id;
+                    
+                    return (
+                      <div key={order.id} className="border rounded-lg hover:shadow-md transition-all duration-200">
+                        {/* Main Order Row */}
+                        <div className="flex items-center justify-between p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                              <Package className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-sm">{order.orderNumber}</p>
+                                {hasScheduleH && (
+                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    Schedule H
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                {order.user?.firstName} {order.user?.lastName}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="font-medium text-sm">₹{parseFloat(order.totalAmount).toLocaleString()}</p>
+                              <Badge className={`${getStatusColor(order.status)} text-xs flex items-center gap-1`}>
+                                {getStatusIcon(order.status)}
+                                {order.status.replace('_', ' ')}
+                              </Badge>
+                            </div>
+                            
+                            {/* Expand Button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleOrderExpansion(order.id)}
+                              className="p-1 h-8 w-8"
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="h-4 w-4" />
+                              ) : (
+                                <ChevronDown className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{order.orderNumber}</p>
-                          <p className="text-xs text-gray-500">
-                            {order.user?.firstName} {order.user?.lastName}
-                          </p>
-                        </div>
+
+                        {/* Expanded Order Details */}
+                        {isExpanded && (
+                          <div className="border-t bg-gray-50 p-4 space-y-4">
+                            {/* Order Items */}
+                            <div>
+                              <h4 className="font-medium text-sm mb-2 text-gray-700">Order Items:</h4>
+                              <div className="space-y-2">
+                                {order.items?.map((item: any, index: number) => (
+                                  <div key={index} className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <span>{item.medicine?.name}</span>
+                                      {item.medicine?.requiresPrescription && (
+                                        <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
+                                          Rx Required
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <span className="text-gray-600">Qty: {item.quantity}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Prescription Section */}
+                            {hasScheduleH && (
+                              <div className="border-t pt-4">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-medium text-sm text-gray-700 flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-orange-600" />
+                                    Prescription Details
+                                  </h4>
+                                </div>
+                                
+                                {prescription ? (
+                                  <div className="bg-white rounded-lg border p-3 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <p className="text-sm font-medium">{prescription.fileName}</p>
+                                        <p className="text-xs text-gray-500">
+                                          Status: <span className={`font-medium ${
+                                            prescription.status === 'approved' ? 'text-green-600' : 
+                                            prescription.status === 'rejected' ? 'text-red-600' : 'text-orange-600'
+                                          }`}>
+                                            {prescription.status}
+                                          </span>
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                          Uploaded: {new Date(prescription.uploadedAt).toLocaleDateString()}
+                                        </p>
+                                      </div>
+                                      
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => window.open(`/uploads/${prescription.fileName}`, '_blank')}
+                                          className="text-xs"
+                                        >
+                                          <Eye className="h-3 w-3 mr-1" />
+                                          View
+                                        </Button>
+                                        <Link href={`/admin/prescriptions`}>
+                                          <Button variant="outline" size="sm" className="text-xs">
+                                            <ExternalLink className="h-3 w-3 mr-1" />
+                                            Review
+                                          </Button>
+                                        </Link>
+                                      </div>
+                                    </div>
+                                    
+                                    {prescription.notes && (
+                                      <div className="text-xs bg-gray-50 p-2 rounded border">
+                                        <p className="font-medium text-gray-700">Notes:</p>
+                                        <p className="text-gray-600">{prescription.notes}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-2 text-yellow-800">
+                                      <AlertTriangle className="h-4 w-4" />
+                                      <p className="text-sm font-medium">No prescription found for this order</p>
+                                    </div>
+                                    <p className="text-xs text-yellow-700 mt-1">
+                                      This order contains Schedule H medicines but no prescription is linked.
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Quick Actions */}
+                            <div className="border-t pt-3 flex gap-2">
+                              <Link href={`/admin/orders`}>
+                                <Button variant="outline" size="sm" className="text-xs">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View Full Order
+                                </Button>
+                              </Link>
+                              {order.status === 'pending_prescription_review' && (
+                                <Link href="/admin/prescriptions">
+                                  <Button size="sm" className="text-xs bg-orange-600 hover:bg-orange-700">
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    Review Prescription
+                                  </Button>
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-sm">₹{parseFloat(order.totalAmount).toLocaleString()}</p>
-                        <Badge className={`${getStatusColor(order.status)} text-xs flex items-center gap-1`}>
-                          {getStatusIcon(order.status)}
-                          {order.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
