@@ -216,33 +216,33 @@ export default function Dashboard() {
           </Link>
           <Link href="/admin/bulk-upload">
             <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-300">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                  <Upload className="h-8 w-8 text-white" />
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
+                  <Upload className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1">Bulk Upload</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Bulk Upload</p>
                 <p className="text-xs text-gray-600">Import CSV data</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/orders">
             <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:border-purple-300">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                  <Package2 className="h-8 w-8 text-white" />
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
+                  <Package2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1">Manage Orders</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Manage Orders</p>
                 <p className="text-xs text-gray-600">Process orders</p>
               </CardContent>
             </Card>
           </Link>
           <Link href="/admin/prescriptions">
             <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 hover:border-orange-300">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-                  <FileText className="h-8 w-8 text-white" />
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
+                  <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1">Review Prescriptions</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Review Prescriptions</p>
                 <p className="text-xs text-gray-600">Approve requests</p>
               </CardContent>
             </Card>
@@ -252,76 +252,76 @@ export default function Dashboard() {
 
       {/* Key Metrics Section */}
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Key Metrics</h2>
-            <p className="text-gray-600 text-sm">Today's performance overview</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Key Metrics</h2>
+            <p className="text-gray-600 text-xs sm:text-sm">Today's performance overview</p>
           </div>
-          <BarChart3 className="h-6 w-6 text-gray-400" />
+          <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Total Sales</p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-green-100 text-xs sm:text-sm font-medium">Total Sales</p>
+                  <p className="text-2xl sm:text-3xl font-bold">
                     ₹{(stats?.totalSales || 0).toLocaleString()}
                   </p>
-                  <div className="flex items-center mt-2 text-green-100">
-                    <TrendingUp className="h-4 w-4 mr-1" />
-                    <span className="text-sm">+12% from yesterday</span>
+                  <div className="flex items-center mt-1 sm:mt-2 text-green-100">
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="text-xs sm:text-sm">+12% from yesterday</span>
                   </div>
                 </div>
-                <IndianRupee className="h-8 w-8 text-green-200" />
+                <IndianRupee className="h-6 w-6 sm:h-8 sm:w-8 text-green-200" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Orders Today</p>
-                  <p className="text-3xl font-bold">{stats?.ordersToday || 0}</p>
-                  <div className="flex items-center mt-2 text-blue-100">
-                    <TrendingUp className="h-4 w-4 mr-1" />
-                    <span className="text-sm">+8% from yesterday</span>
+                  <p className="text-blue-100 text-xs sm:text-sm font-medium">Orders Today</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{stats?.ordersToday || 0}</p>
+                  <div className="flex items-center mt-1 sm:mt-2 text-blue-100">
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="text-xs sm:text-sm">+8% from yesterday</span>
                   </div>
                 </div>
-                <ShoppingCart className="h-8 w-8 text-blue-200" />
+                <ShoppingCart className="h-6 w-6 sm:h-8 sm:w-8 text-blue-200" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-100 text-sm font-medium">Low Stock Items</p>
-                  <p className="text-3xl font-bold">{stats?.lowStockCount || 0}</p>
-                  <div className="flex items-center mt-2 text-orange-100">
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Needs attention</span>
+                  <p className="text-orange-100 text-xs sm:text-sm font-medium">Low Stock Items</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{stats?.lowStockCount || 0}</p>
+                  <div className="flex items-center mt-1 sm:mt-2 text-orange-100">
+                    <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="text-xs sm:text-sm">Needs attention</span>
                   </div>
                 </div>
-                <Package className="h-8 w-8 text-orange-200" />
+                <Package className="h-6 w-6 sm:h-8 sm:w-8 text-orange-200" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Pending Prescriptions</p>
-                  <p className="text-3xl font-bold">{stats?.pendingPrescriptions || 0}</p>
-                  <div className="flex items-center mt-2 text-purple-100">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Awaiting review</span>
+                  <p className="text-purple-100 text-xs sm:text-sm font-medium">Pending Prescriptions</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{stats?.pendingPrescriptions || 0}</p>
+                  <div className="flex items-center mt-1 sm:mt-2 text-purple-100">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="text-xs sm:text-sm">Awaiting review</span>
                   </div>
                 </div>
-                <FileText className="h-8 w-8 text-purple-200" />
+                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-purple-200" />
               </div>
             </CardContent>
           </Card>
@@ -329,16 +329,16 @@ export default function Dashboard() {
       </div>
 
       {/* Analytics Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
-              Sales Trend ({timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)})
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+              <span className="truncate">Sales Trend ({timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)})</span>
             </CardTitle>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Select value={timePeriod} onValueChange={setTimePeriod}>
-                <SelectTrigger className="w-36">
+                <SelectTrigger className="w-full sm:w-36">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -349,7 +349,7 @@ export default function Dashboard() {
                 </SelectContent>
               </Select>
               <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
