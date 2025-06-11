@@ -6,6 +6,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
+import { DestructiveButton } from "@/components/ui/destructive-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -173,10 +174,10 @@ export default function Cart() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 bg-[#f20707]">
+            <DestructiveButton variant="outline" size="sm">
               <Trash2 className="h-4 w-4 mr-2" />
               {t('cart.clearCart')}
-            </Button>
+            </DestructiveButton>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -187,12 +188,11 @@ export default function Cart() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={clearCart}
-                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-              >
-                {t('cart.clearCart')}
-              </AlertDialogAction>
+              <DestructiveButton asChild onClick={clearCart}>
+                <AlertDialogAction>
+                  {t('cart.clearCart')}
+                </AlertDialogAction>
+              </DestructiveButton>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { DestructiveButton } from "@/components/ui/destructive-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +46,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -397,45 +404,73 @@ export default function MedicineManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openMedicineDialog(medicine)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openInventoryDialog(medicine)}
-                            >
-                              <Package2 className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Medicine</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete "{medicine.name}"? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => deleteMedicineMutation.mutate(medicine.id)}
+                          <TooltipProvider>
+                            <div className="flex items-center gap-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openMedicineDialog(medicine)}
                                   >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edit medicine details</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openInventoryDialog(medicine)}
+                                  >
+                                    <Package2 className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Manage inventory</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              
+                              <AlertDialog>
+                                <Tooltip>
+                                  <AlertDialogTrigger asChild>
+                                    <TooltipTrigger asChild>
+                                      <DestructiveButton variant="ghost" size="icon">
+                                        <Trash2 className="h-4 w-4" />
+                                      </DestructiveButton>
+                                    </TooltipTrigger>
+                                  </AlertDialogTrigger>
+                                  <TooltipContent>
+                                    <p>Delete medicine</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Medicine</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete "{medicine.name}"? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <DestructiveButton
+                                      asChild
+                                      onClick={() => deleteMedicineMutation.mutate(medicine.id)}
+                                    >
+                                      <AlertDialogAction>
+                                        Delete
+                                      </AlertDialogAction>
+                                    </DestructiveButton>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TooltipProvider>
                         </TableCell>
                       </TableRow>
                     );
