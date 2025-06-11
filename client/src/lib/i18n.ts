@@ -318,6 +318,8 @@ const translations = {
     'prescription.dosage': 'Dosage',
     'prescription.frequency': 'Frequency',
     'prescription.duration': 'Duration',
+    'prescription.noPrescriptionsYet': 'No prescriptions yet',
+    'prescription.uploadFirst': 'Upload your first prescription to order Schedule H medicines',
     'prescription.instructions': 'Instructions',
     'prescription.status': 'Status',
     'prescription.pending': 'Pending',

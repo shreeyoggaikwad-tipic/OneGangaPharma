@@ -266,13 +266,13 @@ export default function Prescriptions() {
         <Card>
           <CardContent className="p-8 text-center">
             <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">No prescriptions yet</h2>
+            <h2 className="text-2xl font-semibold mb-2">{t('prescription.noPrescriptionsYet')}</h2>
             <p className="text-muted-foreground mb-6">
-              Upload your first prescription to order Schedule H medicines
+              {t('prescription.uploadFirst')}
             </p>
             <Button onClick={() => setUploadDialogOpen(true)}>
               <Upload className="h-4 w-4 mr-2" />
-              Upload Prescription
+              {t('prescription.uploadPrescription')}
             </Button>
           </CardContent>
         </Card>

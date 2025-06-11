@@ -159,9 +159,9 @@ export default function Orders() {
             <CardHeader className="bg-muted/50">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">Order #{order.orderNumber}</CardTitle>
+                  <CardTitle className="text-lg">{t('order.orderNumber')} #{order.orderNumber}</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Placed on {new Date(order.placedAt).toLocaleDateString("en-IN", {
+                    {t('order.placedOn')} {new Date(order.placedAt).toLocaleDateString("en-IN", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -184,7 +184,7 @@ export default function Orders() {
 
               {/* Order Items Summary */}
               <div className="mb-4">
-                <h4 className="font-semibold mb-2">Items ({order.items?.length || 0})</h4>
+                <h4 className="font-semibold mb-2">{t('order.orderItems')} ({order.items?.length || 0})</h4>
                 <div className="space-y-2">
                   {order.items?.slice(0, 2).map((item: any) => (
                     <div key={item.id} className="flex items-center justify-between text-sm">
