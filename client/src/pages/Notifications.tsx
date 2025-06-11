@@ -201,13 +201,23 @@ export default function Notifications() {
   };
 
   const highlightStatusKeywords = (text: string) => {
-    const keywords = ['Delivered', 'Processing', 'Confirmed', 'Cancelled', 'Approved', 'Rejected', 'Pending', 'Shipped', 'Out for Delivery'];
+    const keywords = [
+      'Delivered', 'Processing', 'Confirmed', 'Cancelled', 'Approved', 'Rejected', 
+      'Pending', 'Shipped', 'Out for Delivery', 'Placed', 'Processed', 'Shortly',
+      'Ready', 'Preparing', 'Dispatched', 'In Transit', 'Failed', 'Successful',
+      'Completed', 'Updated', 'Received', 'Verified'
+    ];
     let highlightedText = text;
     
+    // Highlight status keywords
     keywords.forEach(keyword => {
       const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
       highlightedText = highlightedText.replace(regex, `<strong>$1</strong>`);
     });
+    
+    // Highlight order numbers (pattern: letters followed by numbers, e.g., SMD68230319)
+    const orderNumberRegex = /\b([A-Z]{2,4}\d{6,12})\b/g;
+    highlightedText = highlightedText.replace(orderNumberRegex, '<strong>$1</strong>');
     
     return highlightedText;
   };
