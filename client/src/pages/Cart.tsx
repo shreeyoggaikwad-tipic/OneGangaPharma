@@ -173,7 +173,7 @@ export default function Cart() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300">
               <Trash2 className="h-4 w-4 mr-2" />
               {t('cart.clearCart')}
             </Button>
@@ -187,7 +187,12 @@ export default function Cart() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-              <AlertDialogAction onClick={clearCart}>{t('cart.clearCart')}</AlertDialogAction>
+              <AlertDialogAction 
+                onClick={clearCart}
+                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              >
+                {t('cart.clearCart')}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -228,7 +233,7 @@ export default function Cart() {
                           variant="ghost"
                           size="icon"
                           onClick={() => removeItem(item.id)}
-                          className="h-8 w-8"
+                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

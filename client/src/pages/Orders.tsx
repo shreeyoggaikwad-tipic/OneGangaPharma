@@ -48,7 +48,7 @@ export default function Orders() {
   const reorderMutation = useMutation({
     mutationFn: async (orderItems: any[]) => {
       const promises = orderItems.map(item => 
-        apiRequest("/api/cart", "POST", {
+        apiRequest("POST", "/api/cart", {
           medicineId: item.medicine.id,
           quantity: item.quantity,
         })
