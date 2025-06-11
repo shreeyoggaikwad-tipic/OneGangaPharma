@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
+import type { CartItem, Medicine } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { DestructiveButton } from "@/components/ui/destructive-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,7 +43,7 @@ export default function Cart() {
   useScrollToTopOnMount();
 
   // Get cart items
-  const { data: cartItems = [], isLoading } = useQuery({
+  const { data: cartItems = [], isLoading } = useQuery<(CartItem & { medicine: Medicine })[]>({
     queryKey: ["/api/cart"],
   });
 
@@ -117,11 +118,11 @@ export default function Cart() {
 
   // Calculate totals
   const subtotal = cartItems.reduce(
-    (sum: number, item: any) => sum + parseFloat(item.medicine.price) * item.quantity,
+    (sum: number, item) => sum + parseFloat(item.medicine.price) * item.quantity,
     0
   );
 
-  const hasScheduleHMedicines = cartItems.some((item: any) => item.medicine.requiresPrescription);
+  const hasScheduleHMedicines = cartItems.some((item) => item.medicine.requiresPrescription);
 
   if (isLoading) {
     return (
@@ -203,7 +204,7 @@ export default function Cart() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item: any) => (
+          {cartItems.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
