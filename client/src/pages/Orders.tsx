@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "@/lib/i18n";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
@@ -24,11 +26,14 @@ import {
   CheckCircle,
   ShoppingCart,
   Eye,
+  RotateCcw,
 } from "lucide-react";
 
 export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const { t } = useTranslation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { scrollToTop } = useScrollToTop();
   
   // Scroll to top on page load
@@ -38,6 +43,39 @@ export default function Orders() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["/api/orders"],
   });
+
+  // Reorder mutation
+  const reorderMutation = useMutation({
+    mutationFn: async (orderItems: any[]) => {
+      const promises = orderItems.map(item => 
+        apiRequest("/api/cart", "POST", {
+          medicineId: item.medicine.id,
+          quantity: item.quantity,
+        })
+      );
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Items added to cart successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add items to cart",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleReorder = (order: any) => {
+    if (order.items && order.items.length > 0) {
+      reorderMutation.mutate(order.items);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -274,8 +312,14 @@ export default function Orders() {
                 </Dialog>
 
                 {order.status === "delivered" && (
-                  <Button variant="outline" size="sm">
-                    Reorder
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleReorder(order)}
+                    disabled={reorderMutation.isPending}
+                  >
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    {reorderMutation.isPending ? "Adding..." : "Reorder"}
                   </Button>
                 )}
               </div>
