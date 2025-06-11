@@ -201,7 +201,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
-      <nav className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-gray-200/50 transition-all duration-300">
+      <nav className="bg-white/95 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-200/50 transition-all duration-300">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -342,7 +342,7 @@ export default function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-16">{children}</main>
 
       {/* Mobile Cart Button - Only for customers */}
       {isAuthenticated && !isAdmin && (
