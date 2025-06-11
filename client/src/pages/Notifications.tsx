@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DestructiveButton } from "@/components/ui/destructive-button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
@@ -237,8 +238,7 @@ export default function Notifications() {
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
+              <DestructiveButton
                 size="sm"
                 disabled={clearAllNotificationsMutation.isPending || notifications.length === 0}
                 className="w-full sm:w-auto"
@@ -246,7 +246,7 @@ export default function Notifications() {
                 <Trash2 className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Clear All</span>
                 <span className="sm:hidden">Clear</span>
-              </Button>
+              </DestructiveButton>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -257,12 +257,14 @@ export default function Notifications() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
+                <DestructiveButton
+                  asChild
                   onClick={() => clearAllNotificationsMutation.mutate()}
-                  className="bg-red-600 hover:bg-red-700"
                 >
-                  Clear All Notifications
-                </AlertDialogAction>
+                  <AlertDialogAction>
+                    Clear All Notifications
+                  </AlertDialogAction>
+                </DestructiveButton>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -379,13 +381,12 @@ export default function Notifications() {
                         )}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
+                            <DestructiveButton
                               variant="ghost"
                               size="sm"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button>
+                            </DestructiveButton>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
@@ -396,12 +397,14 @@ export default function Notifications() {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
+                              <DestructiveButton
+                                asChild
                                 onClick={() => deleteNotificationMutation.mutate(notification.id)}
-                                className="bg-red-600 hover:bg-red-700"
                               >
-                                Delete Notification
-                              </AlertDialogAction>
+                                <AlertDialogAction>
+                                  Delete Notification
+                                </AlertDialogAction>
+                              </DestructiveButton>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

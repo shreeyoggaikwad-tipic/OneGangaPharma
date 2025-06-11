@@ -9,6 +9,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
+import { DestructiveButton } from "@/components/ui/destructive-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -417,9 +418,9 @@ export default function Profile() {
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
+                                <DestructiveButton variant="ghost" size="icon" className="h-8 w-8">
                                   <Trash2 className="h-4 w-4" />
-                                </Button>
+                                </DestructiveButton>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -430,12 +431,14 @@ export default function Profile() {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
+                                  <DestructiveButton
+                                    asChild
                                     onClick={() => deleteAddressMutation.mutate(address.id)}
-                                    className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
                                   >
-                                    Delete
-                                  </AlertDialogAction>
+                                    <AlertDialogAction>
+                                      Delete
+                                    </AlertDialogAction>
+                                  </DestructiveButton>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>

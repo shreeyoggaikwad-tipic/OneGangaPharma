@@ -229,14 +229,14 @@ export default function Cart() {
                             Schedule H
                           </Badge>
                         )}
-                        <Button
+                        <DestructiveButton
                           variant="ghost"
                           size="icon"
                           onClick={() => removeItem(item.id)}
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </DestructiveButton>
                       </div>
                     </div>
 
