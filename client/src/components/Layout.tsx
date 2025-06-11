@@ -301,10 +301,7 @@ export default function Layout({ children }: LayoutProps) {
                   {/* Profile Menu - available for all users */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="flex items-center space-x-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md px-3 py-2"
-                      >
+                      <button className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md bg-transparent hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md">
                           <User className="h-4 w-4 text-white" />
                         </div>
@@ -312,7 +309,7 @@ export default function Layout({ children }: LayoutProps) {
                           {user?.firstName} {user?.lastName}
                         </span>
                         <ChevronDown className="h-3 w-3" />
-                      </Button>
+                      </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {/* Profile link - hidden for admin users */}
