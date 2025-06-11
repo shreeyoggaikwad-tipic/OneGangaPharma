@@ -9,10 +9,10 @@ const destructiveButtonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
-        outline: "border border-red-200 text-red-600 bg-white hover:bg-red-50 hover:border-red-300 hover:text-red-700",
-        ghost: "text-red-600 hover:bg-red-50 hover:text-red-700",
-        destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
+        default: "!bg-red-600 !text-white hover:!bg-red-700 focus:!ring-red-600 shadow-sm border-red-600",
+        outline: "!border !border-red-300 !text-red-600 !bg-white hover:!bg-red-50 hover:!border-red-400 hover:!text-red-700 shadow-sm",
+        ghost: "!text-red-600 hover:!bg-red-50 hover:!text-red-700 !border-transparent",
+        destructive: "!bg-red-600 !text-white hover:!bg-red-700 focus:!ring-red-600 shadow-sm border-red-600",
       },
       size: {
         default: "h-10 px-4 py-2",
