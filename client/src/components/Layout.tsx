@@ -235,7 +235,7 @@ export default function Layout({ children }: LayoutProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-gray-300 bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md px-2 min-w-0"
+                    className="border-gray-300 bg-white text-gray-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md px-2 min-w-0"
                   >
                     <Globe className="h-3 w-3 lg:h-4 lg:w-4 mr-1 flex-shrink-0" />
                     <span className="hidden md:inline text-xs lg:text-sm">
