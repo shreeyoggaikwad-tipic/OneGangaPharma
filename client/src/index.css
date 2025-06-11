@@ -100,6 +100,13 @@ html, body {
   border-color: rgb(250 204 21) !important; /* border-yellow-400 */
 }
 
+/* Red styling for Out of Stock status */
+.out-of-stock-red {
+  background-color: rgb(254 226 226) !important; /* bg-red-100 */
+  color: rgb(153 27 27) !important; /* text-red-900 */
+  border-color: rgb(248 113 113) !important; /* border-red-400 */
+}
+
 .dark {
   --background: hsl(222.2, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);
