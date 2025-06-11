@@ -149,12 +149,12 @@ export default function Cart() {
             <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-2xl font-semibold mb-2">{t('cart.empty')}</h2>
             <p className="text-muted-foreground mb-6">
-              Add some medicines to get started
+              {t('cart.emptyMessage')}
             </p>
             <Link href="/medicines">
               <Button>
                 <Package className="h-4 w-4 mr-2" />
-                Browse Medicines
+                {t('medicine.title')}
               </Button>
             </Link>
           </CardContent>
@@ -168,26 +168,26 @@ export default function Cart() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Shopping Cart</h1>
-          <p className="text-muted-foreground">{cartItems.length} item(s) in your cart</p>
+          <h1 className="text-3xl font-bold">{t('cart.title')}</h1>
+          <p className="text-muted-foreground">{cartItems.length} {t('cart.itemsInCart')}</p>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline" size="sm">
               <Trash2 className="h-4 w-4 mr-2" />
-              Clear Cart
+              {t('cart.clearCart')}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Clear Cart</AlertDialogTitle>
+              <AlertDialogTitle>{t('cart.clearCart')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to remove all items from your cart? This action cannot be undone.
+                {t('cart.clearCartConfirm')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={clearCart}>Clear Cart</AlertDialogAction>
+              <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={clearCart}>{t('cart.clearCart')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
