@@ -256,7 +256,9 @@ export default function Notifications() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <DestructiveButton variant="outline" asChild>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                </DestructiveButton>
                 <DestructiveButton
                   asChild
                   onClick={() => clearAllNotificationsMutation.mutate()}
@@ -396,7 +398,9 @@ export default function Notifications() {
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <DestructiveButton variant="outline" asChild>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              </DestructiveButton>
                               <DestructiveButton
                                 asChild
                                 onClick={() => deleteNotificationMutation.mutate(notification.id)}

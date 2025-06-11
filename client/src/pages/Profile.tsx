@@ -430,7 +430,9 @@ export default function Profile() {
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <DestructiveButton variant="outline" asChild>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  </DestructiveButton>
                                   <DestructiveButton
                                     asChild
                                     onClick={() => deleteAddressMutation.mutate(address.id)}
@@ -651,14 +653,14 @@ export default function Profile() {
               />
 
               <div className="flex gap-2 pt-4">
-                <Button
+                <DestructiveButton
                   type="button"
                   variant="outline"
                   onClick={() => setShowAddressDialog(false)}
                   className="flex-1"
                 >
                   Cancel
-                </Button>
+                </DestructiveButton>
                 <Button
                   type="submit"
                   disabled={addressMutation.isPending}

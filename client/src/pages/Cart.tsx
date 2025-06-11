@@ -187,7 +187,9 @@ export default function Cart() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+              <DestructiveButton variant="outline" asChild>
+                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+              </DestructiveButton>
               <DestructiveButton asChild onClick={clearCart}>
                 <AlertDialogAction>
                   {t('cart.clearCart')}
