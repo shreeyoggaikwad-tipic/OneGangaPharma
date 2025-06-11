@@ -64,7 +64,10 @@ export default function Dashboard() {
   const [timePeriod, setTimePeriod] = useState("weekly");
   const [reportType, setReportType] = useState("sales");
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
-  const [prescriptionView, setPrescriptionView] = useState<{ orderId: number; prescriptionId: number } | null>(null);
+  const [prescriptionView, setPrescriptionView] = useState<{
+    orderId: number;
+    prescriptionId: number;
+  } | null>(null);
 
   // Get dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery<any>({
@@ -138,13 +141,17 @@ export default function Dashboard() {
 
   // Helper function to check if order has prescription
   const hasScheduleHMedicines = (order: any) => {
-    return order.items?.some((item: any) => item.medicine?.requiresPrescription);
+    return order.items?.some(
+      (item: any) => item.medicine?.requiresPrescription,
+    );
   };
 
   // Helper function to get prescription for order
   const getOrderPrescription = (order: any) => {
     if (order.prescriptionId) {
-      return pendingPrescriptions.find((p: any) => p.id === order.prescriptionId);
+      return pendingPrescriptions.find(
+        (p: any) => p.id === order.prescriptionId,
+      );
     }
     return null;
   };
@@ -176,7 +183,9 @@ export default function Dashboard() {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Admin Dashboard
+          </h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Welcome back! Here's your pharmacy overview for today.
           </p>
@@ -184,9 +193,15 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
           <div className="text-left sm:text-right">
             <p className="text-xs sm:text-sm text-gray-500">Last updated</p>
-            <p className="text-xs sm:text-sm font-medium">{new Date().toLocaleTimeString()}</p>
+            <p className="text-xs sm:text-sm font-medium">
+              {new Date().toLocaleTimeString()}
+            </p>
           </div>
-          <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 w-full sm:w-auto"
+          >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -197,8 +212,12 @@ export default function Dashboard() {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 sm:p-6 border border-blue-100">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Quick Actions</h2>
-            <p className="text-gray-600 text-xs sm:text-sm">Common tasks and shortcuts</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+              Quick Actions
+            </h2>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              Common tasks and shortcuts
+            </p>
           </div>
           <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
@@ -209,7 +228,9 @@ export default function Dashboard() {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
                   <Plus className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Add Medicine</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
+                  Add Medicine
+                </p>
                 <p className="text-xs text-gray-600">Create new product</p>
               </CardContent>
             </Card>
@@ -220,7 +241,9 @@ export default function Dashboard() {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
                   <Upload className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Bulk Upload</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
+                  Bulk Upload
+                </p>
                 <p className="text-xs text-gray-600">Import CSV data</p>
               </CardContent>
             </Card>
@@ -231,7 +254,9 @@ export default function Dashboard() {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
                   <Package2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Manage Orders</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
+                  Manage Orders
+                </p>
                 <p className="text-xs text-gray-600">Process orders</p>
               </CardContent>
             </Card>
@@ -242,7 +267,9 @@ export default function Dashboard() {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
                   <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">Review Prescriptions</p>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
+                  Review Prescriptions
+                </p>
                 <p className="text-xs text-gray-600">Approve requests</p>
               </CardContent>
             </Card>
@@ -254,8 +281,12 @@ export default function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Key Metrics</h2>
-            <p className="text-gray-600 text-xs sm:text-sm">Today's performance overview</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+              Key Metrics
+            </h2>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              Today's performance overview
+            </p>
           </div>
           <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
         </div>
@@ -264,13 +295,17 @@ export default function Dashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-xs sm:text-sm font-medium">Total Sales</p>
+                  <p className="text-green-100 text-xs sm:text-sm font-medium">
+                    Total Sales
+                  </p>
                   <p className="text-2xl sm:text-3xl font-bold">
                     ₹{(stats?.totalSales || 0).toLocaleString()}
                   </p>
                   <div className="flex items-center mt-1 sm:mt-2 text-green-100">
                     <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="text-xs sm:text-sm">+12% from yesterday</span>
+                    <span className="text-xs sm:text-sm">
+                      +12% from yesterday
+                    </span>
                   </div>
                 </div>
                 <IndianRupee className="h-6 w-6 sm:h-8 sm:w-8 text-green-200" />
@@ -282,11 +317,17 @@ export default function Dashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-xs sm:text-sm font-medium">Orders Today</p>
-                  <p className="text-2xl sm:text-3xl font-bold">{stats?.ordersToday || 0}</p>
+                  <p className="text-blue-100 text-xs sm:text-sm font-medium">
+                    Orders Today
+                  </p>
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {stats?.ordersToday || 0}
+                  </p>
                   <div className="flex items-center mt-1 sm:mt-2 text-blue-100">
                     <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="text-xs sm:text-sm">+8% from yesterday</span>
+                    <span className="text-xs sm:text-sm">
+                      +8% from yesterday
+                    </span>
                   </div>
                 </div>
                 <ShoppingCart className="h-6 w-6 sm:h-8 sm:w-8 text-blue-200" />
@@ -298,8 +339,12 @@ export default function Dashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-100 text-xs sm:text-sm font-medium">Low Stock Items</p>
-                  <p className="text-2xl sm:text-3xl font-bold">{stats?.lowStockCount || 0}</p>
+                  <p className="text-orange-100 text-xs sm:text-sm font-medium">
+                    Low Stock Items
+                  </p>
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {stats?.lowStockCount || 0}
+                  </p>
                   <div className="flex items-center mt-1 sm:mt-2 text-orange-100">
                     <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="text-xs sm:text-sm">Needs attention</span>
@@ -314,8 +359,12 @@ export default function Dashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-xs sm:text-sm font-medium">Pending Prescriptions</p>
-                  <p className="text-2xl sm:text-3xl font-bold">{stats?.pendingPrescriptions || 0}</p>
+                  <p className="text-purple-100 text-xs sm:text-sm font-medium">
+                    Pending Prescriptions
+                  </p>
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {stats?.pendingPrescriptions || 0}
+                  </p>
                   <div className="flex items-center mt-1 sm:mt-2 text-purple-100">
                     <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="text-xs sm:text-sm">Awaiting review</span>
@@ -334,7 +383,10 @@ export default function Dashboard() {
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-              <span className="truncate">Sales Trend ({timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)})</span>
+              <span className="truncate">
+                Sales Trend (
+                {timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)})
+              </span>
             </CardTitle>
             <div className="flex flex-col sm:flex-row gap-2">
               <Select value={timePeriod} onValueChange={setTimePeriod}>
@@ -366,10 +418,12 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="label" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name) => [
-                      name === 'sales' ? `₹${(value as number).toLocaleString()}` : value,
-                      name === 'sales' ? 'Sales' : 'Orders'
+                      name === "sales"
+                        ? `₹${(value as number).toLocaleString()}`
+                        : value,
+                      name === "sales" ? "Sales" : "Orders",
                     ]}
                     labelFormatter={(label) => label}
                   />
@@ -394,7 +448,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5 text-green-600" />
-              Medicine Categories
+              Medicine Inventory by Category
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -406,7 +460,9 @@ export default function Dashboard() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -415,7 +471,9 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} medicines`, 'Count']} />
+                  <Tooltip
+                    formatter={(value) => [`${value} medicines`, "Count"]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -439,7 +497,11 @@ export default function Dashboard() {
                   Recent Orders
                 </CardTitle>
                 <Link href="/admin/orders">
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
+                  >
                     View All
                     <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
                   </Button>
@@ -464,9 +526,12 @@ export default function Dashboard() {
                     const hasScheduleH = hasScheduleHMedicines(order);
                     const prescription = getOrderPrescription(order);
                     const isExpanded = expandedOrder === order.id;
-                    
+
                     return (
-                      <div key={order.id} className="w-full border rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden">
+                      <div
+                        key={order.id}
+                        className="w-full border rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden"
+                      >
                         {/* Main Order Row */}
                         <div className="flex items-center justify-between p-3 sm:p-4 gap-2">
                           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
@@ -475,9 +540,14 @@ export default function Dashboard() {
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                                <p className="font-medium text-xs sm:text-sm truncate">{order.orderNumber}</p>
+                                <p className="font-medium text-xs sm:text-sm truncate">
+                                  {order.orderNumber}
+                                </p>
                                 {hasScheduleH && (
-                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200 hidden sm:flex">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs bg-orange-50 text-orange-700 border-orange-200 hidden sm:flex"
+                                  >
                                     <FileText className="h-3 w-3 mr-1" />
                                     Schedule H
                                   </Badge>
@@ -488,16 +558,23 @@ export default function Dashboard() {
                               </p>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                             <div className="text-right">
-                              <p className="font-medium text-xs sm:text-sm">₹{parseFloat(order.totalAmount).toLocaleString()}</p>
-                              <Badge className={`${getStatusColor(order.status)} text-xs flex items-center gap-1 justify-center`}>
+                              <p className="font-medium text-xs sm:text-sm">
+                                ₹
+                                {parseFloat(order.totalAmount).toLocaleString()}
+                              </p>
+                              <Badge
+                                className={`${getStatusColor(order.status)} text-xs flex items-center gap-1 justify-center`}
+                              >
                                 {getStatusIcon(order.status)}
-                                <span className="hidden sm:inline">{order.status.replace('_', ' ')}</span>
+                                <span className="hidden sm:inline">
+                                  {order.status.replace("_", " ")}
+                                </span>
                               </Badge>
                             </div>
-                            
+
                             {/* Expand Button */}
                             <Button
                               variant="ghost"
@@ -519,21 +596,34 @@ export default function Dashboard() {
                           <div className="border-t bg-gray-50 p-4 space-y-4">
                             {/* Order Items */}
                             <div>
-                              <h4 className="font-medium text-sm mb-2 text-gray-700">Order Items:</h4>
+                              <h4 className="font-medium text-sm mb-2 text-gray-700">
+                                Order Items:
+                              </h4>
                               <div className="space-y-2">
-                                {order.items?.map((item: any, index: number) => (
-                                  <div key={index} className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2">
-                                      <span>{item.medicine?.name}</span>
-                                      {item.medicine?.requiresPrescription && (
-                                        <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
-                                          Rx Required
-                                        </Badge>
-                                      )}
+                                {order.items?.map(
+                                  (item: any, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-center justify-between text-sm"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <span>{item.medicine?.name}</span>
+                                        {item.medicine
+                                          ?.requiresPrescription && (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs bg-red-50 text-red-700 border-red-200"
+                                          >
+                                            Rx Required
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <span className="text-gray-600">
+                                        Qty: {item.quantity}
+                                      </span>
                                     </div>
-                                    <span className="text-gray-600">Qty: {item.quantity}</span>
-                                  </div>
-                                ))}
+                                  ),
+                                )}
                               </div>
                             </div>
 
@@ -546,48 +636,73 @@ export default function Dashboard() {
                                     Prescription Details
                                   </h4>
                                 </div>
-                                
+
                                 {prescription ? (
                                   <div className="bg-white rounded-lg border p-3 space-y-3">
                                     <div className="flex items-center justify-between">
                                       <div>
-                                        <p className="text-sm font-medium">{prescription.fileName}</p>
+                                        <p className="text-sm font-medium">
+                                          {prescription.fileName}
+                                        </p>
                                         <p className="text-xs text-gray-500">
-                                          Status: <span className={`font-medium ${
-                                            prescription.status === 'approved' ? 'text-green-600' : 
-                                            prescription.status === 'rejected' ? 'text-red-600' : 'text-orange-600'
-                                          }`}>
+                                          Status:{" "}
+                                          <span
+                                            className={`font-medium ${
+                                              prescription.status === "approved"
+                                                ? "text-green-600"
+                                                : prescription.status ===
+                                                    "rejected"
+                                                  ? "text-red-600"
+                                                  : "text-orange-600"
+                                            }`}
+                                          >
                                             {prescription.status}
                                           </span>
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                          Uploaded: {new Date(prescription.uploadedAt).toLocaleDateString()}
+                                          Uploaded:{" "}
+                                          {new Date(
+                                            prescription.uploadedAt,
+                                          ).toLocaleDateString()}
                                         </p>
                                       </div>
-                                      
+
                                       <div className="flex gap-2">
                                         <Button
                                           variant="outline"
                                           size="sm"
-                                          onClick={() => window.open(`/uploads/${prescription.fileName}`, '_blank')}
+                                          onClick={() =>
+                                            window.open(
+                                              `/uploads/${prescription.fileName}`,
+                                              "_blank",
+                                            )
+                                          }
                                           className="text-xs hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
                                         >
                                           <Eye className="h-3 w-3 mr-1" />
                                           View
                                         </Button>
                                         <Link href={`/admin/prescriptions`}>
-                                          <Button variant="outline" size="sm" className="text-xs hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-xs hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                                          >
                                             <ExternalLink className="h-3 w-3 mr-1" />
                                             Review
                                           </Button>
                                         </Link>
                                       </div>
                                     </div>
-                                    
+
                                     {prescription.notes && (
                                       <div className="text-xs bg-gray-50 p-2 rounded border">
-                                        <p className="font-medium text-gray-700">Notes:</p>
-                                        <p className="text-gray-600">{prescription.notes}</p>
+                                        <p className="font-medium text-gray-700">
+                                          Notes:
+                                        </p>
+                                        <p className="text-gray-600">
+                                          {prescription.notes}
+                                        </p>
                                       </div>
                                     )}
                                   </div>
@@ -595,10 +710,13 @@ export default function Dashboard() {
                                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                                     <div className="flex items-center gap-2 text-yellow-800">
                                       <AlertTriangle className="h-4 w-4" />
-                                      <p className="text-sm font-medium">No prescription found for this order</p>
+                                      <p className="text-sm font-medium">
+                                        No prescription found for this order
+                                      </p>
                                     </div>
                                     <p className="text-xs text-yellow-700 mt-1">
-                                      This order contains Schedule H medicines but no prescription is linked.
+                                      This order contains Schedule H medicines
+                                      but no prescription is linked.
                                     </p>
                                   </div>
                                 )}
@@ -608,14 +726,22 @@ export default function Dashboard() {
                             {/* Quick Actions */}
                             <div className="border-t pt-3 flex gap-2">
                               <Link href={`/admin/orders`}>
-                                <Button variant="outline" size="sm" className="text-xs hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                                >
                                   <Eye className="h-3 w-3 mr-1" />
                                   View Full Order
                                 </Button>
                               </Link>
-                              {order.status === 'pending_prescription_review' && (
+                              {order.status ===
+                                "pending_prescription_review" && (
                                 <Link href="/admin/prescriptions">
-                                  <Button size="sm" className="text-xs bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                                  <Button
+                                    size="sm"
+                                    className="text-xs bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                  >
                                     <FileText className="h-3 w-3 mr-1" />
                                     Review Prescription
                                   </Button>
@@ -636,20 +762,25 @@ export default function Dashboard() {
         {/* Alerts & Notifications */}
         <div className="w-full min-w-0 space-y-4 sm:space-y-6">
           {/* Smart Stock Status */}
-          <Card className={`w-full ${lowStockMedicines.length === 0 
-            ? 'border-green-200 bg-green-50' 
-            : lowStockMedicines.some((m: any) => m.totalStock === 0)
-              ? 'border-red-200 bg-red-50'
-              : 'border-orange-200 bg-orange-50'
-          }`}>
+          <Card
+            className={`w-full ${
+              lowStockMedicines.length === 0
+                ? "border-green-200 bg-green-50"
+                : lowStockMedicines.some((m: any) => m.totalStock === 0)
+                  ? "border-red-200 bg-red-50"
+                  : "border-orange-200 bg-orange-50"
+            }`}
+          >
             <CardHeader className="pb-3">
-              <CardTitle className={`flex items-center gap-2 text-sm sm:text-base ${
-                lowStockMedicines.length === 0 
-                  ? 'text-green-800' 
-                  : lowStockMedicines.some((m: any) => m.totalStock === 0)
-                    ? 'text-red-800'
-                    : 'text-orange-800'
-              }`}>
+              <CardTitle
+                className={`flex items-center gap-2 text-sm sm:text-base ${
+                  lowStockMedicines.length === 0
+                    ? "text-green-800"
+                    : lowStockMedicines.some((m: any) => m.totalStock === 0)
+                      ? "text-red-800"
+                      : "text-orange-800"
+                }`}
+              >
                 {lowStockMedicines.length === 0 ? (
                   <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 ) : lowStockMedicines.some((m: any) => m.totalStock === 0) ? (
@@ -665,57 +796,89 @@ export default function Dashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <p className="text-green-700 text-sm font-medium">All medicines are well stocked</p>
+                    <p className="text-green-700 text-sm font-medium">
+                      All medicines are well stocked
+                    </p>
                   </div>
-                  <p className="text-green-600 text-xs">Inventory levels are healthy across all products</p>
+                  <p className="text-green-600 text-xs">
+                    Inventory levels are healthy across all products
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {/* Critical (Out of Stock) */}
-                  {lowStockMedicines.filter((m: any) => m.totalStock === 0).length > 0 && (
+                  {lowStockMedicines.filter((m: any) => m.totalStock === 0)
+                    .length > 0 && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <p className="text-red-800 text-xs font-semibold uppercase tracking-wide">Critical - Out of Stock</p>
+                        <p className="text-red-800 text-xs font-semibold uppercase tracking-wide">
+                          Critical - Out of Stock
+                        </p>
                       </div>
-                      {lowStockMedicines.filter((m: any) => m.totalStock === 0).slice(0, 2).map((medicine: any) => (
-                        <div key={medicine.id} className="flex items-center justify-between bg-red-100 rounded-lg p-2 border border-red-200">
-                          <p className="text-sm font-medium text-red-900">{medicine.name}</p>
-                          <Badge variant="destructive" className="text-xs">
-                            Out of Stock
-                          </Badge>
-                        </div>
-                      ))}
+                      {lowStockMedicines
+                        .filter((m: any) => m.totalStock === 0)
+                        .slice(0, 2)
+                        .map((medicine: any) => (
+                          <div
+                            key={medicine.id}
+                            className="flex items-center justify-between bg-red-100 rounded-lg p-2 border border-red-200"
+                          >
+                            <p className="text-sm font-medium text-red-900">
+                              {medicine.name}
+                            </p>
+                            <Badge variant="destructive" className="text-xs">
+                              Out of Stock
+                            </Badge>
+                          </div>
+                        ))}
                     </div>
                   )}
 
                   {/* Low Stock Warning */}
-                  {lowStockMedicines.filter((m: any) => m.totalStock > 0 && m.totalStock <= 10).length > 0 && (
+                  {lowStockMedicines.filter(
+                    (m: any) => m.totalStock > 0 && m.totalStock <= 10,
+                  ).length > 0 && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <p className="text-orange-800 text-xs font-semibold uppercase tracking-wide">Low Stock Warning</p>
+                        <p className="text-orange-800 text-xs font-semibold uppercase tracking-wide">
+                          Low Stock Warning
+                        </p>
                       </div>
-                      {lowStockMedicines.filter((m: any) => m.totalStock > 0 && m.totalStock <= 10).slice(0, 2).map((medicine: any) => (
-                        <div key={medicine.id} className="flex items-center justify-between bg-orange-100 rounded-lg p-2 border border-orange-200">
-                          <p className="text-sm font-medium text-orange-900">{medicine.name}</p>
-                          <Badge variant="outline" className="text-orange-700 border-orange-400 bg-orange-50">
-                            {medicine.totalStock} left
-                          </Badge>
-                        </div>
-                      ))}
+                      {lowStockMedicines
+                        .filter(
+                          (m: any) => m.totalStock > 0 && m.totalStock <= 10,
+                        )
+                        .slice(0, 2)
+                        .map((medicine: any) => (
+                          <div
+                            key={medicine.id}
+                            className="flex items-center justify-between bg-orange-100 rounded-lg p-2 border border-orange-200"
+                          >
+                            <p className="text-sm font-medium text-orange-900">
+                              {medicine.name}
+                            </p>
+                            <Badge
+                              variant="outline"
+                              className="text-orange-700 border-orange-400 bg-orange-50"
+                            >
+                              {medicine.totalStock} left
+                            </Badge>
+                          </div>
+                        ))}
                     </div>
                   )}
 
                   {/* Action Button */}
                   <Link href="/admin/medicines">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className={`w-full mt-2 ${
                         lowStockMedicines.some((m: any) => m.totalStock === 0)
-                          ? 'border-red-300 text-red-700 hover:bg-red-50'
-                          : 'border-orange-300 text-orange-700 hover:bg-orange-50'
+                          ? "border-red-300 text-red-700 hover:bg-red-50"
+                          : "border-orange-300 text-orange-700 hover:bg-orange-50"
                       }`}
                     >
                       Manage Inventory ({lowStockMedicines.length})
@@ -737,11 +900,14 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               {pendingPrescriptions.length === 0 ? (
-                <p className="text-purple-700 text-sm">No pending prescriptions</p>
+                <p className="text-purple-700 text-sm">
+                  No pending prescriptions
+                </p>
               ) : (
                 <div className="space-y-2">
                   <p className="text-sm text-purple-800 font-medium">
-                    {pendingPrescriptions.length} prescription(s) awaiting review
+                    {pendingPrescriptions.length} prescription(s) awaiting
+                    review
                   </p>
                   <Link href="/admin/prescriptions">
                     <Button variant="outline" size="sm" className="w-full">
@@ -765,7 +931,9 @@ export default function Dashboard() {
             <CardContent className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Active Medicines</span>
-                <span className="font-medium">{medicines.filter((m: any) => m.isActive).length}</span>
+                <span className="font-medium">
+                  {medicines.filter((m: any) => m.isActive).length}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Total Orders</span>
@@ -777,10 +945,14 @@ export default function Dashboard() {
               </div>
               <Separator />
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Pending Prescriptions</span>
+                <span className="text-sm text-gray-600">
+                  Pending Prescriptions
+                </span>
                 <div className="flex items-center gap-1">
                   <FileText className="h-3 w-3 text-blue-600" />
-                  <span className="font-medium text-blue-600">{stats?.pendingPrescriptions || 0}</span>
+                  <span className="font-medium text-blue-600">
+                    {stats?.pendingPrescriptions || 0}
+                  </span>
                 </div>
               </div>
             </CardContent>

@@ -159,6 +159,25 @@ export default function Layout({ children }: LayoutProps) {
                     </Button>
                   </Link>
 
+                  <Link href="/notifications">
+                    <Button
+                      variant={location === "/notifications" ? "default" : "ghost"}
+                      className="w-full justify-start"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Bell className="h-4 w-4 mr-2" />
+                      {t("nav.notifications")}
+                      {unreadNotifications.length > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="ml-auto w-5 h-5 flex items-center justify-center p-0 text-xs"
+                        >
+                          {unreadNotifications.length}
+                        </Badge>
+                      )}
+                    </Button>
+                  </Link>
+
                   <Link href="/cart">
                     <Button
                       variant={location === "/cart" ? "default" : "ghost"}
