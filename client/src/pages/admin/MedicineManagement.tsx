@@ -258,21 +258,24 @@ export default function MedicineManagement() {
   };
 
   const getStockStatus = (stock: number) => {
-    if (stock === 0) return { 
+    // Convert to number and handle null/undefined cases
+    const stockNum = Number(stock) || 0;
+    
+    if (stockNum <= 0) return { 
       label: "Out of Stock", 
       variant: "destructive" as const, 
       color: "text-red-600",
       bgColor: "bg-red-50",
       borderColor: "border-red-200"
     };
-    if (stock <= 10) return { 
+    if (stockNum <= 10) return { 
       label: "Critical Low", 
       variant: "outline" as const, 
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       borderColor: "border-orange-200"
     };
-    if (stock <= 20) return { 
+    if (stockNum <= 20) return { 
       label: "Low Stock", 
       variant: "secondary" as const, 
       color: "text-yellow-600",
