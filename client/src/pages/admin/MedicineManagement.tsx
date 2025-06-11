@@ -399,7 +399,10 @@ export default function MedicineManagement() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={stockStatus.variant}>
+                          <Badge 
+                            variant={stockStatus.variant}
+                            className={stockStatus.label === "Well Stocked" ? "well-stocked-strobe" : ""}
+                          >
                             {stockStatus.label}
                           </Badge>
                         </TableCell>

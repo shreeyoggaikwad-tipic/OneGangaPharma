@@ -70,6 +70,22 @@ html, body {
   --sidebar-ring: hsl(184, 90%, 24%);
 }
 
+/* Strobing animation for Well Stocked status */
+@keyframes strobe {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.well-stocked-strobe {
+  animation: strobe 1.5s ease-in-out infinite;
+}
+
 .dark {
   --background: hsl(222.2, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);
