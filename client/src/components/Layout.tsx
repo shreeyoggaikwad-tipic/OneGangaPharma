@@ -232,17 +232,13 @@ export default function Layout({ children }: LayoutProps) {
               {/* Language Selector */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-gray-300 bg-white text-gray-700 hover:!bg-blue-600 hover:!text-white hover:!border-blue-600 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md px-2 min-w-0 [&:hover_svg]:text-white"
-                  >
-                    <Globe className="h-3 w-3 lg:h-4 lg:w-4 mr-1 flex-shrink-0 text-current" />
+                  <button className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-700 transition-all duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <Globe className="h-4 w-4 mr-1 flex-shrink-0" />
                     <span className="hidden md:inline text-xs lg:text-sm">
                       {language.toUpperCase()}
                     </span>
-                    <ChevronDown className="h-3 w-3 ml-1 flex-shrink-0 text-current" />
-                  </Button>
+                    <ChevronDown className="h-3 w-3 ml-1 flex-shrink-0" />
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => changeLanguage("en")}>
