@@ -130,14 +130,14 @@ export default function Orders() {
         <Card>
           <CardContent className="p-8 text-center">
             <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">No orders yet</h2>
+            <h2 className="text-2xl font-semibold mb-2">{t('orders.noOrdersYet')}</h2>
             <p className="text-muted-foreground mb-6">
-              Start shopping to see your orders here
+              {t('orders.startShopping')}
             </p>
             <Link href="/medicines">
               <Button>
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Browse Medicines
+                {t('orders.browseMedicines')}
               </Button>
             </Link>
           </CardContent>
@@ -149,8 +149,8 @@ export default function Orders() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">My Orders</h1>
-        <p className="text-muted-foreground">Track and manage your orders</p>
+        <h1 className="text-3xl font-bold">{t('orders.myOrders')}</h1>
+        <p className="text-muted-foreground">{t('orders.trackManage')}</p>
       </div>
 
       <div className="space-y-6">
