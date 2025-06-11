@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ type AddressForm = z.infer<typeof addressSchema>;
 
 export default function Profile() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { scrollToTop } = useScrollToTop();

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
 import { useScrollToTop, useScrollToTopOnMount } from "@/hooks/useScrollToTop";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ import {
 } from "lucide-react";
 
 export default function Prescriptions() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
