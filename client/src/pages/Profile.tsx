@@ -302,12 +302,12 @@ export default function Profile() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Email</Label>
+                    <Label>{t('profile.emailAddress')}</Label>
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <Input value={user?.email} disabled className="bg-muted" />
                     </div>
-                    <p className="text-sm text-muted-foreground">Email cannot be changed</p>
+                    <p className="text-sm text-muted-foreground">{t('profile.emailCannotChange')}</p>
                   </div>
 
                   <FormField
