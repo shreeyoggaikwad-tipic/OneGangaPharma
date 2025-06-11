@@ -333,18 +333,7 @@ export default function Notifications() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-start gap-2 sm:gap-4">
                   <div className="flex-shrink-0 mt-1">
-                    <div className="hidden sm:block">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="sm:hidden">
-                      {(() => {
-                        const icon = getNotificationIcon(notification.type);
-                        return icon.type === ShoppingCart ? <ShoppingCart className="h-4 w-4 text-blue-600" /> :
-                               icon.type === FileText ? <FileText className="h-4 w-4 text-green-600" /> :
-                               icon.type === Package ? <Package className="h-4 w-4 text-orange-600" /> :
-                               <AlertTriangle className="h-4 w-4 text-red-600" />;
-                      })()}
-                    </div>
+                    {getNotificationIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
