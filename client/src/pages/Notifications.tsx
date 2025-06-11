@@ -200,6 +200,18 @@ export default function Notifications() {
     }
   };
 
+  const highlightStatusKeywords = (text: string) => {
+    const keywords = ['Delivered', 'Processing', 'Confirmed', 'Cancelled', 'Approved', 'Rejected', 'Pending', 'Shipped', 'Out for Delivery'];
+    let highlightedText = text;
+    
+    keywords.forEach(keyword => {
+      const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+      highlightedText = highlightedText.replace(regex, `<strong>$1</strong>`);
+    });
+    
+    return highlightedText;
+  };
+
   return (
     <div className="w-full max-w-full overflow-x-hidden px-3 sm:px-4 lg:px-6 py-4 sm:py-6 max-w-4xl mx-auto">
       {/* Header */}
@@ -348,9 +360,10 @@ export default function Notifications() {
                             </Badge>
                           )}
                         </div>
-                        <p className={`text-xs sm:text-sm ${notification.isRead ? 'text-gray-600' : 'text-gray-700'} mb-2 break-words`}>
-                          {notification.message}
-                        </p>
+                        <p 
+                          className={`text-xs sm:text-sm ${notification.isRead ? 'text-gray-600' : 'text-gray-700'} mb-2 break-words`}
+                          dangerouslySetInnerHTML={{ __html: highlightStatusKeywords(notification.message) }}
+                        />
                         <div className="flex items-center gap-2 sm:gap-4 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3 flex-shrink-0" />
