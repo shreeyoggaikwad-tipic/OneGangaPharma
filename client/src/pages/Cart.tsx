@@ -173,7 +173,7 @@ export default function Cart() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300">
+            <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 bg-[#f20707]">
               <Trash2 className="h-4 w-4 mr-2" />
               {t('cart.clearCart')}
             </Button>
