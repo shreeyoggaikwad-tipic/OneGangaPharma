@@ -140,6 +140,12 @@ html, body {
     border-color: rgb(185, 28, 28) !important;
   }
 
+  .destructive-btn:focus {
+    background-color: rgb(185, 28, 28) !important;
+    color: white !important;
+    border-color: rgb(185, 28, 28) !important;
+  }
+
   .destructive-btn[data-variant="outline"] {
     background-color: white !important;
     color: rgb(220, 38, 38) !important;
@@ -161,6 +167,26 @@ html, body {
   .destructive-btn[data-variant="ghost"]:hover {
     background-color: rgb(254, 242, 242) !important;
     color: rgb(185, 28, 28) !important;
+  }
+
+  /* Override any conflicting button styles for destructive buttons */
+  button.destructive-btn,
+  .destructive-btn,
+  [class*="destructive-btn"] {
+    background-color: rgb(220, 38, 38) !important;
+    color: white !important;
+    border-color: rgb(220, 38, 38) !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+
+  button.destructive-btn:hover,
+  .destructive-btn:hover,
+  [class*="destructive-btn"]:hover {
+    background-color: rgb(185, 28, 28) !important;
+    color: white !important;
+    border-color: rgb(185, 28, 28) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(185, 28, 28, 0.3) !important;
   }
 
   .schedule-h-badge {
