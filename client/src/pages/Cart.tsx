@@ -174,7 +174,7 @@ export default function Cart() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <DestructiveButton variant="outline" size="sm">
+            <DestructiveButton size="sm">
               <Trash2 className="h-4 w-4 mr-2" />
               {t('cart.clearCart')}
             </DestructiveButton>
@@ -187,7 +187,7 @@ export default function Cart() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <DestructiveButton variant="outline" asChild>
+              <DestructiveButton asChild>
                 <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
               </DestructiveButton>
               <DestructiveButton asChild onClick={clearCart}>
