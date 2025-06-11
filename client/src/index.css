@@ -189,6 +189,21 @@ html, body {
     box-shadow: 0 4px 8px rgba(185, 28, 28, 0.3) !important;
   }
 
+  /* Force red styling for outline variant */
+  .destructive-btn[data-variant="outline"],
+  button.destructive-btn[data-variant="outline"] {
+    background-color: rgb(220, 38, 38) !important;
+    color: white !important;
+    border-color: rgb(220, 38, 38) !important;
+  }
+
+  .destructive-btn[data-variant="outline"]:hover,
+  button.destructive-btn[data-variant="outline"]:hover {
+    background-color: rgb(185, 28, 28) !important;
+    color: white !important;
+    border-color: rgb(185, 28, 28) !important;
+  }
+
   .schedule-h-badge {
     background: linear-gradient(45deg, hsl(0, 84%, 60%), hsl(0, 70%, 70%));
   }

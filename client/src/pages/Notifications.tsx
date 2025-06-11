@@ -278,7 +278,7 @@ export default function Notifications() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <DestructiveButton variant="outline" asChild>
+                <DestructiveButton asChild>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                 </DestructiveButton>
                 <DestructiveButton
