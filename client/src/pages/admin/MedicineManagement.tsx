@@ -404,7 +404,7 @@ export default function MedicineManagement() {
                             className={
                               stockStatus.label === "Out of Stock" ? "well-stocked-strobe" :
                               stockStatus.label === "Critical Low" ? "well-stocked-strobe critical-low-orange" :
-                              stockStatus.label === "Low Stock" ? "well-stocked-strobe" : ""
+                              stockStatus.label === "Low Stock" ? "well-stocked-strobe low-stock-yellow" : ""
                             }
                           >
                             {stockStatus.label}

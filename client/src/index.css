@@ -93,6 +93,13 @@ html, body {
   border-color: rgb(251 146 60) !important; /* border-orange-400 */
 }
 
+/* Yellow styling for Low Stock status */
+.low-stock-yellow {
+  background-color: rgb(254 240 138) !important; /* bg-yellow-200 */
+  color: rgb(133 77 14) !important; /* text-yellow-800 */
+  border-color: rgb(250 204 21) !important; /* border-yellow-400 */
+}
+
 .dark {
   --background: hsl(222.2, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);
