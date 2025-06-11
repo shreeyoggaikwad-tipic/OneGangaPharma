@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DestructiveButton } from "@/components/ui/destructive-button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -270,14 +271,13 @@ export default function AdminNotifications() {
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
+              <DestructiveButton
                 size="sm"
                 disabled={clearAllNotificationsMutation.isPending || notifications.length === 0}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear All
-              </Button>
+              </DestructiveButton>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -287,13 +287,17 @@ export default function AdminNotifications() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
+                <DestructiveButton variant="outline" asChild>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                </DestructiveButton>
+                <DestructiveButton
+                  asChild
                   onClick={() => clearAllNotificationsMutation.mutate()}
-                  className="bg-red-600 hover:bg-red-700"
                 >
-                  Clear All Notifications
-                </AlertDialogAction>
+                  <AlertDialogAction>
+                    Clear All Notifications
+                  </AlertDialogAction>
+                </DestructiveButton>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
