@@ -267,10 +267,10 @@ export default function MedicineManagement() {
     };
     if (stock <= 10) return { 
       label: "Critical Low", 
-      variant: "outline" as const, 
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200"
+      variant: "destructive" as const, 
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-200"
     };
     if (stock <= 20) return { 
       label: "Low Stock", 
