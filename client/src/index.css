@@ -127,6 +127,42 @@ html, body {
     transition: all 0.3s ease;
   }
   
+  /* Destructive Button Override Styles */
+  .destructive-btn {
+    background-color: rgb(220, 38, 38) !important;
+    color: white !important;
+    border-color: rgb(220, 38, 38) !important;
+  }
+
+  .destructive-btn:hover {
+    background-color: rgb(185, 28, 28) !important;
+    color: white !important;
+    border-color: rgb(185, 28, 28) !important;
+  }
+
+  .destructive-btn[data-variant="outline"] {
+    background-color: white !important;
+    color: rgb(220, 38, 38) !important;
+    border-color: rgb(220, 38, 38) !important;
+  }
+
+  .destructive-btn[data-variant="outline"]:hover {
+    background-color: rgb(254, 242, 242) !important;
+    color: rgb(185, 28, 28) !important;
+    border-color: rgb(185, 28, 28) !important;
+  }
+
+  .destructive-btn[data-variant="ghost"] {
+    background-color: transparent !important;
+    color: rgb(220, 38, 38) !important;
+    border-color: transparent !important;
+  }
+
+  .destructive-btn[data-variant="ghost"]:hover {
+    background-color: rgb(254, 242, 242) !important;
+    color: rgb(185, 28, 28) !important;
+  }
+
   .schedule-h-badge {
     background: linear-gradient(45deg, hsl(0, 84%, 60%), hsl(0, 70%, 70%));
   }
