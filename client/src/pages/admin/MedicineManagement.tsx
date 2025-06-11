@@ -267,10 +267,10 @@ export default function MedicineManagement() {
     };
     if (stock <= 10) return { 
       label: "Critical Low", 
-      variant: "destructive" as const, 
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200"
+      variant: "outline" as const, 
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200"
     };
     if (stock <= 20) return { 
       label: "Low Stock", 
@@ -402,8 +402,9 @@ export default function MedicineManagement() {
                           <Badge 
                             variant={stockStatus.variant}
                             className={
-                              stockStatus.label === "Well Stocked" ? "well-stocked-strobe" :
-                              stockStatus.label === "Critical Low" ? "well-stocked-strobe" : ""
+                              stockStatus.label === "Out of Stock" ? "well-stocked-strobe" :
+                              stockStatus.label === "Critical Low" ? "well-stocked-strobe critical-low-orange" :
+                              stockStatus.label === "Low Stock" ? "well-stocked-strobe" : ""
                             }
                           >
                             {stockStatus.label}

@@ -86,6 +86,13 @@ html, body {
   animation: strobe 1.5s ease-in-out infinite;
 }
 
+/* Orange styling for Critical Low status */
+.critical-low-orange {
+  background-color: rgb(254 215 170) !important; /* bg-orange-200 */
+  color: rgb(154 52 18) !important; /* text-orange-800 */
+  border-color: rgb(251 146 60) !important; /* border-orange-400 */
+}
+
 .dark {
   --background: hsl(222.2, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);
