@@ -232,6 +232,8 @@ export class DatabaseStorage implements IStorage {
         categoryId: medicines.categoryId,
         manufacturer: medicines.manufacturer,
         requiresPrescription: medicines.requiresPrescription,
+        frontImageUrl: medicines.frontImageUrl,
+        backImageUrl: medicines.backImageUrl,
         isActive: medicines.isActive,
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,

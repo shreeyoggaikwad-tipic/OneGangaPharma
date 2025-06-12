@@ -467,16 +467,39 @@ export default function MedicineManagement() {
                     return (
                       <TableRow key={medicine.id}>
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{medicine.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {medicine.dosage} | {medicine.manufacturer}
+                          <div className="flex items-start gap-3">
+                            {/* Medicine thumbnail */}
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                              {medicine.frontImageUrl ? (
+                                <img
+                                  src={medicine.frontImageUrl}
+                                  alt={medicine.name}
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                              ) : (
+                                <Package className="h-6 w-6 text-blue-400" />
+                              )}
                             </div>
-                            {medicine.requiresPrescription && (
-                              <Badge variant="destructive" className="text-xs mt-1">
-                                Schedule H
-                              </Badge>
-                            )}
+                            
+                            <div>
+                              <div className="font-medium">{medicine.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {medicine.dosage} | {medicine.manufacturer}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                {medicine.requiresPrescription && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    Schedule H
+                                  </Badge>
+                                )}
+                                {(medicine.frontImageUrl || medicine.backImageUrl) && (
+                                  <Badge variant="outline" className="text-xs">
+                                    <Camera className="h-3 w-3 mr-1" />
+                                    Photos
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
