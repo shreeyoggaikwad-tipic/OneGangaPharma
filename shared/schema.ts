@@ -78,6 +78,8 @@ export const medicines = pgTable("medicines", {
   categoryId: integer("category_id").notNull(),
   manufacturer: varchar("manufacturer", { length: 255 }),
   requiresPrescription: boolean("requires_prescription").default(false),
+  frontImageUrl: varchar("front_image_url", { length: 500 }),
+  backImageUrl: varchar("back_image_url", { length: 500 }),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -70,8 +70,13 @@ const isAdmin = (req: any, res: Response, next: any) => {
 
 // File upload configuration
 const uploadDir = path.join(process.cwd(), "uploads");
+const medicineImagesDir = path.join(uploadDir, "medicine-images");
+
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+}
+if (!fs.existsSync(medicineImagesDir)) {
+  fs.mkdirSync(medicineImagesDir, { recursive: true });
 }
 
 const upload = multer({
@@ -94,9 +99,33 @@ const upload = multer({
   },
 });
 
+// Medicine image upload configuration
+const medicineImageUpload = multer({
+  storage: multer.diskStorage({
+    destination: medicineImagesDir,
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const ext = path.extname(file.originalname) || '.jpg';
+      cb(null, `medicine-${file.fieldname}-${uniqueSuffix}${ext}`);
+    }
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Please upload JPEG, PNG, or JPG images only.'));
+    }
+  },
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session middleware
   app.use(getSession());
+
+  // Serve uploaded files
+  app.use('/uploads', express.static(uploadDir));
 
   // Auth routes
   app.post("/api/auth/login", async (req: Request, res: Response) => {
@@ -263,6 +292,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to get categories" });
     }
   });
+
+  // Medicine photo upload route
+  app.post("/api/admin/medicines/:id/photos", isAuthenticated, isAdmin, 
+    medicineImageUpload.fields([
+      { name: 'frontImage', maxCount: 1 },
+      { name: 'backImage', maxCount: 1 }
+    ]), 
+    async (req: Request, res: Response) => {
+      try {
+        const id = parseInt(req.params.id);
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        
+        const updateData: any = {};
+        
+        if (files.frontImage && files.frontImage[0]) {
+          updateData.frontImageUrl = `/uploads/medicine-images/${files.frontImage[0].filename}`;
+        }
+        
+        if (files.backImage && files.backImage[0]) {
+          updateData.backImageUrl = `/uploads/medicine-images/${files.backImage[0].filename}`;
+        }
+        
+        const medicine = await storage.updateMedicine(id, updateData);
+        res.json(medicine);
+      } catch (error) {
+        console.error("Upload medicine photos error:", error);
+        res.status(500).json({ message: "Failed to upload photos" });
+      }
+    }
+  );
 
   // Admin medicine management routes
   app.post("/api/admin/medicines", isAuthenticated, isAdmin, async (req: Request, res: Response) => {

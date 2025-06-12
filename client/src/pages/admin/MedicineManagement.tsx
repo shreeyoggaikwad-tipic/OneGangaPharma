@@ -98,8 +98,13 @@ export default function MedicineManagement() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMedicineDialog, setShowMedicineDialog] = useState(false);
   const [showInventoryDialog, setShowInventoryDialog] = useState(false);
+  const [showPhotoDialog, setShowPhotoDialog] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState<any>(null);
   const [selectedMedicine, setSelectedMedicine] = useState<any>(null);
+  const [frontImageFile, setFrontImageFile] = useState<File | null>(null);
+  const [backImageFile, setBackImageFile] = useState<File | null>(null);
+  const [frontImagePreview, setFrontImagePreview] = useState<string | null>(null);
+  const [backImagePreview, setBackImagePreview] = useState<string | null>(null);
 
   // Get medicines
   const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
