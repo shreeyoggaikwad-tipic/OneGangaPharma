@@ -69,30 +69,64 @@ const isAdmin = (req: any, res: Response, next: any) => {
   next();
 };
 
-// File upload configuration
-const uploadDir = path.join(process.cwd(), "uploads");
+// File upload configuration with cross-platform support
+const uploadDir = path.resolve(process.cwd(), "uploads");
 const medicineImagesDir = path.join(uploadDir, "medicine-images");
+const prescriptionDir = path.join(uploadDir, "prescriptions");
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-if (!fs.existsSync(medicineImagesDir)) {
-  fs.mkdirSync(medicineImagesDir, { recursive: true });
-}
+// Ensure upload directories exist with proper permissions
+const ensureDirectoryExists = (dirPath: string) => {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true, mode: 0o755 });
+      console.log(`Created directory: ${dirPath}`);
+    }
+    // Verify directory is writable
+    fs.accessSync(dirPath, fs.constants.W_OK);
+  } catch (error) {
+    console.error(`Failed to create/access directory ${dirPath}:`, error);
+    throw new Error(`Upload directory not accessible: ${dirPath}`);
+  }
+};
 
+// Initialize upload directories
+ensureDirectoryExists(uploadDir);
+ensureDirectoryExists(medicineImagesDir);
+ensureDirectoryExists(prescriptionDir);
+
+// Enhanced multer configuration with better error handling
 const upload = multer({
   storage: multer.diskStorage({
-    destination: uploadDir,
+    destination: (req, file, cb) => {
+      try {
+        // Ensure destination directory exists before upload
+        ensureDirectoryExists(uploadDir);
+        cb(null, uploadDir);
+      } catch (error) {
+        cb(error as Error, '');
+      }
+    },
     filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(file.originalname) || '.jpg';
-      cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+      try {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+        const sanitizedName = file.fieldname.replace(/[^a-zA-Z0-9]/g, '');
+        cb(null, `${sanitizedName}-${uniqueSuffix}${ext}`);
+      } catch (error) {
+        cb(error as Error, '');
+      }
     }
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { 
+    fileSize: 5 * 1024 * 1024, // 5MB
+    files: 1
+  },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-    if (allowedTypes.includes(file.mimetype)) {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.pdf'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('Invalid file type. Please upload JPEG, PNG, or PDF files only.'));
@@ -100,20 +134,39 @@ const upload = multer({
   },
 });
 
-// Medicine image upload configuration
+// Medicine image upload configuration with enhanced local environment support
 const medicineImageUpload = multer({
   storage: multer.diskStorage({
-    destination: medicineImagesDir,
+    destination: (req, file, cb) => {
+      try {
+        // Ensure medicine images directory exists before upload
+        ensureDirectoryExists(medicineImagesDir);
+        cb(null, medicineImagesDir);
+      } catch (error) {
+        cb(error as Error, '');
+      }
+    },
     filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const ext = path.extname(file.originalname) || '.jpg';
-      cb(null, `medicine-${file.fieldname}-${uniqueSuffix}${ext}`);
+      try {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+        const sanitizedFieldName = file.fieldname.replace(/[^a-zA-Z0-9]/g, '');
+        cb(null, `medicine-${sanitizedFieldName}-${uniqueSuffix}${ext}`);
+      } catch (error) {
+        cb(error as Error, '');
+      }
     }
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { 
+    fileSize: 5 * 1024 * 1024, // 5MB
+    files: 2 // Support both front and back images
+  },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    if (allowedTypes.includes(file.mimetype)) {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('Invalid file type. Please upload JPEG, PNG, or JPG images only.'));
@@ -122,11 +175,27 @@ const medicineImageUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize upload system on server start
+  try {
+    console.log('🔧 Initializing medicine upload system...');
+    ensureDirectoryExists(uploadDir);
+    ensureDirectoryExists(medicineImagesDir);
+    ensureDirectoryExists(prescriptionDir);
+    console.log('✅ Upload system initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize upload system:', error);
+    throw error;
+  }
+
   // Session middleware
   app.use(getSession());
 
-  // Serve uploaded files
-  app.use('/uploads', express.static(uploadDir));
+  // Serve uploaded files with proper headers
+  app.use('/uploads', express.static(uploadDir, {
+    maxAge: '1d',
+    etag: true,
+    lastModified: true
+  }));
 
   // Auth routes
   app.post("/api/auth/login", async (req: Request, res: Response) => {
