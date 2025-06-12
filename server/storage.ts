@@ -183,6 +183,8 @@ export class DatabaseStorage implements IStorage {
         categoryId: medicines.categoryId,
         manufacturer: medicines.manufacturer,
         requiresPrescription: medicines.requiresPrescription,
+        frontImageUrl: medicines.frontImageUrl,
+        backImageUrl: medicines.backImageUrl,
         isActive: medicines.isActive,
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
@@ -198,7 +200,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMedicineById(id: number): Promise<Medicine | undefined> {
-    const [medicine] = await db.select().from(medicines).where(eq(medicines.id, id));
+    const [medicine] = await db
+      .select({
+        id: medicines.id,
+        name: medicines.name,
+        description: medicines.description,
+        dosage: medicines.dosage,
+        price: medicines.price,
+        categoryId: medicines.categoryId,
+        manufacturer: medicines.manufacturer,
+        requiresPrescription: medicines.requiresPrescription,
+        frontImageUrl: medicines.frontImageUrl,
+        backImageUrl: medicines.backImageUrl,
+        isActive: medicines.isActive,
+        createdAt: medicines.createdAt,
+        updatedAt: medicines.updatedAt,
+      })
+      .from(medicines)
+      .where(eq(medicines.id, id));
     return medicine;
   }
 

@@ -244,9 +244,17 @@ export default function Medicines() {
             return (
               <Card key={medicine.id} className="medicine-card hover:shadow-lg transition-all duration-200 h-full flex flex-col">
                 <CardContent className="p-3 sm:p-4 flex flex-col h-full">
-                  {/* Medicine Image Placeholder */}
-                  <div className="h-24 sm:h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
-                    <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
+                  {/* Medicine Image */}
+                  <div className="h-24 sm:h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4 overflow-hidden">
+                    {medicine.frontImageUrl ? (
+                      <img
+                        src={medicine.frontImageUrl}
+                        alt={medicine.name}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
+                    )}
                   </div>
 
                   <div className="space-y-2 flex-1 flex flex-col">
