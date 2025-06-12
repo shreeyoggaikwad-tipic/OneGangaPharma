@@ -20,6 +20,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import yauzl from "yauzl";
 
 // Session configuration
 function getSession() {
@@ -319,6 +320,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("Upload medicine photos error:", error);
         res.status(500).json({ message: "Failed to upload photos" });
+      }
+    }
+  );
+
+  // Bulk photo upload route
+  app.post("/api/admin/medicines/bulk-photos", isAuthenticated, isAdmin, 
+    upload.single('photoZip'), 
+    async (req: Request, res: Response) => {
+      try {
+        const zipFile = req.file;
+        if (!zipFile) {
+          return res.status(400).json({ message: "No ZIP file provided" });
+        }
+
+        const results = { success: 0, failed: 0, errors: [] as string[] };
+        const medicines = await storage.getMedicines();
+        
+        // Create a map of medicine names to IDs for quick lookup
+        const medicineMap = new Map();
+        medicines.forEach((medicine: any) => {
+          medicineMap.set(medicine.name.toLowerCase(), medicine.id);
+        });
+
+        await new Promise((resolve, reject) => {
+          yauzl.open(zipFile.path, { lazyEntries: true }, (err, zipfile) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+
+            zipfile.readEntry();
+            zipfile.on("entry", (entry) => {
+              if (/\/$/.test(entry.fileName)) {
+                // Directory entry, skip
+                zipfile.readEntry();
+                return;
+              }
+
+              // Extract file info
+              const fileName = path.basename(entry.fileName);
+              const ext = path.extname(fileName).toLowerCase();
+              
+              if (!['.jpg', '.jpeg', '.png'].includes(ext)) {
+                zipfile.readEntry();
+                return;
+              }
+
+              // Parse filename: "MedicineName-front.jpg" or "MedicineName-back.jpg"
+              const match = fileName.match(/^(.+)-(front|back)\.(jpg|jpeg|png)$/i);
+              if (!match) {
+                results.errors.push(`Invalid filename format: ${fileName}`);
+                zipfile.readEntry();
+                return;
+              }
+
+              const [, medicineName, imageType] = match;
+              const medicineId = medicineMap.get(medicineName.toLowerCase());
+              
+              if (!medicineId) {
+                results.errors.push(`Medicine not found: ${medicineName}`);
+                zipfile.readEntry();
+                return;
+              }
+
+              // Extract and save the image
+              zipfile.openReadStream(entry, (err, readStream) => {
+                if (err) {
+                  results.errors.push(`Failed to extract ${fileName}: ${err.message}`);
+                  zipfile.readEntry();
+                  return;
+                }
+
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                const outputFileName = `medicine-${imageType}-${uniqueSuffix}${ext}`;
+                const outputPath = path.join(medicineImagesDir, outputFileName);
+                const writeStream = fs.createWriteStream(outputPath);
+
+                readStream.pipe(writeStream);
+                writeStream.on('close', async () => {
+                  try {
+                    // Update medicine with image URL
+                    const imageUrl = `/uploads/medicine-images/${outputFileName}`;
+                    const updateData = imageType === 'front' 
+                      ? { frontImageUrl: imageUrl }
+                      : { backImageUrl: imageUrl };
+                    
+                    await storage.updateMedicine(medicineId, updateData);
+                    results.success++;
+                  } catch (error: any) {
+                    results.errors.push(`Failed to update ${medicineName}: ${error.message}`);
+                    results.failed++;
+                  }
+                  zipfile.readEntry();
+                });
+
+                writeStream.on('error', (error) => {
+                  results.errors.push(`Failed to save ${fileName}: ${error.message}`);
+                  results.failed++;
+                  zipfile.readEntry();
+                });
+              });
+            });
+
+            zipfile.on("end", () => {
+              // Clean up the uploaded ZIP file
+              fs.unlinkSync(zipFile.path);
+              resolve(results);
+            });
+
+            zipfile.on("error", (err) => {
+              reject(err);
+            });
+          });
+        });
+
+        res.json(results);
+      } catch (error) {
+        console.error("Bulk photo upload error:", error);
+        res.status(500).json({ message: "Failed to process photo upload" });
       }
     }
   );
