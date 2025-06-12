@@ -69,6 +69,9 @@ import {
   AlertTriangle,
   Filter,
   Package2,
+  Camera,
+  Upload,
+  X,
 } from "lucide-react";
 
 const medicineSchema = z.object({
@@ -210,6 +213,50 @@ export default function MedicineManagement() {
     },
   });
 
+  // Photo upload mutation
+  const photoUploadMutation = useMutation({
+    mutationFn: async ({ medicineId, frontImage, backImage }: { 
+      medicineId: number; 
+      frontImage?: File; 
+      backImage?: File; 
+    }) => {
+      const formData = new FormData();
+      if (frontImage) formData.append('frontImage', frontImage);
+      if (backImage) formData.append('backImage', backImage);
+      
+      const response = await fetch(`/api/admin/medicines/${medicineId}/photos`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload photos');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Photos Uploaded",
+        description: "Medicine photos have been uploaded successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/medicines"] });
+      setShowPhotoDialog(false);
+      setSelectedMedicine(null);
+      setFrontImageFile(null);
+      setBackImageFile(null);
+      setFrontImagePreview(null);
+      setBackImagePreview(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Filter medicines
   const filteredMedicines = (medicines as any[]).filter((medicine: any) => {
     if (selectedCategory !== "all" && medicine.category?.name !== selectedCategory) {
@@ -235,6 +282,45 @@ export default function MedicineManagement() {
     if (selectedMedicine) {
       addInventoryMutation.mutate({ ...data, medicineId: selectedMedicine.id });
     }
+  };
+
+  const handleImageFileChange = (type: 'front' | 'back', file: File | null) => {
+    if (type === 'front') {
+      setFrontImageFile(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => setFrontImagePreview(e.target?.result as string);
+        reader.readAsDataURL(file);
+      } else {
+        setFrontImagePreview(null);
+      }
+    } else {
+      setBackImageFile(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => setBackImagePreview(e.target?.result as string);
+        reader.readAsDataURL(file);
+      } else {
+        setBackImagePreview(null);
+      }
+    }
+  };
+
+  const handlePhotoUpload = () => {
+    if (selectedMedicine && (frontImageFile || backImageFile)) {
+      photoUploadMutation.mutate({
+        medicineId: selectedMedicine.id,
+        frontImage: frontImageFile || undefined,
+        backImage: backImageFile || undefined,
+      });
+    }
+  };
+
+  const openPhotoDialog = (medicine: any) => {
+    setSelectedMedicine(medicine);
+    setFrontImagePreview(medicine.frontImageUrl || null);
+    setBackImagePreview(medicine.backImageUrl || null);
+    setShowPhotoDialog(true);
   };
 
   const openMedicineDialog = (medicine?: any) => {
@@ -449,6 +535,21 @@ export default function MedicineManagement() {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>Manage inventory</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openPhotoDialog(medicine)}
+                                  >
+                                    <Camera className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Upload photos</p>
                                 </TooltipContent>
                               </Tooltip>
                               
@@ -720,6 +821,131 @@ export default function MedicineManagement() {
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Photo Upload Dialog */}
+      <Dialog open={showPhotoDialog} onOpenChange={setShowPhotoDialog}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Upload Photos - {selectedMedicine?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Front Image Upload */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium">Front Image</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                  {frontImagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={frontImagePreview}
+                        alt="Front preview"
+                        className="mx-auto max-h-48 rounded"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={() => handleImageFileChange('front', null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="py-12">
+                      <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                      <p className="mt-2 text-sm text-gray-600">
+                        Upload front image
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleImageFileChange('front', file);
+                    }}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+
+              {/* Back Image Upload */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium">Back Image</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                  {backImagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={backImagePreview}
+                        alt="Back preview"
+                        className="mx-auto max-h-48 rounded"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={() => handleImageFileChange('back', null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="py-12">
+                      <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                      <p className="mt-2 text-sm text-gray-600">
+                        Upload back image
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleImageFileChange('back', file);
+                    }}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowPhotoDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handlePhotoUpload}
+                disabled={photoUploadMutation.isPending || (!frontImageFile && !backImageFile)}
+                className="flex-1"
+              >
+                {photoUploadMutation.isPending ? (
+                  <>
+                    <Upload className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Photos
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
