@@ -250,7 +250,7 @@ export default function Medicines() {
                       <img
                         src={medicine.frontImageUrl}
                         alt={medicine.name}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-contain rounded-lg"
                       />
                     ) : (
                       <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />

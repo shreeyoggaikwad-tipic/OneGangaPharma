@@ -474,7 +474,7 @@ export default function MedicineManagement() {
                                 <img
                                   src={medicine.frontImageUrl}
                                   alt={medicine.name}
-                                  className="w-full h-full object-cover rounded-lg"
+                                  className="w-full h-full object-contain rounded-lg"
                                 />
                               ) : (
                                 <Package className="h-6 w-6 text-blue-400" />
