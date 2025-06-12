@@ -32,6 +32,8 @@ import {
   Package,
   RefreshCw,
   Eye,
+  Camera,
+  Archive,
 } from "lucide-react";
 
 interface CSVRow {
@@ -71,6 +73,12 @@ export default function BulkUpload() {
   const [showPreview, setShowPreview] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  
+  // Photo upload states
+  const [selectedPhotoZip, setSelectedPhotoZip] = useState<File | null>(null);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
+  const [photoUploadProgress, setPhotoUploadProgress] = useState(0);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   // Get categories for validation
   const { data: categories = [] } = useQuery<any[]>({
@@ -270,6 +278,48 @@ export default function BulkUpload() {
     },
   });
 
+  // Bulk photo upload mutation
+  const photoUploadMutation = useMutation({
+    mutationFn: async (zipFile: File) => {
+      setIsUploadingPhotos(true);
+      setPhotoUploadProgress(0);
+      
+      const formData = new FormData();
+      formData.append('photoZip', zipFile);
+      
+      const response = await fetch('/api/admin/medicines/bulk-photos', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload photos');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (result) => {
+      setIsUploadingPhotos(false);
+      toast({
+        title: "Photos Uploaded",
+        description: `Successfully uploaded photos for ${result.success} medicines. ${result.failed} failed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/medicines"] });
+      setSelectedPhotoZip(null);
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
+    },
+    onError: (error: Error) => {
+      setIsUploadingPhotos(false);
+      toast({
+        title: "Photo Upload Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -330,6 +380,37 @@ export default function BulkUpload() {
     window.URL.revokeObjectURL(url);
   };
 
+  const handlePhotoFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith('.zip')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload a ZIP file containing medicine photos.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (file.size > 50 * 1024 * 1024) { // 50MB limit for ZIP
+        toast({
+          title: "File Too Large",
+          description: "Please upload ZIP files smaller than 50MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSelectedPhotoZip(file);
+    }
+  };
+
+  const uploadPhotos = () => {
+    if (selectedPhotoZip) {
+      photoUploadMutation.mutate(selectedPhotoZip);
+    }
+  };
+
   const resetUpload = () => {
     setSelectedFile(null);
     setCsvData([]);
@@ -338,8 +419,14 @@ export default function BulkUpload() {
     setShowPreview(false);
     setIsProcessing(false);
     setUploadProgress(0);
+    setSelectedPhotoZip(null);
+    setIsUploadingPhotos(false);
+    setPhotoUploadProgress(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+    if (photoInputRef.current) {
+      photoInputRef.current.value = '';
     }
   };
 
@@ -414,6 +501,88 @@ export default function BulkUpload() {
           </CardContent>
         </Card>
       )}
+
+      {/* Bulk Photo Upload Section */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5" />
+            Bulk Photo Upload
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Upload medicine photos in bulk using a ZIP file
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Instructions */}
+            <Card className="bg-amber-50 border-amber-200">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Archive className="h-5 w-5 text-amber-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-amber-800 mb-2">Photo Upload Instructions</h4>
+                    <ul className="text-sm text-amber-700 space-y-1">
+                      <li>• Create a ZIP file containing your medicine photos</li>
+                      <li>• Name photos using medicine names exactly as they appear in your system</li>
+                      <li>• Use format: "MedicineName-front.jpg" and "MedicineName-back.jpg"</li>
+                      <li>• Example: "Paracetamol 500mg-front.jpg", "Paracetamol 500mg-back.jpg"</li>
+                      <li>• Supported formats: JPG, JPEG, PNG</li>
+                      <li>• Maximum ZIP file size: 50MB</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Upload Area */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+              <Archive className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+              <h3 className="font-medium mb-2">Upload Medicine Photos ZIP</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Select a ZIP file containing medicine photos
+              </p>
+              <Input
+                ref={photoInputRef}
+                type="file"
+                accept=".zip"
+                onChange={handlePhotoFileSelect}
+                className="w-full mb-3"
+              />
+              {selectedPhotoZip && (
+                <div className="flex items-center justify-center gap-4 mt-3">
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    {selectedPhotoZip.name} ({(selectedPhotoZip.size / 1024 / 1024).toFixed(2)} MB)
+                  </div>
+                  <Button
+                    onClick={uploadPhotos}
+                    disabled={isUploadingPhotos}
+                    size="sm"
+                  >
+                    {isUploadingPhotos ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Photos
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+              {isUploadingPhotos && (
+                <div className="mt-3">
+                  <Progress value={photoUploadProgress} className="w-full" />
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Preview and Validation */}
       {showPreview && !isProcessing && !importResult && (
