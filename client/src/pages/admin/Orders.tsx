@@ -36,6 +36,7 @@ import {
   Activity,
   Archive,
   RefreshCw,
+  FileText,
 } from "lucide-react";
 
 export default function AdminOrders() {
