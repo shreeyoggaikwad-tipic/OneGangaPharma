@@ -763,11 +763,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (prescription.length > 0 && prescription[0].status === "approved") {
             // If prescription is approved, confirm the order immediately
             orderStatus = "confirmed";
-            notificationMessage = `Your order has been confirmed and will be processed shortly.`;
+            notificationMessage = `Your Order will be confirmed and processed shortly. Approved prescription linked successfully.`;
           } else {
             // If prescription is pending or not found, wait for review
             orderStatus = "pending_prescription_review";
-            notificationMessage = `Your order has been placed and is awaiting prescription review. You'll be notified once approved.`;
+            notificationMessage = `Your Order has been placed and is awaiting prescription review. You'll be notified once approved.`;
           }
         } else {
           // No prescription provided, wait for upload and review

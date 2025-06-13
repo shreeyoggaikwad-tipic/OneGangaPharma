@@ -41,6 +41,7 @@ import {
   FileText,
   Phone,
   Mail,
+  Download,
 } from "lucide-react";
 
 export default function OrderManagement() {
@@ -444,18 +445,46 @@ export default function OrderManagement() {
                                     <CardHeader>
                                       <CardTitle className="text-sm flex items-center gap-2">
                                         <FileText className="h-4 w-4" />
-                                        Prescription
+                                        Prescription Details
                                       </CardTitle>
                                     </CardHeader>
                                     <CardContent className="text-sm">
-                                      <div className="space-y-2">
-                                        <p><strong>File:</strong> {selectedOrder.prescription.fileName}</p>
-                                        <p><strong>Status:</strong> 
-                                          <Badge className="ml-2 bg-green-100 text-green-800">
-                                            {selectedOrder.prescription.status}
-                                          </Badge>
-                                        </p>
-                                        <p><strong>Uploaded:</strong> {new Date(selectedOrder.prescription.uploadedAt).toLocaleDateString()}</p>
+                                      <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                          <div>
+                                            <p><strong>File:</strong> {selectedOrder.prescription.fileName}</p>
+                                            <p className="text-muted-foreground">Uploaded: {new Date(selectedOrder.prescription.uploadedAt).toLocaleDateString()}</p>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <Badge className={`${
+                                              selectedOrder.prescription.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                              selectedOrder.prescription.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                              'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                              {selectedOrder.prescription.status}
+                                            </Badge>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              onClick={() => window.open(`/uploads/prescriptions/${selectedOrder.prescription.fileName}`, '_blank')}
+                                              className="text-xs"
+                                            >
+                                              <FileText className="h-3 w-3 mr-1" />
+                                              View
+                                            </Button>
+                                          </div>
+                                        </div>
+                                        {selectedOrder.prescription.reviewNotes && (
+                                          <div className="p-2 bg-gray-50 rounded-lg">
+                                            <p className="text-xs font-medium text-gray-700">Review Notes:</p>
+                                            <p className="text-xs text-gray-600">{selectedOrder.prescription.reviewNotes}</p>
+                                          </div>
+                                        )}
+                                        {selectedOrder.prescription.reviewedAt && (
+                                          <p className="text-xs text-muted-foreground">
+                                            Reviewed: {new Date(selectedOrder.prescription.reviewedAt).toLocaleDateString()}
+                                          </p>
+                                        )}
                                       </div>
                                     </CardContent>
                                   </Card>

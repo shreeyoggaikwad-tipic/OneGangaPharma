@@ -185,7 +185,15 @@ export default function AdminOrders() {
         {orders.map((order: any) => (
           <TableRow key={order.id}>
             <TableCell className="font-medium">
-              {order.orderNumber}
+              <div className="flex items-center gap-2">
+                {order.orderNumber}
+                {order.prescription && (
+                  <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                    <FileText className="h-3 w-3 mr-1" />
+                    RX
+                  </Badge>
+                )}
+              </div>
             </TableCell>
             <TableCell>
               <div>
@@ -262,20 +270,48 @@ export default function AdminOrders() {
                       
                       {order.prescription && (
                         <div>
-                          <Label>Prescription</Label>
+                          <Label>Prescription Details</Label>
                           <div className="border rounded-lg p-3 mt-2">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-4 w-4 text-blue-500" />
-                              <div>
-                                <p className="font-medium">{order.prescription.fileName}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Status: <Badge className="ml-1 bg-green-100 text-green-800">{order.prescription.status}</Badge>
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  Uploaded: {new Date(order.prescription.uploadedAt).toLocaleDateString()}
-                                </p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-blue-500" />
+                                <div>
+                                  <p className="font-medium">{order.prescription.fileName}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Uploaded: {new Date(order.prescription.uploadedAt).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge className={`${
+                                  order.prescription.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                  order.prescription.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {order.prescription.status}
+                                </Badge>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(`/uploads/prescriptions/${order.prescription.fileName}`, '_blank')}
+                                  className="text-xs"
+                                >
+                                  <FileText className="h-3 w-3 mr-1" />
+                                  View
+                                </Button>
                               </div>
                             </div>
+                            {order.prescription.reviewNotes && (
+                              <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+                                <p className="text-xs font-medium text-gray-700">Review Notes:</p>
+                                <p className="text-xs text-gray-600">{order.prescription.reviewNotes}</p>
+                              </div>
+                            )}
+                            {order.prescription.reviewedAt && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Reviewed: {new Date(order.prescription.reviewedAt).toLocaleDateString()}
+                              </p>
+                            )}
                           </div>
                         </div>
                       )}
