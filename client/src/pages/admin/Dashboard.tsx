@@ -148,6 +148,11 @@ export default function Dashboard() {
 
   // Helper function to get prescription for order
   const getOrderPrescription = (order: any) => {
+    // First check if prescription is directly attached to order (from getAllOrders)
+    if (order.prescription) {
+      return order.prescription;
+    }
+    // Fallback to searching in pendingPrescriptions for pending ones
     if (order.prescriptionId) {
       return pendingPrescriptions.find(
         (p: any) => p.id === order.prescriptionId,
@@ -673,7 +678,7 @@ export default function Dashboard() {
                                           size="sm"
                                           onClick={() =>
                                             window.open(
-                                              `/uploads/${prescription.fileName}`,
+                                              `/uploads/prescriptions/${prescription.fileName}`,
                                               "_blank",
                                             )
                                           }
