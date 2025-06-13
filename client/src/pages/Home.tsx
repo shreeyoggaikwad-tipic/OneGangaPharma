@@ -430,113 +430,45 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      {/* Enhanced Order Tracking */}
+      {/* Recent Orders */}
       {recentOrders.length > 0 && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Your Orders</CardTitle>
+            <CardTitle>Recent Orders</CardTitle>
             <Link href="/orders">
               <Button variant="ghost" size="sm">
-                View All Orders <ChevronRight className="ml-1 h-4 w-4" />
+                View All <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
             {ordersLoading ? (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="h-32 w-full" />
+                  <Skeleton key={i} className="h-16 w-full" />
                 ))}
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {recentOrders.map((order: any) => {
                   const statusConfig = getStatusConfig(order.status);
-                  const StatusIcon = statusConfig.icon;
-                  const progress = getOrderProgress(order.status);
-                  
                   return (
-                    <Card key={order.id} className={`border-2 ${statusConfig.bgColor} hover:shadow-lg transition-all duration-300`}>
-                      <CardContent className="p-0">
-                        {/* Order Header with Gradient */}
-                        <div className={`bg-gradient-to-r ${statusConfig.gradient} p-4 text-white relative overflow-hidden`}>
-                          <div className="flex items-center justify-between relative z-10">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                <StatusIcon className="h-5 w-5" />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-lg">Order #{order.orderNumber}</h3>
-                                <p className="text-sm opacity-90">{statusConfig.description}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold">₹{order.totalAmount}</div>
-                              <div className="text-xs opacity-90">
-                                {new Date(order.placedAt).toLocaleDateString()}
-                              </div>
-                            </div>
-                          </div>
-                          {/* Decorative elements */}
-                          <div className="absolute -top-4 -right-4 w-16 h-16 bg-white/10 rounded-full"></div>
-                          <div className="absolute -bottom-2 -left-2 w-12 h-12 bg-white/10 rounded-full"></div>
-                        </div>
-
-                        {/* Order Progress and Details */}
-                        <div className="p-6">
-                          {/* Progress Bar */}
-                          <div className="mb-4">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-muted-foreground">Order Progress</span>
-                              <span className="text-sm font-bold text-primary">{progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div 
-                                className={`bg-gradient-to-r ${statusConfig.gradient} h-2 rounded-full transition-all duration-500`}
-                                style={{ width: `${progress}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Order Status Badge */}
-                          <div className="flex items-center justify-between mb-4">
-                            <Badge className={`${statusConfig.color} border px-3 py-1`}>
-                              <StatusIcon className="h-3 w-3 mr-1" />
-                              {order.status.replace('_', ' ').toUpperCase()}
-                            </Badge>
-                            
-                            {/* Order Items Count */}
-                            <div className="text-sm text-muted-foreground">
-                              {order.items?.length || 1} item{(order.items?.length || 1) > 1 ? 's' : ''}
-                            </div>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 pt-4 border-t">
-                            <Link href={`/orders/${order.id}`} className="flex-1">
-                              <Button variant="outline" size="sm" className="w-full">
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </Button>
-                            </Link>
-                            
-                            {order.status === "delivered" && (
-                              <Button variant="outline" size="sm" className="flex-1">
-                                <RefreshCw className="h-4 w-4 mr-2" />
-                                Reorder
-                              </Button>
-                            )}
-                            
-                            {(order.status === "confirmed" || order.status === "out_for_delivery") && (
-                              <Button variant="outline" size="sm" className="flex-1">
-                                <MapPin className="h-4 w-4 mr-2" />
-                                Track Order
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <p className="font-semibold">Order #{order.orderNumber}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(order.placedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <Badge className={statusConfig.color}>
+                          {order.status.replace('_', ' ')}
+                        </Badge>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          ₹{order.totalAmount}
+                        </p>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
