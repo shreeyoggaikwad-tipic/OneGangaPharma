@@ -1033,7 +1033,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve uploaded files
+  // Serve prescription files with authentication
+  app.get('/uploads/prescriptions/:filename', isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { filename } = req.params;
+      const filePath = path.join(process.cwd(), 'uploads', filename);
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "File not found" });
+      }
+
+      // For admin users, allow access to any prescription
+      if (req.user.role === 'admin') {
+        return res.sendFile(filePath);
+      }
+
+      // For regular users, only allow access to their own prescriptions
+      const prescription = await db
+        .select()
+        .from(prescriptions)
+        .where(eq(prescriptions.fileName, filename))
+        .limit(1);
+
+      if (prescription.length === 0 || prescription[0].userId !== req.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error("Error serving prescription file:", error);
+      res.status(500).json({ message: "Failed to serve file" });
+    }
+  });
+
+  // Serve other uploaded files (non-sensitive)
   app.use('/uploads', express.static('uploads'));
 
   const httpServer = createServer(app);
