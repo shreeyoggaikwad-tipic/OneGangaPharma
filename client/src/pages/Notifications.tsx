@@ -201,22 +201,27 @@ export default function Notifications() {
   };
 
   const highlightStatusKeywords = (text: string) => {
+    let highlightedText = text;
+    
+    // Convert markdown bold (**text**) to HTML bold tags
+    highlightedText = highlightedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Additional highlighting for other status keywords not already bolded
     const keywords = [
       'Delivered', 'Processing', 'Confirmed', 'Cancelled', 'Approved', 'Rejected', 
       'Pending', 'Shipped', 'Out for Delivery', 'Placed', 'Processed', 'Shortly',
       'Ready', 'Preparing', 'Dispatched', 'In Transit', 'Failed', 'Successful',
       'Completed', 'Updated', 'Received', 'Verified'
     ];
-    let highlightedText = text;
     
-    // Highlight status keywords
     keywords.forEach(keyword => {
-      const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+      // Only highlight if not already in strong tags
+      const regex = new RegExp(`(?<!<strong>)\\b(${keyword})\\b(?![^<]*</strong>)`, 'gi');
       highlightedText = highlightedText.replace(regex, `<strong>$1</strong>`);
     });
     
     // Highlight order numbers (pattern: letters followed by numbers, e.g., SMD68230319)
-    const orderNumberRegex = /\b([A-Z]{2,4}\d{6,12})\b/g;
+    const orderNumberRegex = /(?<!<strong>)\b([A-Z]{2,4}\d{6,12})\b(?![^<]*<\/strong>)/g;
     highlightedText = highlightedText.replace(orderNumberRegex, '<strong>$1</strong>');
     
     return highlightedText;

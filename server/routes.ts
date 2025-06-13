@@ -816,12 +816,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const order = await storage.updateOrderStatus(id, status);
       
-      // Create notification for customer
+      // Create notification for customer with formatted status
+      const formattedStatus = status.replace(/_/g, ' ').split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ');
       await storage.createNotification({
         userId: order.userId,
         type: "order_update",
         title: "Order Status Updated",
-        message: `Your order ${order.orderNumber} status has been updated to ${status}.`,
+        message: `Your Order ${order.orderNumber} status has been **${formattedStatus}**.`,
       });
       
       res.json(order);

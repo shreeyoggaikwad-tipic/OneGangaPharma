@@ -126,6 +126,25 @@ export default function OrderManagement() {
     updateStatusMutation.mutate({ orderId, status });
   };
 
+  // Function to check if a status option should be disabled
+  const isStatusDisabled = (currentStatus: string, optionStatus: string) => {
+    const statusHierarchy = ["placed", "confirmed", "out_for_delivery", "delivered"];
+    const currentIndex = statusHierarchy.indexOf(currentStatus);
+    const optionIndex = statusHierarchy.indexOf(optionStatus);
+    
+    // Allow cancelled from any status except delivered
+    if (optionStatus === "cancelled") {
+      return currentStatus === "delivered";
+    }
+    
+    // Prevent downgrading to lower status (except cancelled)
+    if (currentIndex >= 0 && optionIndex >= 0) {
+      return optionIndex < currentIndex;
+    }
+    
+    return false;
+  };
+
   const OrderProgress = ({ status }: { status: string }) => {
     const steps = ["placed", "confirmed", "out_for_delivery", "delivered"];
     const currentStepIndex = steps.indexOf(status);
@@ -276,11 +295,41 @@ export default function OrderManagement() {
                             </Badge>
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="placed">Placed</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                            <SelectItem value="delivered">Delivered</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                            <SelectItem 
+                              value="placed" 
+                              disabled={isStatusDisabled(order.status, "placed")}
+                              className={isStatusDisabled(order.status, "placed") ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                              Placed
+                            </SelectItem>
+                            <SelectItem 
+                              value="confirmed" 
+                              disabled={isStatusDisabled(order.status, "confirmed")}
+                              className={isStatusDisabled(order.status, "confirmed") ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                              Confirmed
+                            </SelectItem>
+                            <SelectItem 
+                              value="out_for_delivery" 
+                              disabled={isStatusDisabled(order.status, "out_for_delivery")}
+                              className={isStatusDisabled(order.status, "out_for_delivery") ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                              Out for Delivery
+                            </SelectItem>
+                            <SelectItem 
+                              value="delivered" 
+                              disabled={isStatusDisabled(order.status, "delivered")}
+                              className={isStatusDisabled(order.status, "delivered") ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                              Delivered
+                            </SelectItem>
+                            <SelectItem 
+                              value="cancelled" 
+                              disabled={isStatusDisabled(order.status, "cancelled")}
+                              className={isStatusDisabled(order.status, "cancelled") ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                              Cancelled
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>
