@@ -21,6 +21,12 @@ import {
   ArrowRight,
   Star,
   Shield,
+  CheckCircle,
+  Clock,
+  Package2,
+  MapPin,
+  RefreshCw,
+  Eye,
 } from "lucide-react";
 
 export default function Home() {
@@ -59,13 +65,58 @@ export default function Home() {
     return medicines.filter((medicine: any) => medicine.categoryId === categoryId).slice(0, 3);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
-      case "placed": return "bg-blue-100 text-blue-800";
-      case "confirmed": return "bg-green-100 text-green-800";
-      case "out_for_delivery": return "bg-orange-100 text-orange-800";
-      case "delivered": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "placed": 
+        return {
+          color: "bg-blue-100 text-blue-800 border-blue-200",
+          icon: Clock,
+          gradient: "from-blue-500 to-blue-600",
+          bgColor: "bg-blue-50",
+          description: "Order received and being processed"
+        };
+      case "confirmed": 
+        return {
+          color: "bg-green-100 text-green-800 border-green-200",
+          icon: CheckCircle,
+          gradient: "from-green-500 to-green-600",
+          bgColor: "bg-green-50",
+          description: "Order confirmed and preparing for shipment"
+        };
+      case "out_for_delivery": 
+        return {
+          color: "bg-orange-100 text-orange-800 border-orange-200",
+          icon: Truck,
+          gradient: "from-orange-500 to-orange-600",
+          bgColor: "bg-orange-50",
+          description: "Order is on the way to your location"
+        };
+      case "delivered": 
+        return {
+          color: "bg-emerald-100 text-emerald-800 border-emerald-200",
+          icon: Package2,
+          gradient: "from-emerald-500 to-emerald-600",
+          bgColor: "bg-emerald-50",
+          description: "Order successfully delivered"
+        };
+      default: 
+        return {
+          color: "bg-gray-100 text-gray-800 border-gray-200",
+          icon: Package,
+          gradient: "from-gray-500 to-gray-600",
+          bgColor: "bg-gray-50",
+          description: "Processing your order"
+        };
+    }
+  };
+
+  const getOrderProgress = (status: string) => {
+    switch (status) {
+      case "placed": return 25;
+      case "confirmed": return 50;
+      case "out_for_delivery": return 75;
+      case "delivered": return 100;
+      default: return 0;
     }
   };
 
@@ -252,50 +303,6 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* Recent Orders */}
-      {recentOrders.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Orders</CardTitle>
-            <Link href="/orders">
-              <Button variant="ghost" size="sm">
-                View All <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {ordersLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {recentOrders.map((order: any) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <p className="font-semibold">Order #{order.orderNumber}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(order.placedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status.replace('_', ' ')}
-                      </Badge>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        ₹{order.totalAmount}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
       {/* Medicine Categories */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -422,6 +429,121 @@ export default function Home() {
           )}
         </CardContent>
       </Card>
+
+      {/* Enhanced Order Tracking */}
+      {recentOrders.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Your Orders</CardTitle>
+            <Link href="/orders">
+              <Button variant="ghost" size="sm">
+                View All Orders <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {ordersLoading ? (
+              <div className="space-y-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {recentOrders.map((order: any) => {
+                  const statusConfig = getStatusConfig(order.status);
+                  const StatusIcon = statusConfig.icon;
+                  const progress = getOrderProgress(order.status);
+                  
+                  return (
+                    <Card key={order.id} className={`border-2 ${statusConfig.bgColor} hover:shadow-lg transition-all duration-300`}>
+                      <CardContent className="p-0">
+                        {/* Order Header with Gradient */}
+                        <div className={`bg-gradient-to-r ${statusConfig.gradient} p-4 text-white relative overflow-hidden`}>
+                          <div className="flex items-center justify-between relative z-10">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                <StatusIcon className="h-5 w-5" />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-lg">Order #{order.orderNumber}</h3>
+                                <p className="text-sm opacity-90">{statusConfig.description}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold">₹{order.totalAmount}</div>
+                              <div className="text-xs opacity-90">
+                                {new Date(order.placedAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                          {/* Decorative elements */}
+                          <div className="absolute -top-4 -right-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                          <div className="absolute -bottom-2 -left-2 w-12 h-12 bg-white/10 rounded-full"></div>
+                        </div>
+
+                        {/* Order Progress and Details */}
+                        <div className="p-6">
+                          {/* Progress Bar */}
+                          <div className="mb-4">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-medium text-muted-foreground">Order Progress</span>
+                              <span className="text-sm font-bold text-primary">{progress}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`bg-gradient-to-r ${statusConfig.gradient} h-2 rounded-full transition-all duration-500`}
+                                style={{ width: `${progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          {/* Order Status Badge */}
+                          <div className="flex items-center justify-between mb-4">
+                            <Badge className={`${statusConfig.color} border px-3 py-1`}>
+                              <StatusIcon className="h-3 w-3 mr-1" />
+                              {order.status.replace('_', ' ').toUpperCase()}
+                            </Badge>
+                            
+                            {/* Order Items Count */}
+                            <div className="text-sm text-muted-foreground">
+                              {order.items?.length || 1} item{(order.items?.length || 1) > 1 ? 's' : ''}
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 pt-4 border-t">
+                            <Link href={`/orders/${order.id}`} className="flex-1">
+                              <Button variant="outline" size="sm" className="w-full">
+                                <Eye className="h-4 w-4 mr-2" />
+                                View Details
+                              </Button>
+                            </Link>
+                            
+                            {order.status === "delivered" && (
+                              <Button variant="outline" size="sm" className="flex-1">
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Reorder
+                              </Button>
+                            )}
+                            
+                            {(order.status === "confirmed" || order.status === "out_for_delivery") && (
+                              <Button variant="outline" size="sm" className="flex-1">
+                                <MapPin className="h-4 w-4 mr-2" />
+                                Track Order
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
