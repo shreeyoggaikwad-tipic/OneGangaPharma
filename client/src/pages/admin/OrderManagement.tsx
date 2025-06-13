@@ -258,7 +258,15 @@ export default function OrderManagement() {
                     <TableRow key={order.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">#{order.orderNumber}</div>
+                          <div className="font-medium flex items-center gap-2">
+                            #{order.orderNumber}
+                            {order.prescription && (
+                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                <FileText className="h-3 w-3 mr-1" />
+                                RX
+                              </Badge>
+                            )}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             {order.items?.length || 0} item(s)
                           </div>

@@ -80,7 +80,7 @@ export interface IStorage {
 
   // Order operations
   getOrdersByUserId(userId: number): Promise<(Order & { items: (OrderItem & { medicine: Medicine })[] })[]>;
-  getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[] })[]>;
+  getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; prescription?: Prescription })[]>;
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order>;
   getOrderById(id: number): Promise<(Order & { 
@@ -462,25 +462,27 @@ export class DatabaseStorage implements IStorage {
     return Array.from(orderMap.values());
   }
 
-  async getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[] })[]> {
+  async getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; prescription?: Prescription })[]> {
     const ordersData = await db
       .select({
         order: orders,
         user: users,
         item: orderItems,
         medicine: medicines,
+        prescription: prescriptions,
       })
       .from(orders)
       .leftJoin(users, eq(orders.userId, users.id))
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+      .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
       .orderBy(desc(orders.placedAt));
 
     // Group by order
     const orderMap = new Map();
-    ordersData.forEach(({ order, user, item, medicine }) => {
+    ordersData.forEach(({ order, user, item, medicine, prescription }) => {
       if (!orderMap.has(order.id)) {
-        orderMap.set(order.id, { ...order, user, items: [] });
+        orderMap.set(order.id, { ...order, user, items: [], prescription: prescription || undefined });
       }
       if (item && medicine) {
         orderMap.get(order.id).items.push({ ...item, medicine });

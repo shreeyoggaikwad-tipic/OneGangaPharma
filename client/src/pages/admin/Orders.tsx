@@ -259,6 +259,26 @@ export default function AdminOrders() {
                         </div>
                       )}
                       
+                      {order.prescription && (
+                        <div>
+                          <Label>Prescription</Label>
+                          <div className="border rounded-lg p-3 mt-2">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-blue-500" />
+                              <div>
+                                <p className="font-medium">{order.prescription.fileName}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Status: <Badge className="ml-1 bg-green-100 text-green-800">{order.prescription.status}</Badge>
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Uploaded: {new Date(order.prescription.uploadedAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       <div>
                         <Label>Order Items</Label>
                         <div className="border rounded-lg p-3 mt-2">
