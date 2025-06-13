@@ -48,7 +48,7 @@ export default function Orders() {
   // Categorize orders
   const { activeOrders, deliveredOrders } = useMemo(() => {
     const active = (orders as any[]).filter(order => 
-      ['placed', 'confirmed', 'out_for_delivery'].includes(order.status)
+      !['delivered', 'cancelled'].includes(order.status)
     );
     const delivered = (orders as any[]).filter(order => 
       order.status === 'delivered'
@@ -95,6 +95,12 @@ export default function Orders() {
         return "bg-blue-100 text-blue-800";
       case "confirmed":
         return "bg-green-100 text-green-800";
+      case "pending_prescription_review":
+        return "bg-yellow-100 text-yellow-800";
+      case "processing":
+        return "bg-indigo-100 text-indigo-800";
+      case "shipped":
+        return "bg-purple-100 text-purple-800";
       case "out_for_delivery":
         return "bg-orange-100 text-orange-800";
       case "delivered":
@@ -112,10 +118,18 @@ export default function Orders() {
         return <Clock className="h-4 w-4" />;
       case "confirmed":
         return <CheckCircle className="h-4 w-4" />;
+      case "pending_prescription_review":
+        return <FileText className="h-4 w-4" />;
+      case "processing":
+        return <Package className="h-4 w-4" />;
+      case "shipped":
+        return <Truck className="h-4 w-4" />;
       case "out_for_delivery":
         return <Truck className="h-4 w-4" />;
       case "delivered":
-        return <Package className="h-4 w-4" />;
+        return <CheckCircle className="h-4 w-4" />;
+      case "cancelled":
+        return <Clock className="h-4 w-4" />;
       default:
         return <Package className="h-4 w-4" />;
     }
@@ -126,12 +140,27 @@ export default function Orders() {
   };
 
   const OrderProgress = ({ status }: { status: string }) => {
-    const steps = [
-      { key: "placed", label: "Order Placed", icon: FileText },
-      { key: "confirmed", label: "Confirmed", icon: CheckCircle },
-      { key: "out_for_delivery", label: "Out for Delivery", icon: Truck },
-      { key: "delivered", label: "Delivered", icon: Package },
-    ];
+    // Different progress flows based on order type
+    const getStepsForStatus = (currentStatus: string) => {
+      if (currentStatus === "pending_prescription_review") {
+        return [
+          { key: "placed", label: "Order Placed", icon: FileText },
+          { key: "pending_prescription_review", label: "Prescription Review", icon: FileText },
+          { key: "confirmed", label: "Confirmed", icon: CheckCircle },
+          { key: "delivered", label: "Delivered", icon: Package },
+        ];
+      }
+      
+      return [
+        { key: "placed", label: "Order Placed", icon: FileText },
+        { key: "confirmed", label: "Confirmed", icon: CheckCircle },
+        { key: "processing", label: "Processing", icon: Package },
+        { key: "shipped", label: "Shipped", icon: Truck },
+        { key: "delivered", label: "Delivered", icon: Package },
+      ];
+    };
+
+    const steps = getStepsForStatus(status);
 
     const currentStepIndex = steps.findIndex((step) => step.key === status);
 
