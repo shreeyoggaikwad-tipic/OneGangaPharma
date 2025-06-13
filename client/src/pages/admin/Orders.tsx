@@ -113,6 +113,25 @@ export default function AdminOrders() {
     updateOrderStatusMutation.mutate({ orderId, status: newStatus });
   };
 
+  // Function to check if a status option should be disabled
+  const isStatusDisabled = (currentStatus: string, optionStatus: string) => {
+    const statusHierarchy = ["pending_prescription_review", "confirmed", "processing", "shipped", "delivered"];
+    const currentIndex = statusHierarchy.indexOf(currentStatus);
+    const optionIndex = statusHierarchy.indexOf(optionStatus);
+    
+    // Allow cancelled from any status except delivered
+    if (optionStatus === "cancelled") {
+      return currentStatus === "delivered";
+    }
+    
+    // Prevent downgrading to lower status (except cancelled)
+    if (currentIndex >= 0 && optionIndex >= 0) {
+      return optionIndex < currentIndex;
+    }
+    
+    return false;
+  };
+
   // Smart filtering logic based on order lifecycle
   const categorizeOrders = () => {
     const activeStatuses = ["pending_prescription_review", "confirmed", "processing", "shipped"];
@@ -230,7 +249,8 @@ export default function AdminOrders() {
                                 variant={order.status === status.value ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => handleStatusUpdate(order.id, status.value)}
-                                disabled={updateOrderStatusMutation.isPending}
+                                disabled={updateOrderStatusMutation.isPending || isStatusDisabled(order.status, status.value)}
+                                className={isStatusDisabled(order.status, status.value) ? "opacity-50 cursor-not-allowed" : ""}
                               >
                                 {status.label}
                               </Button>

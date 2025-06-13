@@ -56,6 +56,8 @@ export default function OrderManagement() {
     queryKey: ["/api/admin/orders"],
   });
 
+  const ordersArray = Array.isArray(orders) ? orders : [];
+
   // Update order status mutation
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: number; status: string }) =>
@@ -77,7 +79,7 @@ export default function OrderManagement() {
   });
 
   // Filter orders
-  const filteredOrders = orders.filter((order: any) => {
+  const filteredOrders = ordersArray.filter((order: any) => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          order.user?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          order.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase());
