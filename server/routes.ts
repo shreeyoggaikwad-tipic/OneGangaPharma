@@ -363,6 +363,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/admin/medicine-categories", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { name, description, isScheduleH } = req.body;
+      
+      if (!name || name.trim().length < 2) {
+        return res.status(400).json({ message: "Category name is required and must be at least 2 characters" });
+      }
+
+      const category = await storage.createMedicineCategory(
+        name.trim(),
+        description?.trim(),
+        Boolean(isScheduleH)
+      );
+      
+      res.status(201).json(category);
+    } catch (error: any) {
+      console.error("Create category error:", error);
+      if (error.code === '23505') { // Unique constraint violation
+        res.status(400).json({ message: "Category name already exists" });
+      } else {
+        res.status(500).json({ message: "Failed to create category" });
+      }
+    }
+  });
+
   // Medicine photo upload route
   app.post("/api/admin/medicines/:id/photos", isAuthenticated, isAdmin, 
     medicineImageUpload.fields([

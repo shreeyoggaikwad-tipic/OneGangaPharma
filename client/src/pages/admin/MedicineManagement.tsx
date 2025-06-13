@@ -90,8 +90,15 @@ const inventorySchema = z.object({
   quantity: z.number().min(1, "Quantity must be at least 1"),
 });
 
+const categorySchema = z.object({
+  name: z.string().min(2, "Category name is required"),
+  description: z.string().optional(),
+  isScheduleH: z.boolean(),
+});
+
 type MedicineForm = z.infer<typeof medicineSchema>;
 type InventoryForm = z.infer<typeof inventorySchema>;
+type CategoryForm = z.infer<typeof categorySchema>;
 
 export default function MedicineManagement() {
   const { toast } = useToast();
@@ -102,6 +109,7 @@ export default function MedicineManagement() {
   const [showMedicineDialog, setShowMedicineDialog] = useState(false);
   const [showInventoryDialog, setShowInventoryDialog] = useState(false);
   const [showPhotoDialog, setShowPhotoDialog] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState<any>(null);
   const [selectedMedicine, setSelectedMedicine] = useState<any>(null);
   const [frontImageFile, setFrontImageFile] = useState<File | null>(null);
@@ -140,6 +148,16 @@ export default function MedicineManagement() {
       batchNumber: "",
       expiryDate: "",
       quantity: 0,
+    },
+  });
+
+  // Category form
+  const categoryForm = useForm<CategoryForm>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      isScheduleH: false,
     },
   });
 
@@ -203,6 +221,28 @@ export default function MedicineManagement() {
       setShowInventoryDialog(false);
       setSelectedMedicine(null);
       inventoryForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Create category mutation
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: CategoryForm) =>
+      apiRequest("POST", "/api/admin/medicine-categories", data),
+    onSuccess: () => {
+      toast({
+        title: "Category Created",
+        description: "New medicine category has been created successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/medicine-categories"] });
+      setShowCategoryDialog(false);
+      categoryForm.reset();
     },
     onError: (error: Error) => {
       toast({
@@ -392,10 +432,16 @@ export default function MedicineManagement() {
             Manage your medicine inventory and catalog
           </p>
         </div>
-        <Button onClick={() => openMedicineDialog()}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Medicine
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowCategoryDialog(true)}>
+            <Package2 className="h-4 w-4 mr-2" />
+            Add Category
+          </Button>
+          <Button onClick={() => openMedicineDialog()}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Medicine
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -969,6 +1015,97 @@ export default function MedicineManagement() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Creation Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Category</DialogTitle>
+          </DialogHeader>
+          <Form {...categoryForm}>
+            <form onSubmit={categoryForm.handleSubmit((data) => createCategoryMutation.mutate(data))} className="space-y-4">
+              <FormField
+                control={categoryForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Antibiotics, Pain Relief" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={categoryForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Brief description of this category"
+                        rows={3}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={categoryForm.control}
+                name="isScheduleH"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Schedule H Category</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Medicines in this category require prescription
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowCategoryDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createCategoryMutation.isPending}
+                >
+                  {createCategoryMutation.isPending ? (
+                    <>
+                      <Package2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Package2 className="mr-2 h-4 w-4" />
+                      Create Category
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
