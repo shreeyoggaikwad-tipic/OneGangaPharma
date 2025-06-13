@@ -73,6 +73,7 @@ const isAdmin = (req: any, res: Response, next: any) => {
 const uploadDir = path.resolve(process.cwd(), "uploads");
 const medicineImagesDir = path.join(uploadDir, "medicine-images");
 const prescriptionDir = path.join(uploadDir, "prescriptions");
+const tempDir = path.join(uploadDir, "temp");
 
 // Ensure upload directories exist with proper permissions
 const ensureDirectoryExists = (dirPath: string) => {
@@ -130,6 +131,43 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error('Invalid file type. Please upload JPEG, PNG, or PDF files only.'));
+    }
+  },
+});
+
+// ZIP file upload configuration for bulk photo uploads
+const zipUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      try {
+        ensureDirectoryExists(tempDir);
+        cb(null, tempDir);
+      } catch (error) {
+        cb(error as Error, '');
+      }
+    },
+    filename: (req, file, cb) => {
+      try {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `bulk-photos-${uniqueSuffix}.zip`);
+      } catch (error) {
+        cb(error as Error, '');
+      }
+    }
+  }),
+  limits: { 
+    fileSize: 50 * 1024 * 1024, // 50MB for ZIP files
+    files: 1
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['application/zip', 'application/x-zip-compressed'];
+    const allowedExtensions = ['.zip'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Please upload ZIP files only.'));
     }
   },
 });
@@ -420,7 +458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Bulk photo upload route
   app.post("/api/admin/medicines/bulk-photos", isAuthenticated, isAdmin, 
-    upload.single('photoZip'), 
+    zipUpload.single('photoZip'), 
     async (req: Request, res: Response) => {
       try {
         const zipFile = req.file;
