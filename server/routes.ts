@@ -12,7 +12,8 @@ import {
   insertCartItemSchema,
   insertOrderSchema,
   insertPrescriptionSchema,
-  notifications
+  notifications,
+  prescriptions
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -746,13 +747,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { items, billingAddressId, shippingAddressId, prescriptionId, totalAmount, hasScheduleH } = req.body;
       
-      // Determine order status based on whether it contains Schedule H medicines
+      // Determine order status based on whether it contains Schedule H medicines and prescription status
       let orderStatus = "confirmed"; // Default for non-Schedule H orders
       let notificationMessage = `Your order has been confirmed and will be processed shortly.`;
       
       if (hasScheduleH) {
-        orderStatus = "pending_prescription_review";
-        notificationMessage = `Your order has been placed and is awaiting prescription review. You'll be notified once approved.`;
+        if (prescriptionId) {
+          // Check if the prescription is already approved
+          const prescription = await db
+            .select()
+            .from(prescriptions)
+            .where(eq(prescriptions.id, prescriptionId))
+            .limit(1);
+          
+          if (prescription.length > 0 && prescription[0].status === "approved") {
+            // If prescription is approved, confirm the order immediately
+            orderStatus = "confirmed";
+            notificationMessage = `Your order has been confirmed and will be processed shortly.`;
+          } else {
+            // If prescription is pending or not found, wait for review
+            orderStatus = "pending_prescription_review";
+            notificationMessage = `Your order has been placed and is awaiting prescription review. You'll be notified once approved.`;
+          }
+        } else {
+          // No prescription provided, wait for upload and review
+          orderStatus = "pending_prescription_review";
+          notificationMessage = `Your order has been placed and is awaiting prescription review. You'll be notified once approved.`;
+        }
       }
       
       const orderData = {
