@@ -68,6 +68,7 @@ export interface IStorage {
   // Prescription operations
   getPrescriptionsByUserId(userId: number): Promise<Prescription[]>;
   getPendingPrescriptions(): Promise<(Prescription & { user: User })[]>;
+  getAllPrescriptions(): Promise<(Prescription & { user: User })[]>;
   createPrescription(prescription: InsertPrescription): Promise<Prescription>;
   updatePrescriptionStatus(id: number, status: string, reviewedBy: number, notes?: string): Promise<Prescription>;
 
@@ -354,6 +355,25 @@ export class DatabaseStorage implements IStorage {
       .from(prescriptions)
       .leftJoin(users, eq(prescriptions.userId, users.id))
       .where(eq(prescriptions.status, "pending"))
+      .orderBy(desc(prescriptions.uploadedAt)) as any;
+  }
+
+  async getAllPrescriptions(): Promise<(Prescription & { user: User })[]> {
+    return db
+      .select({
+        id: prescriptions.id,
+        userId: prescriptions.userId,
+        fileName: prescriptions.fileName,
+        filePath: prescriptions.filePath,
+        status: prescriptions.status,
+        reviewedBy: prescriptions.reviewedBy,
+        reviewedAt: prescriptions.reviewedAt,
+        reviewNotes: prescriptions.reviewNotes,
+        uploadedAt: prescriptions.uploadedAt,
+        user: users,
+      })
+      .from(prescriptions)
+      .leftJoin(users, eq(prescriptions.userId, users.id))
       .orderBy(desc(prescriptions.uploadedAt)) as any;
   }
 

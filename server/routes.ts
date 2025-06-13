@@ -890,6 +890,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/prescriptions/all", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const prescriptions = await storage.getAllPrescriptions();
+      res.json(prescriptions);
+    } catch (error) {
+      console.error("Get all prescriptions error:", error);
+      res.status(500).json({ message: "Failed to get all prescriptions" });
+    }
+  });
+
   app.put("/api/admin/prescriptions/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);

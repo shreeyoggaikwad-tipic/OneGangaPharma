@@ -51,9 +51,14 @@ export default function PrescriptionReview() {
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState("");
 
-  // Get pending prescriptions
+  // Get pending prescriptions for display
   const { data: prescriptions = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/prescriptions"],
+  });
+
+  // Get all prescriptions for stats calculation
+  const { data: allPrescriptions = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/prescriptions/all"],
   });
 
   // Update prescription status mutation
@@ -66,6 +71,7 @@ export default function PrescriptionReview() {
         description: "Prescription status has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/prescriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/prescriptions/all"] });
       setReviewNotes("");
     },
     onError: (error: Error) => {
@@ -137,7 +143,7 @@ export default function PrescriptionReview() {
               <div>
                 <p className="text-sm text-yellow-600 font-medium">Pending Review</p>
                 <p className="text-2xl font-bold text-yellow-800">
-                  {prescriptions.filter((p: any) => p.status === "pending").length}
+                  {allPrescriptions.filter((p: any) => p.status === "pending").length}
                 </p>
               </div>
               <Clock className="h-8 w-8 text-yellow-600" />
@@ -151,7 +157,7 @@ export default function PrescriptionReview() {
               <div>
                 <p className="text-sm text-green-600 font-medium">Approved</p>
                 <p className="text-2xl font-bold text-green-800">
-                  {prescriptions.filter((p: any) => p.status === "approved").length}
+                  {allPrescriptions.filter((p: any) => p.status === "approved").length}
                 </p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-600" />
@@ -165,7 +171,7 @@ export default function PrescriptionReview() {
               <div>
                 <p className="text-sm text-red-600 font-medium">Rejected</p>
                 <p className="text-2xl font-bold text-red-800">
-                  {prescriptions.filter((p: any) => p.status === "rejected").length}
+                  {allPrescriptions.filter((p: any) => p.status === "rejected").length}
                 </p>
               </div>
               <XCircle className="h-8 w-8 text-red-600" />
