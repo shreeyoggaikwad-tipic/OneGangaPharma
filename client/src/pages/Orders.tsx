@@ -136,47 +136,76 @@ export default function Orders() {
     const currentStepIndex = steps.findIndex((step) => step.key === status);
 
     return (
-      <div className="flex items-center justify-between mb-6">
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          const isActive = index <= currentStepIndex;
-          return (
-            <div key={step.key} className="flex items-center">
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-muted text-muted-foreground border-muted"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-              </div>
-              <div className="ml-3">
-                <p className={`text-sm font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-                  {step.label}
-                </p>
-              </div>
-              {index < steps.length - 1 && (
+      <div className="mb-6">
+        {/* Mobile Progress - Vertical */}
+        <div className="md:hidden space-y-3">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isActive = index <= currentStepIndex;
+            return (
+              <div key={step.key} className="flex items-center">
                 <div
-                  className={`flex-1 h-1 mx-2 mt-4 ${
-                    index < currentStepIndex ? "bg-primary" : "bg-gray-300"
+                  className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+                    isActive
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted text-muted-foreground border-muted"
                   }`}
-                />
-              )}
-            </div>
-          );
-        })}
+                >
+                  <Icon className="h-4 w-4" />
+                </div>
+                <div className="ml-3">
+                  <p className={`text-xs font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                    {step.label}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Desktop Progress - Horizontal */}
+        <div className="hidden md:flex items-center justify-between">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isActive = index <= currentStepIndex;
+            return (
+              <div key={step.key} className="flex items-center">
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                    isActive
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted text-muted-foreground border-muted"
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="ml-3">
+                  <p className={`text-sm font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                    {step.label}
+                  </p>
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`flex-1 h-1 mx-2 mt-4 ${
+                      index < currentStepIndex ? "bg-primary" : "bg-gray-300"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
 
   const renderOrderCard = (order: any) => (
     <Card key={order.id} className="overflow-hidden">
-      <CardHeader className="bg-muted/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">Order #{order.orderNumber}</CardTitle>
-            <p className="text-sm text-muted-foreground">
+      <CardHeader className="bg-muted/50 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base sm:text-lg truncate">Order #{order.orderNumber}</CardTitle>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Placed on {new Date(order.placedAt).toLocaleDateString("en-IN", {
                 year: "numeric",
                 month: "long",
@@ -184,36 +213,36 @@ export default function Orders() {
               })}
             </p>
           </div>
-          <div className="text-right">
-            <Badge className={getStatusColor(order.status)}>
+          <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2">
+            <Badge className={`${getStatusColor(order.status)} text-xs`}>
               {getStatusIcon(order.status)}
               <span className="ml-1">{formatStatus(order.status)}</span>
             </Badge>
-            <p className="text-lg font-semibold mt-1">₹{order.totalAmount}</p>
+            <p className="text-lg font-semibold">₹{order.totalAmount}</p>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         {/* Order Progress */}
         <OrderProgress status={order.status} />
 
         {/* Order Items Summary */}
         <div className="mb-4">
-          <h4 className="font-semibold mb-2">Order Items ({order.items?.length || 0})</h4>
+          <h4 className="font-semibold mb-2 text-sm sm:text-base">Order Items ({order.items?.length || 0})</h4>
           <div className="space-y-2">
             {order.items?.slice(0, 2).map((item: any) => (
-              <div key={item.id} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                  <span>{item.medicine?.name}</span>
-                  <span className="text-muted-foreground">× {item.quantity}</span>
+              <div key={item.id} className="flex items-center justify-between text-xs sm:text-sm">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="truncate">{item.medicine?.name}</span>
+                  <span className="text-muted-foreground whitespace-nowrap">× {item.quantity}</span>
                 </div>
-                <span>₹{item.totalPrice}</span>
+                <span className="font-medium ml-2">₹{item.totalPrice}</span>
               </div>
             ))}
             {order.items?.length > 2 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 +{order.items.length - 2} more items
               </p>
             )}
@@ -221,7 +250,7 @@ export default function Orders() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
@@ -354,35 +383,39 @@ export default function Orders() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">My Orders</h1>
-        <p className="text-muted-foreground">Track and manage your order history</p>
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">My Orders</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Track and manage your order history</p>
       </div>
 
-      <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Active Orders ({activeOrders.length})
+      <Tabs defaultValue="active" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 h-auto">
+          <TabsTrigger value="active" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">Active Orders</span>
+            <span className="xs:hidden">Active</span>
+            <span className="text-xs">({activeOrders.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="delivered" className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4" />
-            Delivered Orders ({deliveredOrders.length})
+          <TabsTrigger value="delivered" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">Delivered Orders</span>
+            <span className="xs:hidden">Delivered</span>
+            <span className="text-xs">({deliveredOrders.length})</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="active" className="space-y-6">
+        <TabsContent value="active" className="space-y-4 sm:space-y-6">
           {activeOrders.length === 0 ? (
             <Card>
-              <CardContent className="p-8 text-center">
-                <Clock className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold mb-2">No Active Orders</h2>
-                <p className="text-muted-foreground mb-6">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <Clock className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                <h2 className="text-lg sm:text-2xl font-semibold mb-2">No Active Orders</h2>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
                   You don't have any active orders at the moment.
                 </p>
                 <Link href="/medicines">
-                  <Button>
+                  <Button size="sm" className="w-full sm:w-auto">
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     Start Shopping
                   </Button>
@@ -394,17 +427,17 @@ export default function Orders() {
           )}
         </TabsContent>
 
-        <TabsContent value="delivered" className="space-y-6">
+        <TabsContent value="delivered" className="space-y-4 sm:space-y-6">
           {deliveredOrders.length === 0 ? (
             <Card>
-              <CardContent className="p-8 text-center">
-                <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold mb-2">No Delivered Orders</h2>
-                <p className="text-muted-foreground mb-6">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <Package className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                <h2 className="text-lg sm:text-2xl font-semibold mb-2">No Delivered Orders</h2>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
                   Your delivered orders will appear here once you complete some purchases.
                 </p>
                 <Link href="/medicines">
-                  <Button>
+                  <Button size="sm" className="w-full sm:w-auto">
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     Browse Medicines
                   </Button>
