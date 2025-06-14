@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useTranslation } from "@/lib/i18n";
+// import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,7 +30,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
@@ -116,8 +116,8 @@ export default function Login() {
           <div className="w-16 h-16 medical-bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Pill className="text-white h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-bold medical-primary">{t('app.title')}</h1>
-          <p className="text-muted-foreground mt-2">{t('app.subtitle')}</p>
+          <h1 className="text-3xl font-bold medical-primary">Sharda Med</h1>
+          <p className="text-muted-foreground mt-2">Your trusted online pharmacy</p>
         </div>
 
         <Card className="shadow-lg">
@@ -127,14 +127,14 @@ export default function Login() {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">{t('auth.login')}</TabsTrigger>
-                <TabsTrigger value="register">{t('auth.register')}</TabsTrigger>
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="register">Register</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">{t('auth.email')}</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -149,7 +149,7 @@ export default function Login() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">{t('auth.password')}</Label>
+                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -182,7 +182,7 @@ export default function Login() {
                     {loginMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    {t('auth.login')}
+                    Login
                   </Button>
 
                   {/* Test Credentials */}
@@ -216,7 +216,7 @@ export default function Login() {
                 <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">{t('auth.firstName')}</Label>
+                      <Label htmlFor="firstName">First Name</Label>
                       <Input
                         id="firstName"
                         {...registerForm.register("firstName")}
@@ -229,7 +229,7 @@ export default function Login() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">{t('auth.lastName')}</Label>
+                      <Label htmlFor="lastName">Last Name</Label>
                       <Input
                         id="lastName"
                         {...registerForm.register("lastName")}
@@ -257,7 +257,7 @@ export default function Login() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="registerEmail">{t('auth.email')}</Label>
+                    <Label htmlFor="registerEmail">Email</Label>
                     <Input
                       id="registerEmail"
                       type="email"
@@ -271,7 +271,7 @@ export default function Login() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="registerPassword">{t('auth.password')}</Label>
+                    <Label htmlFor="registerPassword">Password</Label>
                     <div className="relative">
                       <Input
                         id="registerPassword"
@@ -304,7 +304,7 @@ export default function Login() {
                     {registerMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    {t('auth.register')}
+                    Register
                   </Button>
                 </form>
               </TabsContent>
