@@ -101,7 +101,7 @@ export default function Layout({ children }: LayoutProps) {
             .map((item) => (
               <Link key={item.href} href={item.href}>
                 <Button
-                  variant={location === item.href ? "default" : "ghost"}
+                  variant={location === item.href ? "active" : "ghost"}
                   className="w-full justify-start"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -152,7 +152,7 @@ export default function Layout({ children }: LayoutProps) {
                 <>
                   <Link href="/profile">
                     <Button
-                      variant={location === "/profile" ? "default" : "ghost"}
+                      variant={location === "/profile" ? "active" : "ghost"}
                       className="w-full justify-start"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -163,7 +163,7 @@ export default function Layout({ children }: LayoutProps) {
 
                   <Link href="/notifications">
                     <Button
-                      variant={location === "/notifications" ? "default" : "ghost"}
+                      variant={location === "/notifications" ? "active" : "ghost"}
                       className="w-full justify-start"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -182,7 +182,7 @@ export default function Layout({ children }: LayoutProps) {
 
                   <Link href="/cart">
                     <Button
-                      variant={location === "/cart" ? "default" : "ghost"}
+                      variant={location === "/cart" ? "active" : "ghost"}
                       className="w-full justify-start"
                       onClick={() => setMobileMenuOpen(false)}
                     >
