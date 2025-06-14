@@ -86,8 +86,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Truck className="h-6 w-6 text-orange-600" />
                   </div>
-                  <h3 className="font-semibold mb-2">{t('order.trackOrder')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('order.trackingInfo')}</p>
+                  <h3 className="font-semibold mb-2">Track Order</h3>
+                  <p className="text-sm text-muted-foreground">Monitor your delivery status</p>
                 </CardContent>
               </Card>
             </Link>
@@ -98,8 +98,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <History className="h-6 w-6 text-purple-600" />
                   </div>
-                  <h3 className="font-semibold mb-2">{t('order.orderHistory')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('order.recentOrders')}</p>
+                  <h3 className="font-semibold mb-2">Order History</h3>
+                  <p className="text-sm text-muted-foreground">View past purchases</p>
                 </CardContent>
               </Card>
             </Link>
@@ -119,7 +119,7 @@ export default function Landing() {
               />
               <Button>
                 <Search className="h-4 w-4 mr-2" />
-                {t('common.search')}
+                Search
               </Button>
             </div>
             <div className="text-center mt-6">
@@ -137,7 +137,7 @@ export default function Landing() {
       {/* Features */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose {t('app.title')}?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Sharda Med?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">

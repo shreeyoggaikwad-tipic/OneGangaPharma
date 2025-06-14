@@ -339,13 +339,13 @@ export default function Prescriptions() {
         <Card>
           <CardContent className="p-8 text-center">
             <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">{t('prescription.noPrescriptionsYet')}</h2>
+            <h2 className="text-2xl font-semibold mb-2">No Prescriptions Yet</h2>
             <p className="text-muted-foreground mb-6">
-              {t('prescription.uploadFirst')}
+              Upload your first prescription to get started
             </p>
             <Button onClick={() => setUploadDialogOpen(true)}>
               <Upload className="h-4 w-4 mr-2" />
-              {t('prescription.uploadPrescription')}
+              Upload Prescription
             </Button>
           </CardContent>
         </Card>
