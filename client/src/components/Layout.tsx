@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { useTranslation } from "@/lib/i18n";
+// import { useTranslation } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
   ShoppingCart,
@@ -36,7 +36,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const { user, isAuthenticated } = useAuth();
-  const { t, language, changeLanguage } = useTranslation();
+  // const { t, language, changeLanguage } = useTranslation();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -69,19 +69,19 @@ export default function Layout({ children }: LayoutProps) {
 
   const navigation = [
     // Customer navigation (commented out for admin users)
-    { name: t("nav.medicines"), href: "/medicines", show: !isAdmin },
+    { name: "Medicines", href: "/medicines", show: !isAdmin },
     {
-      name: t("nav.orders"),
+      name: "Orders",
       href: "/orders",
       show: isAuthenticated && !isAdmin,
     },
     {
-      name: t("nav.prescriptions"),
+      name: "Prescriptions",
       href: "/prescriptions",
       show: isAuthenticated && !isAdmin,
     },
     // Admin navigation
-    { name: t("nav.dashboard"), href: "/admin/dashboard", show: isAdmin },
+    { name: "Dashboard", href: "/admin/dashboard", show: isAdmin },
   ];
 
   const MobileNavigation = () => (
@@ -110,7 +110,8 @@ export default function Layout({ children }: LayoutProps) {
               </Link>
             ))}
 
-          {/* Language Selector for Mobile */}
+          {/* Language Selector for Mobile - Commented out */}
+          {/*
           <div className="py-2 border-t border-gray-200">
             <div className="text-sm font-medium text-gray-700 mb-2 px-3">
               Language
@@ -142,6 +143,7 @@ export default function Layout({ children }: LayoutProps) {
               </Button>
             </div>
           </div>
+          */}
 
           {isAuthenticated && (
             <>
@@ -155,7 +157,7 @@ export default function Layout({ children }: LayoutProps) {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <User className="h-4 w-4 mr-2" />
-                      {t("nav.profile")}
+                      Profile
                     </Button>
                   </Link>
 
@@ -166,7 +168,7 @@ export default function Layout({ children }: LayoutProps) {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Bell className="h-4 w-4 mr-2" />
-                      {t("nav.notifications")}
+                      Notifications
                       {unreadNotifications.length > 0 && (
                         <Badge
                           variant="destructive"
@@ -185,7 +187,7 @@ export default function Layout({ children }: LayoutProps) {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      {t("nav.cart")} {cartCount > 0 && `(${cartCount})`}
+                      Cart {cartCount > 0 && `(${cartCount})`}
                     </Button>
                   </Link>
                 </>
@@ -229,7 +231,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Pill className="text-white h-6 w-6" />
               </div>
               <span className="text-xl font-bold medical-primary">
-                {t("app.title")}
+                Sharda Med
               </span>
             </Link>
 
@@ -248,7 +250,8 @@ export default function Layout({ children }: LayoutProps) {
                   </Link>
                 ))}
 
-              {/* Language Selector */}
+              {/* Language Selector - Commented out for now */}
+              {/* 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-700 transition-all duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
@@ -271,6 +274,7 @@ export default function Layout({ children }: LayoutProps) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              */}
 
               {isAuthenticated ? (
                 <>
@@ -338,7 +342,7 @@ export default function Layout({ children }: LayoutProps) {
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem onClick={handleLogout}>
-                        {t("auth.logout")}
+                        Logout
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
