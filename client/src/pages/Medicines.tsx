@@ -253,7 +253,7 @@ export default function Medicines() {
           {(filteredMedicines as any[]).map((medicine: any) => {
             const stockStatus = getStockStatus(medicine.totalStock);
             return (
-              <Card key={medicine.id} className="medicine-card hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+              <Card key={medicine.id} className="medicine-card hover:shadow-xl hover:scale-[1.02] transition-all duration-300 h-full flex flex-col border-2 hover:border-primary/20">
                 <CardContent className="p-3 sm:p-4 flex flex-col h-full">
                   {/* Medicine Image */}
                   <div className="h-24 sm:h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4 overflow-hidden">
@@ -319,7 +319,7 @@ export default function Medicines() {
 
                     {/* Add to Cart Button */}
                     <Button
-                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium"
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium disabled:from-gray-300 disabled:to-gray-400 disabled:transform-none disabled:shadow-none"
                       onClick={() => handleAddToCart(medicine.id)}
                       disabled={medicine.totalStock === 0 || addToCartMutation.isPending}
                     >

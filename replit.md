@@ -118,6 +118,13 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Disabled language selector in navigation
   - Replaced translation function calls with static English text
   - Maintained single language (English) for simplified user experience
+- June 14, 2025. Enhanced UI button visual feedback system
+  - Added new "active" button variant with primary colors and enhanced styling
+  - Improved Tabs component with stronger active state visual distinction
+  - Enhanced Select component with better focus and selection indicators
+  - Updated navigation buttons to use improved active states
+  - Added enhanced card hover effects with scale and border animations
+  - Improved Add to Cart buttons with gradient effects and disabled states
 
 ## User Preferences
 

@@ -242,7 +242,7 @@ export default function Layout({ children }: LayoutProps) {
                 .map((item) => (
                   <Link key={item.href} href={item.href}>
                     <Button
-                      variant={location === item.href ? "default" : "ghost"}
+                      variant={location === item.href ? "active" : "ghost"}
                       className="font-medium text-sm xl:text-base px-3 xl:px-4"
                     >
                       {item.name}
