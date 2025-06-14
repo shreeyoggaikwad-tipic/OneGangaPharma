@@ -1,11 +1,15 @@
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/lib/i18n";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import {
   Search,
   Upload,
@@ -30,8 +34,13 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { t } = useTranslation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Get recent orders
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
@@ -55,8 +64,80 @@ export default function Home() {
   });
 
   const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: ["/api/medicines"],
+    queryKey: searchQuery ? ["/api/medicines", { search: searchQuery }] : ["/api/medicines"],
   });
+
+  // Add to cart mutation
+  const addToCartMutation = useMutation({
+    mutationFn: (medicineId: number) =>
+      apiRequest("POST", "/api/cart", { medicineId, quantity: 1 }),
+    onSuccess: () => {
+      toast({
+        title: "Added to Cart",
+        description: "Medicine has been added to your cart.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Filter medicines based on search query
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    
+    const query = searchQuery.toLowerCase().trim();
+    return (medicines as any[]).filter((medicine: any) => 
+      medicine.name.toLowerCase().includes(query) ||
+      medicine.description?.toLowerCase().includes(query) ||
+      medicine.manufacturer?.toLowerCase().includes(query) ||
+      medicine.category?.name.toLowerCase().includes(query)
+    );
+  }, [medicines, searchQuery]);
+
+  const handleAddToCart = (medicineId: number) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please sign in to add items to your cart.",
+        variant: "destructive",
+      });
+      return;
+    }
+    addToCartMutation.mutate(medicineId);
+  };
+
+  const getStockStatus = (stock: number) => {
+    if (stock === 0) return { 
+      label: "Out of Stock", 
+      variant: "destructive" as const,
+      color: "text-red-600",
+      bgColor: "bg-red-50"
+    };
+    if (stock <= 10) return { 
+      label: "Low Stock", 
+      variant: "outline" as const,
+      color: "text-orange-600", 
+      bgColor: "bg-orange-50"
+    };
+    if (stock <= 20) return { 
+      label: "Limited Stock", 
+      variant: "secondary" as const,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50"
+    };
+    return { 
+      label: "In Stock", 
+      variant: "default" as const,
+      color: "text-green-600",
+      bgColor: "bg-green-50"
+    };
+  };
 
   const recentOrders = orders.slice(0, 3);
 
@@ -251,6 +332,133 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Search Bar */}
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search medicines, brands, or health conditions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 text-sm sm:text-base"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Search Results */}
+      {searchQuery.trim() && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Search Results ({searchResults.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {medicinesLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-64 w-full" />
+                ))}
+              </div>
+            ) : searchResults.length === 0 ? (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <h3 className="text-lg font-semibold mb-2">No medicines found</h3>
+                <p className="text-muted-foreground">
+                  Try searching with different keywords or browse our categories.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {searchResults.map((medicine: any) => {
+                  const stockStatus = getStockStatus(medicine.totalStock);
+                  const isOutOfStock = medicine.totalStock === 0;
+                  
+                  return (
+                    <Card key={medicine.id} className="group hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* Medicine Header */}
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between">
+                              <h3 className="font-semibold text-sm leading-tight line-clamp-2 flex-1">
+                                {medicine.name}
+                              </h3>
+                              {medicine.category?.isScheduleH && (
+                                <Badge variant="destructive" className="ml-2 text-xs">
+                                  Rx
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            {medicine.manufacturer && (
+                              <p className="text-xs text-muted-foreground">
+                                by {medicine.manufacturer}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Category */}
+                          <Badge variant="secondary" className="text-xs">
+                            {medicine.category?.name}
+                          </Badge>
+
+                          {/* Description */}
+                          {medicine.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {medicine.description}
+                            </p>
+                          )}
+
+                          {/* Stock Status */}
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.color}`}>
+                            <div className={`w-2 h-2 rounded-full mr-2 ${stockStatus.color.replace('text-', 'bg-')}`}></div>
+                            {stockStatus.label}
+                          </div>
+
+                          {/* Price and Actions */}
+                          <div className="flex items-center justify-between pt-2 border-t">
+                            <div>
+                              <span className="text-lg font-bold">₹{medicine.price}</span>
+                              {medicine.mrp && parseFloat(medicine.mrp) > parseFloat(medicine.price) && (
+                                <span className="text-xs text-muted-foreground line-through ml-2">
+                                  ₹{medicine.mrp}
+                                </span>
+                              )}
+                            </div>
+                            
+                            <Button
+                              size="sm"
+                              onClick={() => handleAddToCart(medicine.id)}
+                              disabled={isOutOfStock || addToCartMutation.isPending}
+                              className="text-xs"
+                            >
+                              {addToCartMutation.isPending ? (
+                                "Adding..."
+                              ) : isOutOfStock ? (
+                                "Out of Stock"
+                              ) : (
+                                <>
+                                  <ShoppingCart className="h-3 w-3 mr-1" />
+                                  Add
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
