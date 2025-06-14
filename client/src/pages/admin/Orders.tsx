@@ -422,7 +422,7 @@ export default function AdminOrders() {
 
       {/* Smart Order Management Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 gap-1">
           <TabsTrigger value="active" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Active Orders
