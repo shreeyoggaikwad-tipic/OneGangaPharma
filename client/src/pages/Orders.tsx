@@ -287,73 +287,89 @@ export default function Orders() {
                 View Details
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Order #{order.orderNumber}</DialogTitle>
-              </DialogHeader>
-              {selectedOrder && (
-                <div className="space-y-6">
-                  <OrderProgress status={selectedOrder.status} />
-                  
-                  <div>
-                    <h4 className="font-semibold mb-3">Order Items</h4>
-                    <div className="space-y-3">
-                      {selectedOrder.items?.map((item: any) => (
-                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Package className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <p className="font-medium">{item.medicine?.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                Quantity: {item.quantity} | Unit Price: ₹{item.unitPrice}
-                              </p>
+            <DialogContent className="w-[95vw] max-w-4xl h-[85vh] sm:h-[90vh] p-0 gap-0">
+              <div className="flex flex-col h-full">
+                <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b shrink-0">
+                  <DialogTitle className="text-lg sm:text-xl">Order #{order.orderNumber}</DialogTitle>
+                </DialogHeader>
+                
+                {selectedOrder && (
+                  <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
+                    <div className="space-y-4 sm:space-y-6">
+                      {/* Order Progress - Responsive */}
+                      <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
+                        <OrderProgress status={selectedOrder.status} />
+                      </div>
+                      
+                      {/* Order Items - Mobile Optimized */}
+                      <div>
+                        <h4 className="font-semibold mb-3 text-sm sm:text-base">Order Items</h4>
+                        <div className="space-y-3">
+                          {selectedOrder.items?.map((item: any) => (
+                            <div key={item.id} className="border rounded-lg p-3">
+                              {/* Mobile: Stack vertically, Desktop: Side by side */}
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                                <div className="flex items-start gap-3 min-w-0 flex-1">
+                                  <Package className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mt-0.5 shrink-0" />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-medium text-sm sm:text-base truncate">{item.medicine?.name}</p>
+                                    <div className="flex flex-col xs:flex-row xs:gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
+                                      <span>Qty: {item.quantity}</span>
+                                      <span>Unit: ₹{item.unitPrice}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="text-right sm:ml-4">
+                                  <p className="font-semibold text-sm sm:text-base">₹{item.totalPrice}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Address and Summary - Stack on mobile */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                          <h4 className="font-semibold mb-3 text-sm sm:text-base">Billing Address</h4>
+                          <div className="bg-muted/20 rounded-lg p-3 sm:p-4">
+                            <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+                              <p className="font-medium text-foreground">{selectedOrder.billingAddress?.fullName}</p>
+                              <p>{selectedOrder.billingAddress?.addressLine1}</p>
+                              {selectedOrder.billingAddress?.addressLine2 && (
+                                <p>{selectedOrder.billingAddress.addressLine2}</p>
+                              )}
+                              <p>{selectedOrder.billingAddress?.city}, {selectedOrder.billingAddress?.state}</p>
+                              <p>{selectedOrder.billingAddress?.postalCode}</p>
                             </div>
                           </div>
-                          <p className="font-semibold">₹{item.totalPrice}</p>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold mb-2">Billing Address</h4>
-                      <div className="text-sm text-muted-foreground space-y-1">
-                        <p>{selectedOrder.billingAddress?.fullName}</p>
-                        <p>{selectedOrder.billingAddress?.addressLine1}</p>
-                        {selectedOrder.billingAddress?.addressLine2 && (
-                          <p>{selectedOrder.billingAddress.addressLine2}</p>
-                        )}
-                        <p>{selectedOrder.billingAddress?.city}, {selectedOrder.billingAddress?.state}</p>
-                        <p>{selectedOrder.billingAddress?.postalCode}</p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold mb-2">Order Summary</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Subtotal:</span>
-                          <span>₹{selectedOrder.subtotal}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Tax:</span>
-                          <span>₹{selectedOrder.tax}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Shipping:</span>
-                          <span>₹{selectedOrder.shippingCost}</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between font-semibold">
-                          <span>Total:</span>
-                          <span>₹{selectedOrder.totalAmount}</span>
+                        
+                        <div>
+                          <h4 className="font-semibold mb-3 text-sm sm:text-base">Order Summary</h4>
+                          <div className="bg-muted/20 rounded-lg p-3 sm:p-4">
+                            <div className="space-y-2 text-xs sm:text-sm">
+                              <div className="flex justify-between">
+                                <span>Subtotal:</span>
+                                <span>₹{selectedOrder.totalAmount}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Delivery:</span>
+                                <span className="text-green-600">Free</span>
+                              </div>
+                              <Separator />
+                              <div className="flex justify-between font-semibold text-sm sm:text-base">
+                                <span>Total:</span>
+                                <span>₹{selectedOrder.totalAmount}</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </DialogContent>
           </Dialog>
           
