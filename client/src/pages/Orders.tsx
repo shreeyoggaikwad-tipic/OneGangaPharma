@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "@/lib/i18n";
@@ -36,6 +36,7 @@ export default function Orders() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { scrollToTop } = useScrollToTop();
+  const [, setLocation] = useLocation();
   
   // Scroll to top on page load
   useScrollToTopOnMount();
@@ -73,6 +74,8 @@ export default function Orders() {
         description: "Items added to cart successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      // Redirect to cart page
+      setLocation("/cart");
     },
     onError: () => {
       toast({
