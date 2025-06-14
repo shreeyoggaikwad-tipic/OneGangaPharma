@@ -373,82 +373,83 @@ export default function Home() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
                 {searchResults.map((medicine: any) => {
                   const stockStatus = getStockStatus(medicine.totalStock);
-                  const isOutOfStock = medicine.totalStock === 0;
-                  
                   return (
-                    <Card key={medicine.id} className="group hover:shadow-lg transition-all duration-300">
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          {/* Medicine Header */}
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between">
-                              <h3 className="font-semibold text-sm leading-tight line-clamp-2 flex-1">
-                                {medicine.name}
-                              </h3>
-                              {medicine.category?.isScheduleH && (
-                                <Badge variant="destructive" className="ml-2 text-xs">
-                                  Rx
-                                </Badge>
-                              )}
-                            </div>
-                            
+                    <Card key={medicine.id} className="medicine-card hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+                      <CardContent className="p-3 sm:p-4 flex flex-col h-full">
+                        {/* Medicine Image */}
+                        <div className="h-24 sm:h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4 overflow-hidden">
+                          {medicine.frontImageUrl ? (
+                            <img
+                              src={medicine.frontImageUrl}
+                              alt={medicine.name}
+                              className="w-full h-full object-contain rounded-lg"
+                            />
+                          ) : (
+                            <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
+                          )}
+                        </div>
+
+                        <div className="space-y-2 flex-1 flex flex-col">
+                          {/* Name and Badge */}
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-semibold text-xs sm:text-sm leading-tight flex-1">{medicine.name}</h3>
+                            {medicine.requiresPrescription && (
+                              <Badge variant="destructive" className="text-xs schedule-h-badge flex-shrink-0">
+                                Schedule H
+                              </Badge>
+                            )}
+                          </div>
+
+                          {/* Description */}
+                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 flex-1">
+                            {medicine.description}
+                          </p>
+
+                          {/* Dosage and Manufacturer */}
+                          <div className="space-y-1">
+                            {medicine.dosage && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                Dosage: {medicine.dosage}
+                              </p>
+                            )}
                             {medicine.manufacturer && (
-                              <p className="text-xs text-muted-foreground">
-                                by {medicine.manufacturer}
+                              <p className="text-xs text-muted-foreground truncate">
+                                Manufacturer: {medicine.manufacturer}
                               </p>
                             )}
                           </div>
 
-                          {/* Category */}
-                          <Badge variant="secondary" className="text-xs">
-                            {medicine.category?.name}
-                          </Badge>
+                          {/* Price and Stock */}
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-base sm:text-lg font-bold text-primary">
+                              ₹{parseFloat(medicine.price).toFixed(2)}
+                            </span>
+                            <Badge variant={stockStatus.variant} className="text-xs">
+                              {stockStatus.label}
+                              {medicine.totalStock > 0 && ` (${medicine.totalStock})`}
+                            </Badge>
+                          </div>
 
-                          {/* Description */}
-                          {medicine.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {medicine.description}
-                            </p>
+                          {/* Prescription Warning */}
+                          {medicine.requiresPrescription && (
+                            <div className="flex items-center gap-1 text-xs text-orange-600">
+                              <AlertTriangle className="h-3 w-3" />
+                              <span>Prescription Required</span>
+                            </div>
                           )}
 
-                          {/* Stock Status */}
-                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.color}`}>
-                            <div className={`w-2 h-2 rounded-full mr-2 ${stockStatus.color.replace('text-', 'bg-')}`}></div>
-                            {stockStatus.label}
-                          </div>
-
-                          {/* Price and Actions */}
-                          <div className="flex items-center justify-between pt-2 border-t">
-                            <div>
-                              <span className="text-lg font-bold">₹{medicine.price}</span>
-                              {medicine.mrp && parseFloat(medicine.mrp) > parseFloat(medicine.price) && (
-                                <span className="text-xs text-muted-foreground line-through ml-2">
-                                  ₹{medicine.mrp}
-                                </span>
-                              )}
-                            </div>
-                            
-                            <Button
-                              size="sm"
-                              onClick={() => handleAddToCart(medicine.id)}
-                              disabled={isOutOfStock || addToCartMutation.isPending}
-                              className="text-xs"
-                            >
-                              {addToCartMutation.isPending ? (
-                                "Adding..."
-                              ) : isOutOfStock ? (
-                                "Out of Stock"
-                              ) : (
-                                <>
-                                  <ShoppingCart className="h-3 w-3 mr-1" />
-                                  Add
-                                </>
-                              )}
-                            </Button>
-                          </div>
+                          {/* Add to Cart Button */}
+                          <Button
+                            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium"
+                            onClick={() => handleAddToCart(medicine.id)}
+                            disabled={medicine.totalStock === 0 || addToCartMutation.isPending}
+                          >
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            {medicine.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
