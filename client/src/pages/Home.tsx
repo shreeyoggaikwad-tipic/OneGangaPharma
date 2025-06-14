@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -48,6 +48,7 @@ export default function Home() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
+  const searchBarRef = useRef<HTMLDivElement>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("name");
 
@@ -88,6 +89,14 @@ export default function Home() {
         description: "Medicine has been added to your cart.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      
+      // Scroll back to search bar for better UX
+      if (searchBarRef.current) {
+        searchBarRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -407,7 +416,7 @@ export default function Home() {
       </div>
 
       {/* Search Bar with Filters */}
-      <Card className="mb-6">
+      <Card className="mb-6" ref={searchBarRef}>
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             {/* Search */}
