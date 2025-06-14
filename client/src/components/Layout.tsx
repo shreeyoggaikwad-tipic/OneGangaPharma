@@ -198,7 +198,7 @@ export default function Layout({ children }: LayoutProps) {
                 variant="ghost"
                 className="w-full justify-start"
               >
-                {t("auth.logout")}
+                Logout
               </Button>
             </>
           )}
@@ -210,7 +210,7 @@ export default function Layout({ children }: LayoutProps) {
                 className="w-full justify-start text-white bg-primary hover:bg-primary/90"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("auth.login")}
+                Login
               </Button>
             </Link>
           )}
@@ -338,7 +338,7 @@ export default function Layout({ children }: LayoutProps) {
                       {/* Profile link - hidden for admin users */}
                       {!isAdmin && (
                         <DropdownMenuItem asChild>
-                          <Link href="/profile">{t("nav.profile")}</Link>
+                          <Link href="/profile">Profile</Link>
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem onClick={handleLogout}>
@@ -350,7 +350,7 @@ export default function Layout({ children }: LayoutProps) {
               ) : (
                 <Link href="/login">
                   <Button className="text-white bg-primary hover:bg-primary/90">
-                    {t("auth.login")}
+                    Login
                   </Button>
                 </Link>
               )}
@@ -393,9 +393,9 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="w-10 h-10 medical-bg-primary rounded-lg flex items-center justify-center mr-3">
                   <Pill className="text-white h-6 w-6" />
                 </div>
-                <span className="text-xl font-bold">{t("app.title")}</span>
+                <span className="text-xl font-bold">Sharda Med</span>
               </div>
-              <p className="text-gray-100 text-sm">{t("app.description")}</p>
+              <p className="text-gray-100 text-sm">Your trusted online pharmacy for quality medicines and healthcare products.</p>
             </div>
             <div>
               <h3 className="font-semibold mb-4 text-white">Quick Links</h3>
@@ -462,7 +462,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-100 text-sm">
             <p>
-              &copy; 2024 {t("app.title")}. All rights reserved. Licensed
+              &copy; 2024 Sharda Med. All rights reserved. Licensed
               pharmacy.
             </p>
           </div>
