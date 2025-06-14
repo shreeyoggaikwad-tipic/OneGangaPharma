@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/lib/i18n";
+// import { useTranslation } from "@/lib/i18n";
 import {
   Search,
   Upload,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export default function Landing() {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,21 +23,21 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                {t('app.tagline')}
+                Your Health, Our Priority
               </h1>
               <p className="text-xl mb-8 opacity-90">
-                {t('app.description')}
+                Your trusted online pharmacy for quality medicines and healthcare products.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/medicines">
                   <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                    {t('medicine.title')}
+                    Medicines
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link href="/login">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary">
-                    {t('auth.login')}
+                    Login
                   </Button>
                 </Link>
               </div>
@@ -54,7 +54,7 @@ export default function Landing() {
       {/* Quick Actions */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">{t('dashboard.quickActions')}</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <Link href="/medicines">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -62,8 +62,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Search className="h-6 w-6 text-blue-600" />
                   </div>
-                  <h3 className="font-semibold mb-2">{t('common.search')} {t('medicine.title')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('medicine.searchPlaceholder')}</p>
+                  <h3 className="font-semibold mb-2">Search Medicines</h3>
+                  <p className="text-sm text-muted-foreground">Find medicines by name, category, or manufacturer</p>
                 </CardContent>
               </Card>
             </Link>
@@ -74,8 +74,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Upload className="h-6 w-6 text-green-600" />
                   </div>
-                  <h3 className="font-semibold mb-2">{t('prescription.uploadPrescription')}</h3>
-                  <p className="text-sm text-muted-foreground">{t('medicine.scheduleH')}</p>
+                  <h3 className="font-semibold mb-2">Upload Prescription</h3>
+                  <p className="text-sm text-muted-foreground">For prescription medicines</p>
                 </CardContent>
               </Card>
             </Link>

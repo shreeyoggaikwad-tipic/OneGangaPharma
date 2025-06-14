@@ -114,6 +114,10 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
 ## Changelog
 
 - June 14, 2025. Initial setup
+- June 14, 2025. Commented out multilingual routes and i18n functionality
+  - Disabled language selector in navigation
+  - Replaced translation function calls with static English text
+  - Maintained single language (English) for simplified user experience
 
 ## User Preferences
 
