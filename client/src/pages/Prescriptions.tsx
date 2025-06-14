@@ -122,7 +122,17 @@ export default function Prescriptions() {
   };
 
   const handleCameraCapture = () => {
-    cameraInputRef.current?.click();
+    // Always trigger the camera input - mobile devices will show camera option
+    const input = cameraInputRef.current;
+    if (input) {
+      input.click();
+    } else {
+      toast({
+        title: "Camera Not Available",
+        description: "Please use the file upload option to select from your camera roll.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCameraFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,6 +278,7 @@ export default function Prescriptions() {
                 capture="environment"
                 onChange={handleCameraFileSelect}
                 className="hidden"
+                multiple={false}
               />
 
               {selectedFile && (
