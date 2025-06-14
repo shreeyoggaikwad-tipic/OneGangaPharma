@@ -45,6 +45,7 @@ import {
   ShoppingCart,
   Plus,
   Check,
+  Camera,
 } from "lucide-react";
 
 const addressSchema = z.object({
@@ -79,6 +80,7 @@ export default function Checkout() {
   const [showUploadPrescription, setShowUploadPrescription] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Get cart items
   const { data: cartItems = [] } = useQuery<any[]>({

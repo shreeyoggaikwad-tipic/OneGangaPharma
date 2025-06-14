@@ -38,6 +38,7 @@ import {
   Download,
   Plus,
   AlertTriangle,
+  Camera,
 } from "lucide-react";
 
 export default function Prescriptions() {
@@ -45,6 +46,7 @@ export default function Prescriptions() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const { scrollToTop } = useScrollToTop();
   
   // Scroll to top on page load
@@ -110,6 +112,38 @@ export default function Prescriptions() {
         toast({
           title: "File Too Large",
           description: "Please upload files smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const handleCameraCapture = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const handleCameraFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Invalid File Type",
+          description: "Camera can only capture JPG and PNG images.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please capture a smaller image (under 5MB).",
           variant: "destructive",
         });
         return;
@@ -190,23 +224,51 @@ export default function Prescriptions() {
               <DialogTitle>Upload Prescription</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Upload your prescription</h3>
-                <p className="text-muted-foreground mb-4">
-                  Drag and drop or click to select files
-                </p>
-                <Input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={handleFileSelect}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Supported: JPG, PNG, PDF (Max 5MB)
-                </p>
+              {/* Upload Options */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* File Upload Option */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
+                     onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Upload File</h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Choose from gallery
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    JPG, PNG, PDF (Max 5MB)
+                  </p>
+                </div>
+
+                {/* Camera Capture Option */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
+                     onClick={handleCameraCapture}>
+                  <Camera className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Take Photo</h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Capture with camera
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    JPG, PNG only
+                  </p>
+                </div>
               </div>
+
+              {/* Hidden file inputs */}
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <Input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleCameraFileSelect}
+                className="hidden"
+              />
 
               {selectedFile && (
                 <div className="bg-muted p-4 rounded-lg">
