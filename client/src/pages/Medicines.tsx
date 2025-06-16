@@ -25,7 +25,6 @@ import {
   Package,
   AlertTriangle,
 } from "lucide-react";
-import sharadaLogo from "@assets/android-chrome-512x512_1750072942053.png";
 
 export default function Medicines() {
   const { isAuthenticated } = useAuth();
@@ -242,11 +241,7 @@ export default function Medicines() {
       ) : (filteredMedicines as any[]).length === 0 ? (
         <Card>
           <CardContent className="p-6 sm:p-8 text-center">
-            <img
-              src={sharadaLogo}
-              alt="Sharada"
-              className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50"
-            />
+            <Package className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
             <h3 className="text-base sm:text-lg font-semibold mb-2">{t('medicine.noMedicinesFound')}</h3>
             <p className="text-muted-foreground text-sm sm:text-base">
               {t('medicine.tryDifferentSearch')}
@@ -269,11 +264,7 @@ export default function Medicines() {
                         className="w-full h-full object-contain rounded-lg"
                       />
                     ) : (
-                      <img
-                        src={sharadaLogo}
-                        alt="Sharada"
-                        className="h-8 w-8 sm:h-12 sm:w-12 object-contain"
-                      />
+                      <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
                     )}
                   </div>
 

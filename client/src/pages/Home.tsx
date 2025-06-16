@@ -39,7 +39,6 @@ import {
   RefreshCw,
   Eye,
 } from "lucide-react";
-import sharadaLogo from "@assets/android-chrome-512x512_1750072942053.png";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -480,11 +479,7 @@ export default function Home() {
               </div>
             ) : searchResults.length === 0 ? (
               <div className="text-center py-8">
-                <img
-                  src={sharadaLogo}
-                  alt="Sharada"
-                  className="h-12 w-12 mx-auto mb-3 opacity-50"
-                />
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                 <h3 className="text-lg font-semibold mb-2">
                   No medicines found
                 </h3>
@@ -512,11 +507,7 @@ export default function Home() {
                               className="w-full h-full object-contain rounded-lg"
                             />
                           ) : (
-                            <img
-                              src={sharadaLogo}
-                              alt="Sharada"
-                              className="h-8 w-8 sm:h-12 sm:w-12 object-contain"
-                            />
+                            <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
                           )}
                         </div>
 
@@ -729,11 +720,7 @@ export default function Home() {
                           <div className="relative z-10">
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center space-x-2">
-                                <img
-                                  src={sharadaLogo}
-                                  alt="Sharada"
-                                  className="h-6 w-6 object-contain"
-                                />
+                                <Package className="h-6 w-6" />
                                 {category.isScheduleH && (
                                   <Shield className="h-5 w-5" />
                                 )}
