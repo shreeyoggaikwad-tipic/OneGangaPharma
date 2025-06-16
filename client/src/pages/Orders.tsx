@@ -29,6 +29,7 @@ import {
   Eye,
   RotateCcw,
 } from "lucide-react";
+import shardaMedLogo from "@assets/image_1750072629361.png";
 
 export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -150,16 +151,16 @@ export default function Orders() {
           { key: "placed", label: "Order Placed", icon: FileText },
           { key: "pending_prescription_review", label: "Prescription Review", icon: FileText },
           { key: "confirmed", label: "Confirmed", icon: CheckCircle },
-          { key: "delivered", label: "Delivered", icon: Package },
+          { key: "delivered", label: "Delivered", icon: CheckCircle },
         ];
       }
       
       return [
         { key: "placed", label: "Order Placed", icon: FileText },
         { key: "confirmed", label: "Confirmed", icon: CheckCircle },
-        { key: "processing", label: "Processing", icon: Package },
+        { key: "processing", label: "Processing", icon: Clock },
         { key: "shipped", label: "Shipped", icon: Truck },
-        { key: "delivered", label: "Delivered", icon: Package },
+        { key: "delivered", label: "Delivered", icon: CheckCircle },
       ];
     };
 
@@ -313,7 +314,11 @@ export default function Orders() {
                               {/* Mobile: Stack vertically, Desktop: Side by side */}
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                                 <div className="flex items-start gap-3 min-w-0 flex-1">
-                                  <Package className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mt-0.5 shrink-0" />
+                                  <img
+                                    src={shardaMedLogo}
+                                    alt="Sharda Med"
+                                    className="h-4 w-4 sm:h-5 sm:w-5 object-contain mt-0.5 shrink-0 opacity-60"
+                                  />
                                   <div className="min-w-0 flex-1">
                                     <p className="font-medium text-sm sm:text-base truncate">{item.medicine?.name}</p>
                                     <div className="flex flex-col xs:flex-row xs:gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
@@ -479,7 +484,11 @@ export default function Orders() {
           {deliveredOrders.length === 0 ? (
             <Card>
               <CardContent className="p-6 sm:p-8 text-center">
-                <Package className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                <img
+                  src={shardaMedLogo}
+                  alt="Sharda Med"
+                  className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-3 sm:mb-4 opacity-50"
+                />
                 <h2 className="text-lg sm:text-2xl font-semibold mb-2">No Delivered Orders</h2>
                 <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
                   Your delivered orders will appear here once you complete some purchases.

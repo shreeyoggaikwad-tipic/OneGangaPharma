@@ -269,7 +269,11 @@ export default function Medicines() {
                         className="w-full h-full object-contain rounded-lg"
                       />
                     ) : (
-                      <Package className="h-8 w-8 sm:h-12 sm:w-12 text-blue-400" />
+                      <img
+                        src={shardaMedLogo}
+                        alt="Sharda Med"
+                        className="h-8 w-8 sm:h-12 sm:w-12 object-contain"
+                      />
                     )}
                   </div>
 
