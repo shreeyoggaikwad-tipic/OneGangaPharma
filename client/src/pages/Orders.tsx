@@ -29,7 +29,7 @@ import {
   Eye,
   RotateCcw,
 } from "lucide-react";
-import shardaMedLogo from "@assets/image_1750072629361.png";
+import sharadaLogo from "@assets/android-chrome-512x512_1750072942053.png";
 
 export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);

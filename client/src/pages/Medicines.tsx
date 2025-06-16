@@ -25,7 +25,7 @@ import {
   Package,
   AlertTriangle,
 } from "lucide-react";
-import shardaMedLogo from "@assets/image_1750072629361.png";
+import sharadaLogo from "@assets/android-chrome-512x512_1750072942053.png";
 
 export default function Medicines() {
   const { isAuthenticated } = useAuth();
@@ -243,8 +243,8 @@ export default function Medicines() {
         <Card>
           <CardContent className="p-6 sm:p-8 text-center">
             <img
-              src={shardaMedLogo}
-              alt="Sharda Med"
+              src={sharadaLogo}
+              alt="Sharada"
               className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50"
             />
             <h3 className="text-base sm:text-lg font-semibold mb-2">{t('medicine.noMedicinesFound')}</h3>
@@ -270,8 +270,8 @@ export default function Medicines() {
                       />
                     ) : (
                       <img
-                        src={shardaMedLogo}
-                        alt="Sharda Med"
+                        src={sharadaLogo}
+                        alt="Sharada"
                         className="h-8 w-8 sm:h-12 sm:w-12 object-contain"
                       />
                     )}
