@@ -315,8 +315,8 @@ export default function Orders() {
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                                 <div className="flex items-start gap-3 min-w-0 flex-1">
                                   <img
-                                    src={shardaMedLogo}
-                                    alt="Sharda Med"
+                                    src={sharadaLogo}
+                                    alt="Sharada"
                                     className="h-4 w-4 sm:h-5 sm:w-5 object-contain mt-0.5 shrink-0 opacity-60"
                                   />
                                   <div className="min-w-0 flex-1">
@@ -485,8 +485,8 @@ export default function Orders() {
             <Card>
               <CardContent className="p-6 sm:p-8 text-center">
                 <img
-                  src={shardaMedLogo}
-                  alt="Sharda Med"
+                  src={sharadaLogo}
+                  alt="Sharada"
                   className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-3 sm:mb-4 opacity-50"
                 />
                 <h2 className="text-lg sm:text-2xl font-semibold mb-2">No Delivered Orders</h2>

@@ -129,10 +129,11 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Added automatic scroll back to search bar after adding items to cart
   - Enhanced user experience for continuous shopping workflow
   - Uses smooth scrolling animation with center positioning
-- June 14, 2025. Replaced generic pill icons with Sharda Med logo throughout application
-  - Updated medicine cards to display Sharda Med logo when no medicine image available
+- June 14, 2025. Replaced generic pill icons with SHARADA brand logo throughout application
+  - Updated medicine cards to display SHARADA logo when no medicine image available
   - Replaced Package icons in Home.tsx, Medicines.tsx, and Orders.tsx
   - Enhanced brand consistency across all medicine-related components
+  - Used red oval SHARADA logo (android-chrome-512x512) for professional branding
   - Maintained appropriate opacity and sizing for visual hierarchy
 
 ## User Preferences
