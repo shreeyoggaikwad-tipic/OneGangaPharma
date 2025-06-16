@@ -25,6 +25,7 @@ import {
   Package,
   AlertTriangle,
 } from "lucide-react";
+import shardaMedLogo from "@assets/image_1750072629361.png";
 
 export default function Medicines() {
   const { isAuthenticated } = useAuth();
@@ -241,7 +242,11 @@ export default function Medicines() {
       ) : (filteredMedicines as any[]).length === 0 ? (
         <Card>
           <CardContent className="p-6 sm:p-8 text-center">
-            <Package className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <img
+              src={shardaMedLogo}
+              alt="Sharda Med"
+              className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50"
+            />
             <h3 className="text-base sm:text-lg font-semibold mb-2">{t('medicine.noMedicinesFound')}</h3>
             <p className="text-muted-foreground text-sm sm:text-base">
               {t('medicine.tryDifferentSearch')}
