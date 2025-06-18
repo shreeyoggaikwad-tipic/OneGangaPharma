@@ -297,8 +297,10 @@ export default function MedicineManagement() {
     },
   });
 
-  // Filter medicines
+  // Filter medicines by category (search is already handled by the API)
   const filteredMedicines = (medicines as any[]).filter((medicine: any) => {
+    // If there's a search query, the API already filtered by search terms
+    // We only need to apply category filter on top of search results
     if (selectedCategory !== "all" && medicine.category?.name !== selectedCategory) {
       return false;
     }
