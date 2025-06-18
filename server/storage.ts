@@ -285,7 +285,11 @@ export class DatabaseStorage implements IStorage {
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
         category: medicineCategories,
-        totalStock: sql<number>`COALESCE(SUM(${medicineInventory.quantity}), 0)`,
+        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+          SELECT SUM(${cartItems.quantity}) 
+          FROM ${cartItems} 
+          WHERE ${cartItems.medicineId} = ${medicines.id}
+        ), 0))`,
       })
       .from(medicines)
       .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
@@ -370,14 +374,26 @@ export class DatabaseStorage implements IStorage {
         isActive: medicines.isActive,
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
-        totalStock: sql<number>`COALESCE(SUM(${medicineInventory.quantity}), 0)`,
+        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+          SELECT SUM(${cartItems.quantity}) 
+          FROM ${cartItems} 
+          WHERE ${cartItems.medicineId} = ${medicines.id}
+        ), 0))`,
       })
       .from(medicines)
       .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
       .where(eq(medicines.isActive, true))
       .groupBy(medicines.id)
-      .having(sql`COALESCE(SUM(${medicineInventory.quantity}), 0) < 20`)
-      .orderBy(sql`COALESCE(SUM(${medicineInventory.quantity}), 0)`) as any;
+      .having(sql`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+        SELECT SUM(${cartItems.quantity}) 
+        FROM ${cartItems} 
+        WHERE ${cartItems.medicineId} = ${medicines.id}
+      ), 0)) < 20`)
+      .orderBy(sql`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+        SELECT SUM(${cartItems.quantity}) 
+        FROM ${cartItems} 
+        WHERE ${cartItems.medicineId} = ${medicines.id}
+      ), 0))`) as any;
   }
 
   async getPrescriptionsByUserId(userId: number): Promise<Prescription[]> {
@@ -600,6 +616,17 @@ export class DatabaseStorage implements IStorage {
     const timestamp = Date.now().toString();
     const orderNumber = `SMD${timestamp.slice(-8)}`;
     
+    // Check stock availability and deduct inventory
+    for (const item of items) {
+      const availableStock = await this.getAvailableStock(item.medicineId);
+      if (item.quantity > availableStock) {
+        throw new Error(`Insufficient stock for medicine ID ${item.medicineId}. Only ${availableStock} available.`);
+      }
+      
+      // Deduct from oldest inventory first (FIFO)
+      await this.deductInventory(item.medicineId, item.quantity);
+    }
+    
     const [newOrder] = await db
       .insert(orders)
       .values({ ...order, orderNumber })
@@ -610,6 +637,35 @@ export class DatabaseStorage implements IStorage {
     await db.insert(orderItems).values(orderItemsWithOrderId);
 
     return newOrder;
+  }
+
+  // Helper function to deduct inventory quantities (FIFO)
+  private async deductInventory(medicineId: number, quantityToDeduct: number): Promise<void> {
+    let remainingToDeduct = quantityToDeduct;
+    
+    // Get inventory batches ordered by expiry date (FIFO)
+    const inventoryBatches = await db
+      .select()
+      .from(medicineInventory)
+      .where(and(
+        eq(medicineInventory.medicineId, medicineId),
+        sql`${medicineInventory.quantity} > 0`
+      ))
+      .orderBy(asc(medicineInventory.expiryDate));
+    
+    for (const batch of inventoryBatches) {
+      if (remainingToDeduct <= 0) break;
+      
+      const deductFromBatch = Math.min(remainingToDeduct, batch.quantity);
+      const newQuantity = batch.quantity - deductFromBatch;
+      
+      await db
+        .update(medicineInventory)
+        .set({ quantity: newQuantity })
+        .where(eq(medicineInventory.id, batch.id));
+      
+      remainingToDeduct -= deductFromBatch;
+    }
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order> {

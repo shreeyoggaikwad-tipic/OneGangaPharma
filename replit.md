@@ -179,6 +179,13 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Changed "X% OFF" discount badges to light bright green color across all pages
   - Enhanced visual appeal with attractive green badges that highlight savings
   - Added smooth pulsing animation to discount badges for better attention-grabbing effect
+- June 18, 2025. Implemented dynamic stock tracking system
+  - Real-time stock calculation: total inventory minus items in carts
+  - Stock validation prevents overselling when adding to cart
+  - Automatic inventory deduction during order processing using FIFO method
+  - Updated medicine queries to show actual available stock
+  - Enhanced cart and order management with stock availability checks
+  - Admin low-stock alerts now account for reserved cart items
 
 ## User Preferences
 
