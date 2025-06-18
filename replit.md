@@ -178,6 +178,7 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Bulk upload automatically calculates discounted prices on import
   - Changed "X% OFF" discount badges to light bright green color across all pages
   - Enhanced visual appeal with attractive green badges that highlight savings
+  - Added smooth pulsing animation to discount badges for better attention-grabbing effect
 
 ## User Preferences
 
