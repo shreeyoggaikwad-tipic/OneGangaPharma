@@ -286,7 +286,7 @@ export default function Cart() {
                       <div className="text-right">
                         {/* Show discount badge if discount exists */}
                         {parseFloat(item.medicine.discount) >= 5 && (
-                          <Badge variant="destructive" className="text-xs mb-1 bg-red-500 hover:bg-red-600">
+                          <Badge variant="destructive" className="text-xs mb-1 bg-green-400 hover:bg-green-500 text-white border-green-400">
                             {Math.round(parseFloat(item.medicine.discount))}% OFF
                           </Badge>
                         )}
