@@ -348,6 +348,17 @@ export default function Orders() {
                             ))}
                           </div>
                         </div>
+                        
+                        {/* Order Total Summary */}
+                        <div className="mt-3 pt-3 border-t bg-muted/20 rounded-lg p-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-sm sm:text-base">Total Amount:</span>
+                            <span className="font-bold text-lg sm:text-xl text-primary">₹{selectedOrder.totalAmount}</span>
+                          </div>
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                            Includes {selectedOrder.items?.length || 0} item{(selectedOrder.items?.length || 0) !== 1 ? 's' : ''} • Payment: Cash on Delivery
+                          </p>
+                        </div>
                       </div>
                       
                       {/* Address and Summary - Stack on mobile */}
