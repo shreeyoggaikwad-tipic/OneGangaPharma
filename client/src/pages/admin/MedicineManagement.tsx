@@ -78,7 +78,8 @@ const medicineSchema = z.object({
   name: z.string().min(2, "Medicine name is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   dosage: z.string().min(1, "Dosage is required"),
-  price: z.string().min(1, "Price is required"),
+  mrp: z.string().min(1, "MRP is required"),
+  discount: z.string().optional(),
   categoryId: z.number().min(1, "Category is required"),
   manufacturer: z.string().min(2, "Manufacturer is required"),
   requiresPrescription: z.boolean(),
@@ -146,7 +147,8 @@ export default function MedicineManagement() {
       name: "",
       description: "",
       dosage: "",
-      price: "",
+      mrp: "",
+      discount: "0",
       categoryId: 0,
       manufacturer: "",
       requiresPrescription: false,
@@ -322,7 +324,8 @@ export default function MedicineManagement() {
   const onMedicineSubmit = (data: MedicineForm) => {
     const formData = {
       ...data,
-      price: parseFloat(data.price).toString(),
+      mrp: parseFloat(data.mrp).toString(),
+      discount: data.discount ? parseFloat(data.discount).toString() : "0",
     };
     
     if (editingMedicine) {
@@ -384,7 +387,8 @@ export default function MedicineManagement() {
         name: medicine.name,
         description: medicine.description,
         dosage: medicine.dosage,
-        price: medicine.price.toString(),
+        mrp: medicine.mrp.toString(),
+        discount: medicine.discount ? medicine.discount.toString() : "0",
         categoryId: medicine.categoryId,
         manufacturer: medicine.manufacturer,
         requiresPrescription: medicine.requiresPrescription,
@@ -568,7 +572,16 @@ export default function MedicineManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell className="font-medium">
-                          ₹{parseFloat(medicine.price).toFixed(2)}
+                          <div className="flex items-center gap-2">
+                            {parseFloat(medicine.discount) > 0 && (
+                              <span className="text-xs text-red-500 line-through">
+                                ₹{parseFloat(medicine.mrp).toFixed(2)}
+                              </span>
+                            )}
+                            <span className="text-primary">
+                              ₹{parseFloat(medicine.discountedPrice).toFixed(2)}
+                            </span>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className={`font-medium ${stockStatus.color}`}>
@@ -737,12 +750,26 @@ export default function MedicineManagement() {
 
                 <FormField
                   control={medicineForm.control}
-                  name="price"
+                  name="mrp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price (₹)</FormLabel>
+                      <FormLabel>MRP (₹)</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input type="number" step="0.01" {...field} placeholder="e.g., 100.00" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={medicineForm.control}
+                  name="discount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Discount (%)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" {...field} placeholder="e.g., 15.50" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
