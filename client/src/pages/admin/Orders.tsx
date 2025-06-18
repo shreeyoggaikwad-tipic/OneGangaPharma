@@ -228,20 +228,20 @@ export default function AdminOrders() {
                       <Eye className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden">
                     <DialogHeader>
-                      <DialogTitle>Order Details - {order.orderNumber}</DialogTitle>
+                      <DialogTitle className="text-base sm:text-lg">Order Details - {order.orderNumber}</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3 sm:space-y-4 overflow-y-auto max-h-[75vh]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                          <Label>Customer</Label>
-                          <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
-                          <p className="text-sm text-muted-foreground">{order.user.email}</p>
+                          <Label className="text-sm">Customer</Label>
+                          <p className="font-medium text-sm sm:text-base">{order.user.firstName} {order.user.lastName}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{order.user.email}</p>
                         </div>
                         <div>
-                          <Label>Current Status</Label>
-                          <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit mt-1`}>
+                          <Label className="text-sm">Current Status</Label>
+                          <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit mt-1 text-xs`}>
                             {getStatusIcon(order.status)}
                             {order.status.replace('_', ' ')}
                           </Badge>
@@ -250,8 +250,8 @@ export default function AdminOrders() {
                       
                       {!isReadOnly && (
                         <div>
-                          <Label>Update Status</Label>
-                          <div className="flex gap-2 mt-2">
+                          <Label className="text-sm">Update Status</Label>
+                          <div className="flex flex-wrap gap-2 mt-2">
                             {statusOptions.map((status) => (
                               <Button
                                 key={status.value}
@@ -259,7 +259,7 @@ export default function AdminOrders() {
                                 size="sm"
                                 onClick={() => handleStatusUpdate(order.id, status.value)}
                                 disabled={updateOrderStatusMutation.isPending || isStatusDisabled(order.status, status.value)}
-                                className={isStatusDisabled(order.status, status.value) ? "opacity-50 cursor-not-allowed" : ""}
+                                className={`text-xs ${isStatusDisabled(order.status, status.value) ? "opacity-50 cursor-not-allowed" : ""}`}
                               >
                                 {status.label}
                               </Button>
@@ -270,20 +270,20 @@ export default function AdminOrders() {
                       
                       {order.prescription && (
                         <div>
-                          <Label>Prescription Details</Label>
-                          <div className="border rounded-lg p-3 mt-2">
-                            <div className="flex items-center justify-between">
+                          <Label className="text-sm">Prescription Details</Label>
+                          <div className="border rounded-lg p-2 sm:p-3 mt-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-blue-500" />
+                                <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
                                 <div>
-                                  <p className="font-medium">{order.prescription.fileName}</p>
+                                  <p className="font-medium text-xs sm:text-sm truncate">{order.prescription.fileName}</p>
                                   <p className="text-xs text-muted-foreground">
                                     Uploaded: {new Date(order.prescription.uploadedAt).toLocaleDateString()}
                                   </p>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Badge className={`${
+                                <Badge className={`text-xs ${
                                   order.prescription.status === 'approved' ? 'bg-green-100 text-green-800' :
                                   order.prescription.status === 'rejected' ? 'bg-red-100 text-red-800' :
                                   'bg-yellow-100 text-yellow-800'
@@ -317,24 +317,24 @@ export default function AdminOrders() {
                       )}
                       
                       <div>
-                        <Label>Order Items ({order.items?.length || 0})</Label>
+                        <Label className="text-sm">Order Items ({order.items?.length || 0})</Label>
                         <div className="border rounded-lg mt-2">
                           {/* Scrollable items container */}
-                          <div className="max-h-48 overflow-y-auto p-3">
+                          <div className="max-h-48 overflow-y-auto p-2 sm:p-3">
                             {order.items?.map((item: any, index: number) => (
                               <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                                <div>
-                                  <p className="font-medium">{item.medicine?.name}</p>
-                                  <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-xs sm:text-sm truncate">{item.medicine?.name}</p>
+                                  <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                                 </div>
-                                <p className="font-medium">₹{parseFloat(item.unitPrice).toLocaleString()}</p>
+                                <p className="font-medium text-xs sm:text-sm">₹{parseFloat(item.unitPrice).toLocaleString()}</p>
                               </div>
                             ))}
                           </div>
                           {/* Total outside scroll area */}
-                          <div className="flex justify-between items-center p-3 border-t font-semibold bg-gray-50">
-                            <span>Total Amount</span>
-                            <span>₹{parseFloat(order.totalAmount).toLocaleString()}</span>
+                          <div className="flex justify-between items-center p-2 sm:p-3 border-t font-semibold bg-gray-50">
+                            <span className="text-sm">Total Amount</span>
+                            <span className="text-sm sm:text-base">₹{parseFloat(order.totalAmount).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -427,31 +427,35 @@ export default function AdminOrders() {
       {/* Smart Order Management Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
-          <TabsTrigger value="active" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Active Orders
-            <Badge variant="secondary" className="ml-2">
+          <TabsTrigger value="active" className="flex items-center gap-1 sm:gap-2">
+            <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Active Orders</span>
+            <span className="sm:hidden">Active</span>
+            <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
               {categorizedOrders.active.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4" />
-            Completed
-            <Badge variant="secondary" className="ml-2">
+          <TabsTrigger value="completed" className="flex items-center gap-1 sm:gap-2">
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Completed</span>
+            <span className="sm:hidden">Done</span>
+            <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
               {categorizedOrders.completed.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="cancelled" className="flex items-center gap-2">
-            <XCircle className="h-4 w-4" />
-            Cancelled
-            <Badge variant="secondary" className="ml-2">
+          <TabsTrigger value="cancelled" className="flex items-center gap-1 sm:gap-2">
+            <XCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Cancelled</span>
+            <span className="sm:hidden">Cancel</span>
+            <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
               {categorizedOrders.cancelled.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="all" className="flex items-center gap-2">
-            <Archive className="h-4 w-4" />
-            All Orders
-            <Badge variant="secondary" className="ml-2">
+          <TabsTrigger value="all" className="flex items-center gap-1 sm:gap-2">
+            <Archive className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">All Orders</span>
+            <span className="sm:hidden">All</span>
+            <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
               {categorizedOrders.all.length}
             </Badge>
           </TabsTrigger>
