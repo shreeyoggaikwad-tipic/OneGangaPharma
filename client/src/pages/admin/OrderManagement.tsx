@@ -355,13 +355,15 @@ export default function OrderManagement() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Order Details - #{order.orderNumber}</DialogTitle>
-                            </DialogHeader>
-                            
-                            {selectedOrder && (
-                              <div className="space-y-6">
+                          <DialogContent className="w-[95vw] max-w-4xl h-[85vh] sm:h-[90vh] p-0 gap-0">
+                            <div className="flex flex-col h-full">
+                              <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b shrink-0">
+                                <DialogTitle className="text-lg sm:text-xl">Order Details - #{order.orderNumber}</DialogTitle>
+                              </DialogHeader>
+                              
+                              {selectedOrder && (
+                                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
+                                  <div className="space-y-4 sm:space-y-6">
                                 {/* Order Progress */}
                                 <div>
                                   <h4 className="font-semibold mb-3">Order Status</h4>
@@ -517,18 +519,11 @@ export default function OrderManagement() {
                                   </Card>
                                 )}
 
-                                {/* Total */}
-                                <div className="border-t pt-4">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-lg font-semibold">Total Amount</span>
-                                    <span className="text-2xl font-bold text-primary">₹{selectedOrder.totalAmount}</span>
+                                {/* Total - removed duplicate as it's now in items section */}
                                   </div>
-                                  <p className="text-sm text-muted-foreground mt-1">
-                                    Payment Method: Cash on Delivery
-                                  </p>
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </DialogContent>
                         </Dialog>
                       </TableCell>
