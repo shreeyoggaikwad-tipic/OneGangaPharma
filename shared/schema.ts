@@ -74,7 +74,9 @@ export const medicines = pgTable("medicines", {
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   dosage: varchar("dosage", { length: 100 }),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  mrp: decimal("mrp", { precision: 10, scale: 2 }).notNull(),
+  discount: decimal("discount", { precision: 5, scale: 2 }).notNull().default("0.00"), // percentage discount
+  discountedPrice: decimal("discounted_price", { precision: 10, scale: 2 }).notNull(),
   categoryId: integer("category_id").notNull(),
   manufacturer: varchar("manufacturer", { length: 255 }),
   requiresPrescription: boolean("requires_prescription").default(false),
