@@ -120,6 +120,23 @@ export class DatabaseStorage implements IStorage {
     return Number((mrp - (mrp * discount / 100)).toFixed(2));
   }
 
+  // Helper function to get available stock (total inventory - items in carts)
+  private async getAvailableStock(medicineId: number): Promise<number> {
+    const [result] = await db
+      .select({
+        totalInventory: sql<number>`COALESCE(SUM(${medicineInventory.quantity}), 0)`,
+        cartReserved: sql<number>`COALESCE((
+          SELECT SUM(${cartItems.quantity}) 
+          FROM ${cartItems} 
+          WHERE ${cartItems.medicineId} = ${medicineId}
+        ), 0)`
+      })
+      .from(medicineInventory)
+      .where(eq(medicineInventory.medicineId, medicineId));
+    
+    return Math.max(0, (result?.totalInventory || 0) - (result?.cartReserved || 0));
+  }
+
   // Helper function to prepare medicine data with price calculation
   private prepareMedicineData(medicine: Partial<InsertMedicine>): Partial<InsertMedicine> {
     const prepared = { ...medicine };
@@ -211,7 +228,11 @@ export class DatabaseStorage implements IStorage {
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
         category: medicineCategories,
-        totalStock: sql<number>`COALESCE(SUM(${medicineInventory.quantity}), 0)`,
+        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+          SELECT SUM(${cartItems.quantity}) 
+          FROM ${cartItems} 
+          WHERE ${cartItems.medicineId} = ${medicines.id}
+        ), 0))`,
       })
       .from(medicines)
       .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
@@ -441,6 +462,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
+    // Check available stock before adding to cart
+    const availableStock = await this.getAvailableStock(cartItem.medicineId);
+    
     // Check if item already exists in cart
     const [existingItem] = await db
       .select()
@@ -453,14 +477,25 @@ export class DatabaseStorage implements IStorage {
       );
 
     if (existingItem) {
+      // Check if new total quantity exceeds available stock
+      const newQuantity = existingItem.quantity + cartItem.quantity;
+      if (newQuantity > availableStock + existingItem.quantity) {
+        throw new Error(`Insufficient stock. Only ${availableStock + existingItem.quantity} available.`);
+      }
+      
       // Update quantity
       const [updatedItem] = await db
         .update(cartItems)
-        .set({ quantity: existingItem.quantity + cartItem.quantity })
+        .set({ quantity: newQuantity })
         .where(eq(cartItems.id, existingItem.id))
         .returning();
       return updatedItem;
     } else {
+      // Check if requested quantity exceeds available stock
+      if (cartItem.quantity > availableStock) {
+        throw new Error(`Insufficient stock. Only ${availableStock} available.`);
+      }
+      
       // Add new item
       const [newItem] = await db.insert(cartItems).values(cartItem).returning();
       return newItem;
@@ -468,6 +503,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateCartItem(id: number, quantity: number): Promise<CartItem> {
+    // Get the cart item to check medicine ID
+    const [cartItem] = await db
+      .select()
+      .from(cartItems)
+      .where(eq(cartItems.id, id));
+    
+    if (!cartItem) {
+      throw new Error('Cart item not found');
+    }
+
+    // Check available stock
+    const availableStock = await this.getAvailableStock(cartItem.medicineId);
+    const currentCartQuantity = cartItem.quantity;
+    const stockAvailableForThisItem = availableStock + currentCartQuantity;
+    
+    if (quantity > stockAvailableForThisItem) {
+      throw new Error(`Insufficient stock. Only ${stockAvailableForThisItem} available.`);
+    }
+
     const [updatedItem] = await db
       .update(cartItems)
       .set({ quantity })
