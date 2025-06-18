@@ -355,185 +355,147 @@ export default function OrderManagement() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="w-[95vw] max-w-4xl h-[85vh] sm:h-[90vh] p-0 gap-0">
-                            <div className="flex flex-col h-full">
-                              <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b shrink-0">
-                                <DialogTitle className="text-lg sm:text-xl">Order Details - #{order.orderNumber}</DialogTitle>
-                              </DialogHeader>
-                              
-                              {selectedOrder && (
-                                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
-                                  <div className="space-y-4 sm:space-y-6">
-                                {/* Order Progress */}
-                                <div>
-                                  <h4 className="font-semibold mb-3">Order Status</h4>
-                                  <OrderProgress status={selectedOrder.status} />
-                                </div>
-
-                                {/* Customer Information */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                  <Card>
-                                    <CardHeader>
-                                      <CardTitle className="text-sm flex items-center gap-2">
-                                        <User className="h-4 w-4" />
-                                        Customer Information
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2 text-sm">
-                                      <p><strong>Name:</strong> {selectedOrder.user?.firstName} {selectedOrder.user?.lastName}</p>
-                                      <p className="flex items-center gap-2">
-                                        <Mail className="h-3 w-3" />
-                                        {selectedOrder.user?.email}
-                                      </p>
-                                      <p className="flex items-center gap-2">
-                                        <Phone className="h-3 w-3" />
-                                        {selectedOrder.user?.phone}
-                                      </p>
-                                    </CardContent>
-                                  </Card>
-
-                                  <Card>
-                                    <CardHeader>
-                                      <CardTitle className="text-sm flex items-center gap-2">
-                                        <MapPin className="h-4 w-4" />
-                                        Delivery Address
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="text-sm">
-                                      <div className="space-y-1">
-                                        <p>{selectedOrder.shippingAddress?.fullName}</p>
-                                        <p>{selectedOrder.shippingAddress?.phone}</p>
-                                        <p>{selectedOrder.shippingAddress?.addressLine1}</p>
-                                        {selectedOrder.shippingAddress?.addressLine2 && (
-                                          <p>{selectedOrder.shippingAddress.addressLine2}</p>
-                                        )}
-                                        <p>
-                                          {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.postalCode}
-                                        </p>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                </div>
-
-                                {/* Items with enhanced scrolling */}
-                                <div>
-                                  <h4 className="font-semibold mb-3">Order Items ({selectedOrder.items?.length || 0})</h4>
-                                  <div className="border rounded-lg bg-white">
-                                    <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                      <div className="divide-y">
-                                        {selectedOrder.items?.map((item: any, index: number) => (
-                                          <div key={item.id || index} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors min-h-[80px]">
-                                            <div className="flex items-center gap-3 flex-1">
-                                              {/* Medicine Image */}
-                                              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                                                {item.medicine?.frontImageUrl ? (
-                                                  <img
-                                                    src={item.medicine.frontImageUrl}
-                                                    alt={item.medicine.name}
-                                                    className="w-full h-full object-contain rounded-lg"
-                                                  />
-                                                ) : (
-                                                  <Package className="h-6 w-6 text-blue-400" />
-                                                )}
-                                              </div>
-                                              <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-sm">{item.medicine?.name}</p>
-                                                <p className="text-xs text-muted-foreground truncate">
-                                                  {item.medicine?.dosage} | {item.medicine?.manufacturer}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                  ₹{item.unitPrice} × {item.quantity}
-                                                </p>
-                                                {item.medicine?.requiresPrescription && (
-                                                  <Badge variant="destructive" className="text-xs mt-1">
-                                                    Schedule H
-                                                  </Badge>
-                                                )}
-                                              </div>
-                                            </div>
-                                            <div className="text-right flex-shrink-0 ml-2">
-                                              <p className="font-semibold text-sm">₹{item.totalPrice}</p>
-                                            </div>
-                                          </div>
-                                        ))}
-                                        {/* Debug info */}
-                                        {(!selectedOrder.items || selectedOrder.items.length === 0) && (
-                                          <div className="p-4 text-center text-muted-foreground">
-                                            No items found in this order
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
+                          <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden">
+                            <DialogHeader>
+                              <DialogTitle>Order Details - #{order.orderNumber}</DialogTitle>
+                            </DialogHeader>
+                            
+                            {selectedOrder && (
+                              <div className="space-y-6 overflow-y-auto max-h-[75vh] pr-2">
+                                {/* Customer & Status */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <h3 className="font-semibold mb-2">Customer</h3>
+                                    <p className="text-sm">{selectedOrder.user?.firstName} {selectedOrder.user?.lastName}</p>
+                                    <p className="text-sm text-muted-foreground">{selectedOrder.user?.email}</p>
                                   </div>
-                                  
-                                  {/* Order Total Summary */}
-                                  <div className="mt-3 pt-3 border-t bg-muted/20 rounded-lg p-3">
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-semibold">Total Amount:</span>
-                                      <span className="font-bold text-lg text-primary">₹{selectedOrder.totalAmount}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      {selectedOrder.items?.length || 0} item{(selectedOrder.items?.length || 0) !== 1 ? 's' : ''} • Payment: Cash on Delivery
-                                    </p>
+                                  <div>
+                                    <h3 className="font-semibold mb-2">Current Status</h3>
+                                    <Badge className="capitalize">{selectedOrder.status}</Badge>
                                   </div>
                                 </div>
 
-                                {/* Prescription */}
+                                {/* Status Update Buttons */}
+                                <div>
+                                  <h3 className="font-semibold mb-3">Update Status</h3>
+                                  <div className="flex flex-wrap gap-2">
+                                    {['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
+                                      <Button
+                                        key={status}
+                                        variant={selectedOrder.status === status ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => handleStatusUpdate(selectedOrder.id, status)}
+                                        disabled={statusMutation.isPending}
+                                        className="capitalize"
+                                      >
+                                        {status}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Prescription if exists */}
                                 {selectedOrder.prescription && (
-                                  <Card>
-                                    <CardHeader>
-                                      <CardTitle className="text-sm flex items-center gap-2">
-                                        <FileText className="h-4 w-4" />
-                                        Prescription Details
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="text-sm">
-                                      <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                          <div>
-                                            <p><strong>File:</strong> {selectedOrder.prescription.fileName}</p>
-                                            <p className="text-muted-foreground">Uploaded: {new Date(selectedOrder.prescription.uploadedAt).toLocaleDateString()}</p>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <Badge className={`${
-                                              selectedOrder.prescription.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                              selectedOrder.prescription.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                              'bg-yellow-100 text-yellow-800'
-                                            }`}>
-                                              {selectedOrder.prescription.status}
-                                            </Badge>
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => window.open(`/uploads/prescriptions/${selectedOrder.prescription.fileName}`, '_blank')}
-                                              className="text-xs"
-                                            >
-                                              <FileText className="h-3 w-3 mr-1" />
-                                              View
-                                            </Button>
-                                          </div>
-                                        </div>
-                                        {selectedOrder.prescription.reviewNotes && (
-                                          <div className="p-2 bg-gray-50 rounded-lg">
-                                            <p className="text-xs font-medium text-gray-700">Review Notes:</p>
-                                            <p className="text-xs text-gray-600">{selectedOrder.prescription.reviewNotes}</p>
-                                          </div>
-                                        )}
-                                        {selectedOrder.prescription.reviewedAt && (
+                                  <div>
+                                    <h3 className="font-semibold mb-3">Prescription Details</h3>
+                                    <div className="border rounded-lg p-4 bg-gray-50">
+                                      <div className="flex items-center justify-between">
+                                        <div>
+                                          <p className="text-sm font-medium">
+                                            {selectedOrder.prescription.fileName}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground">
+                                            Uploaded: {new Date(selectedOrder.prescription.uploadedAt).toLocaleDateString()}
+                                          </p>
                                           <p className="text-xs text-muted-foreground">
                                             Reviewed: {new Date(selectedOrder.prescription.reviewedAt).toLocaleDateString()}
                                           </p>
-                                        )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant={selectedOrder.prescription.status === 'approved' ? 'default' : 'secondary'}>
+                                            {selectedOrder.prescription.status}
+                                          </Badge>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => window.open(`/uploads/prescriptions/${selectedOrder.prescription.fileName}`, '_blank')}
+                                          >
+                                            View
+                                          </Button>
+                                        </div>
                                       </div>
-                                    </CardContent>
-                                  </Card>
+                                    </div>
+                                  </div>
                                 )}
 
-                                {/* Total - removed duplicate as it's now in items section */}
+                                {/* Order Items - MAIN SCROLLABLE SECTION */}
+                                <div>
+                                  <h3 className="font-semibold mb-3">
+                                    Order Items ({selectedOrder.items?.length || 0})
+                                  </h3>
+                                  
+                                  {/* THIS IS THE KEY FIX - Dedicated scrollable container */}
+                                  <div 
+                                    className="border rounded-lg bg-white" 
+                                    style={{ maxHeight: '300px', overflowY: 'auto' }}
+                                  >
+                                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                                      selectedOrder.items.map((item: any, index: number) => (
+                                        <div 
+                                          key={item.id || index} 
+                                          className={`p-3 flex items-center justify-between ${
+                                            index !== selectedOrder.items.length - 1 ? 'border-b' : ''
+                                          }`}
+                                        >
+                                          <div className="flex items-center gap-3 flex-1">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                              {item.medicine?.frontImageUrl ? (
+                                                <img
+                                                  src={item.medicine.frontImageUrl}
+                                                  alt={item.medicine.name}
+                                                  className="w-full h-full object-cover rounded-lg"
+                                                />
+                                              ) : (
+                                                <Package className="h-5 w-5 text-blue-600" />
+                                              )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <p className="font-medium text-sm">{item.medicine?.name || 'Unknown Medicine'}</p>
+                                              <p className="text-xs text-gray-500">
+                                                Qty: {item.quantity} | ₹{item.unitPrice} each
+                                              </p>
+                                              {item.medicine?.requiresPrescription && (
+                                                <Badge variant="destructive" className="text-xs mt-1">
+                                                  Schedule H
+                                                </Badge>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="text-right ml-2">
+                                            <p className="font-semibold text-sm">₹{item.totalPrice}</p>
+                                          </div>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="p-4 text-center text-gray-500">
+                                        No items found in this order
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
-                              )}
-                            </div>
+
+                                {/* Total Amount */}
+                                <div className="border-t pt-4">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-lg font-semibold">Total Amount</span>
+                                    <span className="text-2xl font-bold text-primary">₹{selectedOrder.totalAmount}</span>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    Payment Method: Cash on Delivery
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </DialogContent>
                         </Dialog>
                       </TableCell>
