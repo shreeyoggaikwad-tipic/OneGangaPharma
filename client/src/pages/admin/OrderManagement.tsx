@@ -79,6 +79,11 @@ export default function OrderManagement() {
     },
   });
 
+  // Handle status update
+  const handleStatusUpdate = (orderId: number, status: string) => {
+    updateStatusMutation.mutate({ orderId, status });
+  };
+
   // Filter orders
   const filteredOrders = ordersArray.filter((order: any) => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -355,13 +360,13 @@ export default function OrderManagement() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden">
+                          <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh]">
                             <DialogHeader>
                               <DialogTitle>Order Details - #{order.orderNumber}</DialogTitle>
                             </DialogHeader>
                             
                             {selectedOrder && (
-                              <div className="space-y-6 overflow-y-auto max-h-[75vh] pr-2">
+                              <div className="space-y-4 max-h-[70vh] overflow-y-auto">
                                 {/* Customer & Status */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
@@ -385,7 +390,7 @@ export default function OrderManagement() {
                                         variant={selectedOrder.status === status ? "default" : "outline"}
                                         size="sm"
                                         onClick={() => handleStatusUpdate(selectedOrder.id, status)}
-                                        disabled={statusMutation.isPending}
+                                        disabled={updateStatusMutation.isPending}
                                         className="capitalize"
                                       >
                                         {status}
@@ -428,59 +433,29 @@ export default function OrderManagement() {
                                   </div>
                                 )}
 
-                                {/* Order Items - MAIN SCROLLABLE SECTION */}
-                                <div>
-                                  <h3 className="font-semibold mb-3">
-                                    Order Items ({selectedOrder.items?.length || 0})
-                                  </h3>
+                                {/* Order Items - SCROLLABLE SECTION */}
+                                <div className="border-t pt-4">
+                                  <h3 className="font-semibold mb-3">Order Items</h3>
                                   
-                                  {/* THIS IS THE KEY FIX - Dedicated scrollable container */}
-                                  <div 
-                                    className="border rounded-lg bg-white" 
-                                    style={{ maxHeight: '300px', overflowY: 'auto' }}
-                                  >
-                                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                                      selectedOrder.items.map((item: any, index: number) => (
-                                        <div 
-                                          key={item.id || index} 
-                                          className={`p-3 flex items-center justify-between ${
-                                            index !== selectedOrder.items.length - 1 ? 'border-b' : ''
-                                          }`}
-                                        >
-                                          <div className="flex items-center gap-3 flex-1">
-                                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                              {item.medicine?.frontImageUrl ? (
-                                                <img
-                                                  src={item.medicine.frontImageUrl}
-                                                  alt={item.medicine.name}
-                                                  className="w-full h-full object-cover rounded-lg"
-                                                />
-                                              ) : (
-                                                <Package className="h-5 w-5 text-blue-600" />
-                                              )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                              <p className="font-medium text-sm">{item.medicine?.name || 'Unknown Medicine'}</p>
-                                              <p className="text-xs text-gray-500">
-                                                Qty: {item.quantity} | ₹{item.unitPrice} each
-                                              </p>
-                                              {item.medicine?.requiresPrescription && (
-                                                <Badge variant="destructive" className="text-xs mt-1">
-                                                  Schedule H
-                                                </Badge>
-                                              )}
+                                  {/* Compact scrollable list */}
+                                  <div className="bg-gray-50 rounded-lg p-3">
+                                    <div className="max-h-40 overflow-y-auto space-y-2">
+                                      {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                                        selectedOrder.items.map((item: any, index: number) => (
+                                          <div key={item.id || index} className="bg-white rounded p-2 text-sm">
+                                            <div className="flex justify-between items-start">
+                                              <div>
+                                                <p className="font-medium">{item.medicine?.name || 'Medicine'}</p>
+                                                <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
+                                              </div>
+                                              <p className="font-semibold">₹{item.totalPrice}</p>
                                             </div>
                                           </div>
-                                          <div className="text-right ml-2">
-                                            <p className="font-semibold text-sm">₹{item.totalPrice}</p>
-                                          </div>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <div className="p-4 text-center text-gray-500">
-                                        No items found in this order
-                                      </div>
-                                    )}
+                                        ))
+                                      ) : (
+                                        <p className="text-center text-gray-500">No items</p>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
 
