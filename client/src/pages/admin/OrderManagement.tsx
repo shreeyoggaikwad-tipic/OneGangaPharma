@@ -242,7 +242,7 @@ export default function OrderManagement() {
               <p className="text-muted-foreground">No orders found</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-96 overflow-y-auto border rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow>
