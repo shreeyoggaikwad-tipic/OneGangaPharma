@@ -415,44 +415,54 @@ export default function OrderManagement() {
                                   </Card>
                                 </div>
 
-                                {/* Items with proper scrolling */}
+                                {/* Items with enhanced scrolling */}
                                 <div>
                                   <h4 className="font-semibold mb-3">Order Items ({selectedOrder.items?.length || 0})</h4>
-                                  <div className="max-h-48 overflow-y-auto border rounded-lg bg-white">
-                                    <div className="space-y-0 divide-y">
-                                      {selectedOrder.items?.map((item: any) => (
-                                        <div key={item.id} className="flex items-center justify-between p-3 hover:bg-muted/30 transition-colors">
-                                          <div className="flex items-center gap-3">
-                                            {/* Medicine Image */}
-                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center overflow-hidden">
-                                              {item.medicine?.frontImageUrl ? (
-                                                <img
-                                                  src={item.medicine.frontImageUrl}
-                                                  alt={item.medicine.name}
-                                                  className="w-full h-full object-contain rounded-lg"
-                                                />
-                                              ) : (
-                                                <Package className="h-6 w-6 text-blue-400" />
-                                              )}
+                                  <div className="border rounded-lg bg-white">
+                                    <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                      <div className="divide-y">
+                                        {selectedOrder.items?.map((item: any, index: number) => (
+                                          <div key={item.id || index} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors min-h-[80px]">
+                                            <div className="flex items-center gap-3 flex-1">
+                                              {/* Medicine Image */}
+                                              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                                                {item.medicine?.frontImageUrl ? (
+                                                  <img
+                                                    src={item.medicine.frontImageUrl}
+                                                    alt={item.medicine.name}
+                                                    className="w-full h-full object-contain rounded-lg"
+                                                  />
+                                                ) : (
+                                                  <Package className="h-6 w-6 text-blue-400" />
+                                                )}
+                                              </div>
+                                              <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-sm">{item.medicine?.name}</p>
+                                                <p className="text-xs text-muted-foreground truncate">
+                                                  {item.medicine?.dosage} | {item.medicine?.manufacturer}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                  ₹{item.unitPrice} × {item.quantity}
+                                                </p>
+                                                {item.medicine?.requiresPrescription && (
+                                                  <Badge variant="destructive" className="text-xs mt-1">
+                                                    Schedule H
+                                                  </Badge>
+                                                )}
+                                              </div>
                                             </div>
-                                            <div>
-                                              <p className="font-medium">{item.medicine?.name}</p>
-                                              <p className="text-sm text-muted-foreground">
-                                                {item.medicine?.dosage} | {item.medicine?.manufacturer}
-                                              </p>
-                                              <p className="text-sm text-muted-foreground">
-                                                ₹{item.unitPrice} × {item.quantity}
-                                              </p>
-                                              {item.medicine?.requiresPrescription && (
-                                                <Badge variant="destructive" className="text-xs mt-1">
-                                                  Schedule H
-                                                </Badge>
-                                              )}
+                                            <div className="text-right flex-shrink-0 ml-2">
+                                              <p className="font-semibold text-sm">₹{item.totalPrice}</p>
                                             </div>
                                           </div>
-                                          <p className="font-semibold">₹{item.totalPrice}</p>
-                                        </div>
-                                      ))}
+                                        ))}
+                                        {/* Debug info */}
+                                        {(!selectedOrder.items || selectedOrder.items.length === 0) && (
+                                          <div className="p-4 text-center text-muted-foreground">
+                                            No items found in this order
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                   
