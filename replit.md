@@ -137,6 +137,11 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Updated cart component to display actual medicine images instead of placeholders
   - Added proper image handling with fallback for items without images
   - Improved cart visual consistency with medicine display pages
+- June 14, 2025. Fixed order details product visibility issue
+  - Added scrollable container for order items with max-height and overflow handling
+  - Enhanced product display with images, dosage, and prescription badges
+  - Improved layout with proper dividers and hover effects for better UX
+  - Now displays all products in large orders instead of limiting visibility
 
 ## User Preferences
 

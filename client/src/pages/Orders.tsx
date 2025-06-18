@@ -304,30 +304,49 @@ export default function Orders() {
                         <OrderProgress status={selectedOrder.status} />
                       </div>
                       
-                      {/* Order Items - Mobile Optimized */}
+                      {/* Order Items - Mobile Optimized with proper scrolling */}
                       <div>
-                        <h4 className="font-semibold mb-3 text-sm sm:text-base">Order Items</h4>
-                        <div className="space-y-3">
-                          {selectedOrder.items?.map((item: any) => (
-                            <div key={item.id} className="border rounded-lg p-3">
-                              {/* Mobile: Stack vertically, Desktop: Side by side */}
-                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-                                <div className="flex items-start gap-3 min-w-0 flex-1">
-                                  <Package className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mt-0.5 shrink-0" />
-                                  <div className="min-w-0 flex-1">
-                                    <p className="font-medium text-sm sm:text-base truncate">{item.medicine?.name}</p>
-                                    <div className="flex flex-col xs:flex-row xs:gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
-                                      <span>Qty: {item.quantity}</span>
-                                      <span>Unit: ₹{item.unitPrice}</span>
+                        <h4 className="font-semibold mb-3 text-sm sm:text-base">Order Items ({selectedOrder.items?.length || 0})</h4>
+                        <div className="max-h-96 overflow-y-auto border rounded-lg">
+                          <div className="space-y-0 divide-y">
+                            {selectedOrder.items?.map((item: any) => (
+                              <div key={item.id} className="p-3 hover:bg-muted/30 transition-colors">
+                                {/* Mobile: Stack vertically, Desktop: Side by side */}
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                                    {/* Medicine Image */}
+                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                                      {item.medicine?.frontImageUrl ? (
+                                        <img
+                                          src={item.medicine.frontImageUrl}
+                                          alt={item.medicine.name}
+                                          className="w-full h-full object-contain rounded-lg"
+                                        />
+                                      ) : (
+                                        <Package className="h-6 w-6 text-blue-400" />
+                                      )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <p className="font-medium text-sm sm:text-base">{item.medicine?.name}</p>
+                                      <div className="flex flex-col xs:flex-row xs:gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
+                                        <span>Qty: {item.quantity}</span>
+                                        <span>Unit: ₹{item.unitPrice}</span>
+                                        {item.medicine?.dosage && <span>Dosage: {item.medicine.dosage}</span>}
+                                      </div>
+                                      {item.medicine?.requiresPrescription && (
+                                        <Badge variant="destructive" className="text-xs mt-1 w-fit">
+                                          Schedule H
+                                        </Badge>
+                                      )}
                                     </div>
                                   </div>
-                                </div>
-                                <div className="text-right sm:ml-4">
-                                  <p className="font-semibold text-sm sm:text-base">₹{item.totalPrice}</p>
+                                  <div className="text-right sm:ml-4">
+                                    <p className="font-semibold text-sm sm:text-base">₹{item.totalPrice}</p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
                       
