@@ -290,24 +290,24 @@ export default function Orders() {
                 View Details
               </Button>
             </DialogTrigger>
-            <DialogContent className="w-[95vw] max-w-4xl h-[85vh] sm:h-[90vh] p-0 gap-0">
-              <div className="flex flex-col h-full">
+            <DialogContent className="w-[95vw] max-w-4xl max-h-[85vh] sm:max-h-[90vh] p-0 gap-0 overflow-hidden">
+              <div className="flex flex-col h-full max-h-[85vh] sm:max-h-[90vh]">
                 <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b shrink-0">
                   <DialogTitle className="text-lg sm:text-xl">Order #{order.orderNumber}</DialogTitle>
                 </DialogHeader>
                 
                 {selectedOrder && (
-                  <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
-                    <div className="space-y-4 sm:space-y-6">
+                  <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 min-h-0">
+                    <div className="space-y-4 sm:space-y-6 pb-4">
                       {/* Order Progress - Responsive */}
                       <div className="bg-muted/30 rounded-lg p-3 sm:p-4">
                         <OrderProgress status={selectedOrder.status} />
                       </div>
                       
                       {/* Order Items - Mobile Optimized with proper scrolling */}
-                      <div>
+                      <div className="flex flex-col">
                         <h4 className="font-semibold mb-3 text-sm sm:text-base">Order Items ({selectedOrder.items?.length || 0})</h4>
-                        <div className="max-h-96 overflow-y-auto border rounded-lg">
+                        <div className="max-h-64 sm:max-h-80 overflow-y-auto border rounded-lg flex-shrink-0">
                           <div className="space-y-0 divide-y">
                             {selectedOrder.items?.map((item: any) => (
                               <div key={item.id} className="p-3 hover:bg-muted/30 transition-colors">
@@ -349,8 +349,8 @@ export default function Orders() {
                           </div>
                         </div>
                         
-                        {/* Order Total Summary */}
-                        <div className="mt-3 pt-3 border-t bg-muted/20 rounded-lg p-3">
+                        {/* Order Total Summary - Fixed positioning */}
+                        <div className="mt-3 pt-3 border-t bg-muted/20 rounded-lg p-3 relative z-10">
                           <div className="flex justify-between items-center">
                             <span className="font-semibold text-sm sm:text-base">Total Amount:</span>
                             <span className="font-bold text-lg sm:text-xl text-primary">₹{selectedOrder.totalAmount}</span>
