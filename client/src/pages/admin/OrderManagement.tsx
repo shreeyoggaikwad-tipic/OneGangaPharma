@@ -418,7 +418,7 @@ export default function OrderManagement() {
                                 {/* Items with proper scrolling */}
                                 <div>
                                   <h4 className="font-semibold mb-3">Order Items ({selectedOrder.items?.length || 0})</h4>
-                                  <div className="max-h-80 overflow-y-auto border rounded-lg">
+                                  <div className="max-h-48 overflow-y-auto border rounded-lg bg-white">
                                     <div className="space-y-0 divide-y">
                                       {selectedOrder.items?.map((item: any) => (
                                         <div key={item.id} className="flex items-center justify-between p-3 hover:bg-muted/30 transition-colors">
