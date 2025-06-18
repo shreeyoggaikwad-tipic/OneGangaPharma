@@ -152,6 +152,18 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Resolved visibility problem when orders contain many products
   - Implemented scrollable Order Items section in correct Orders.tsx file with 192px height container
   - Separated scrollable items area from fixed total amount display for better UX
+- June 18, 2025. Made admin order management pages fully responsive
+  - Enhanced OrderManagement.tsx and Orders.tsx with mobile-first design
+  - Added responsive breakpoints for all screen sizes (mobile, tablet, desktop)
+  - Implemented adaptive text sizing and spacing throughout admin interfaces
+  - Created mobile-friendly tab layouts with condensed text for small screens
+  - Enhanced dialog responsiveness with proper viewport sizing and scrollable content
+- June 18, 2025. Implemented search bar auto-clear after adding to cart
+  - Added automatic search query clearing when items are added to cart on Home page
+  - Extended same functionality to Medicines page for consistent user experience
+  - Improves shopping workflow by eliminating manual search bar clearing
+  - Allows users to immediately search for next product after adding items
+  - Combined with existing scroll-to-search feature for optimal shopping flow
 
 ## User Preferences
 
