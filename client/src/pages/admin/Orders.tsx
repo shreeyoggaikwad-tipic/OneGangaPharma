@@ -317,18 +317,22 @@ export default function AdminOrders() {
                       )}
                       
                       <div>
-                        <Label>Order Items</Label>
-                        <div className="border rounded-lg p-3 mt-2">
-                          {order.items?.map((item: any, index: number) => (
-                            <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                              <div>
-                                <p className="font-medium">{item.medicine?.name}</p>
-                                <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                        <Label>Order Items ({order.items?.length || 0})</Label>
+                        <div className="border rounded-lg mt-2">
+                          {/* Scrollable items container */}
+                          <div className="max-h-48 overflow-y-auto p-3">
+                            {order.items?.map((item: any, index: number) => (
+                              <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                                <div>
+                                  <p className="font-medium">{item.medicine?.name}</p>
+                                  <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                </div>
+                                <p className="font-medium">₹{parseFloat(item.unitPrice).toLocaleString()}</p>
                               </div>
-                              <p className="font-medium">₹{parseFloat(item.unitPrice).toLocaleString()}</p>
-                            </div>
-                          ))}
-                          <div className="flex justify-between items-center pt-2 mt-2 border-t font-semibold">
+                            ))}
+                          </div>
+                          {/* Total outside scroll area */}
+                          <div className="flex justify-between items-center p-3 border-t font-semibold bg-gray-50">
                             <span>Total Amount</span>
                             <span>₹{parseFloat(order.totalAmount).toLocaleString()}</span>
                           </div>

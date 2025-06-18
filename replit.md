@@ -150,8 +150,8 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Added total amount summary section for better order overview
   - Fixed JSX syntax errors and dialog structure
   - Resolved visibility problem when orders contain many products
-  - Implemented simplified scrollable Order Items section with 160px height container
-  - Added compact item cards with essential information for better UX in dialog view
+  - Implemented scrollable Order Items section in correct Orders.tsx file with 192px height container
+  - Separated scrollable items area from fixed total amount display for better UX
 
 ## User Preferences
 
