@@ -690,7 +690,8 @@ export default function BulkUpload() {
                         <TableRow key={index}>
                           <TableCell className="font-medium">{row.name}</TableCell>
                           <TableCell>{row.category}</TableCell>
-                          <TableCell>₹{row.price}</TableCell>
+                          <TableCell>₹{row.mrp}</TableCell>
+                          <TableCell>{row.discount}%</TableCell>
                           <TableCell>{row.stock}</TableCell>
                           <TableCell>{row.batch}</TableCell>
                           <TableCell>

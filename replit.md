@@ -173,6 +173,9 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Updated all price references across frontend (Medicines, Cart, Orders pages)
   - Enhanced visual appeal with discount indicators and savings display
   - Maintained backward compatibility with existing order data
+  - Updated CSV template and bulk upload functionality for new pricing structure
+  - CSV now includes MRP and discount columns instead of single price column
+  - Bulk upload automatically calculates discounted prices on import
 
 ## User Preferences
 
