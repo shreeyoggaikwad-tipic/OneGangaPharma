@@ -86,9 +86,9 @@ export default function Medicines() {
         case "name":
           return a.name.localeCompare(b.name);
         case "price-low":
-          return parseFloat(a.price) - parseFloat(b.price);
+          return parseFloat(a.discountedPrice) - parseFloat(b.discountedPrice);
         case "price-high":
-          return parseFloat(b.price) - parseFloat(a.price);
+          return parseFloat(b.discountedPrice) - parseFloat(a.discountedPrice);
         case "stock":
           return b.totalStock - a.totalStock;
         default:

@@ -115,6 +115,25 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Helper function to calculate discounted price
+  private calculateDiscountedPrice(mrp: number, discount: number): number {
+    return Number((mrp - (mrp * discount / 100)).toFixed(2));
+  }
+
+  // Helper function to prepare medicine data with price calculation
+  private prepareMedicineData(medicine: Partial<InsertMedicine>): Partial<InsertMedicine> {
+    const prepared = { ...medicine };
+    
+    // Auto-calculate discounted price if MRP or discount is provided
+    if (prepared.mrp !== undefined || prepared.discount !== undefined) {
+      const mrp = Number(prepared.mrp || 0);
+      const discount = Number(prepared.discount || 0);
+      prepared.discountedPrice = this.calculateDiscountedPrice(mrp, discount).toString();
+    }
+    
+    return prepared;
+  }
+
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
@@ -180,7 +199,9 @@ export class DatabaseStorage implements IStorage {
         name: medicines.name,
         description: medicines.description,
         dosage: medicines.dosage,
-        price: medicines.price,
+        mrp: medicines.mrp,
+        discount: medicines.discount,
+        discountedPrice: medicines.discountedPrice,
         categoryId: medicines.categoryId,
         manufacturer: medicines.manufacturer,
         requiresPrescription: medicines.requiresPrescription,
@@ -207,7 +228,9 @@ export class DatabaseStorage implements IStorage {
         name: medicines.name,
         description: medicines.description,
         dosage: medicines.dosage,
-        price: medicines.price,
+        mrp: medicines.mrp,
+        discount: medicines.discount,
+        discountedPrice: medicines.discountedPrice,
         categoryId: medicines.categoryId,
         manufacturer: medicines.manufacturer,
         requiresPrescription: medicines.requiresPrescription,
@@ -229,7 +252,9 @@ export class DatabaseStorage implements IStorage {
         name: medicines.name,
         description: medicines.description,
         dosage: medicines.dosage,
-        price: medicines.price,
+        mrp: medicines.mrp,
+        discount: medicines.discount,
+        discountedPrice: medicines.discountedPrice,
         categoryId: medicines.categoryId,
         manufacturer: medicines.manufacturer,
         requiresPrescription: medicines.requiresPrescription,
@@ -255,14 +280,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMedicine(medicine: InsertMedicine): Promise<Medicine> {
-    const [newMedicine] = await db.insert(medicines).values(medicine).returning();
+    const preparedMedicine = this.prepareMedicineData(medicine);
+    const [newMedicine] = await db.insert(medicines).values(preparedMedicine as InsertMedicine).returning();
     return newMedicine;
   }
 
   async updateMedicine(id: number, medicine: Partial<InsertMedicine>): Promise<Medicine> {
+    const preparedMedicine = this.prepareMedicineData(medicine);
     const [updatedMedicine] = await db
       .update(medicines)
-      .set({ ...medicine, updatedAt: new Date() })
+      .set({ ...preparedMedicine, updatedAt: new Date() })
       .where(eq(medicines.id, id))
       .returning();
     return updatedMedicine;
@@ -313,7 +340,9 @@ export class DatabaseStorage implements IStorage {
         name: medicines.name,
         description: medicines.description,
         dosage: medicines.dosage,
-        price: medicines.price,
+        mrp: medicines.mrp,
+        discount: medicines.discount,
+        discountedPrice: medicines.discountedPrice,
         categoryId: medicines.categoryId,
         manufacturer: medicines.manufacturer,
         requiresPrescription: medicines.requiresPrescription,
@@ -749,13 +778,14 @@ export class DatabaseStorage implements IStorage {
     const scheduleHCategory = await this.createMedicineCategory("Schedule H", "Prescription required medicines", true);
     const ayurvedicCategory = await this.createMedicineCategory("Ayurvedic", "Traditional Indian medicines", false);
 
-    // Create sample medicines
+    // Create sample medicines with new pricing structure
     const medicines = [
       {
         name: "Paracetamol 500mg",
         description: "Pain relief and fever reducer",
         dosage: "500mg",
-        price: "45.50",
+        mrp: "60.00",
+        discount: "25.00", // 25% discount
         categoryId: scheduleHCategory.id,
         manufacturer: "Cipla Ltd",
         requiresPrescription: true,
@@ -764,7 +794,8 @@ export class DatabaseStorage implements IStorage {
         name: "Vitamin D3 Tablets",
         description: "Essential vitamin supplement",
         dosage: "60000 IU",
-        price: "125.00",
+        mrp: "150.00",
+        discount: "16.67", // 16.67% discount
         categoryId: generalCategory.id,
         manufacturer: "Sun Pharma",
         requiresPrescription: false,
@@ -773,7 +804,8 @@ export class DatabaseStorage implements IStorage {
         name: "Cough Syrup",
         description: "Cough relief formula",
         dosage: "100ml",
-        price: "89.00",
+        mrp: "100.00",
+        discount: "11.00", // 11% discount
         categoryId: generalCategory.id,
         manufacturer: "Dabur",
         requiresPrescription: false,
@@ -782,7 +814,8 @@ export class DatabaseStorage implements IStorage {
         name: "Antibiotic Tablets",
         description: "Bacterial infection treatment",
         dosage: "250mg",
-        price: "185.50",
+        mrp: "220.00",
+        discount: "15.68", // 15.68% discount
         categoryId: scheduleHCategory.id,
         manufacturer: "Dr. Reddy's",
         requiresPrescription: true,
@@ -791,7 +824,8 @@ export class DatabaseStorage implements IStorage {
         name: "Ashwagandha Capsules",
         description: "Stress relief and immunity booster",
         dosage: "300mg",
-        price: "299.00",
+        mrp: "350.00",
+        discount: "14.57", // 14.57% discount
         categoryId: ayurvedicCategory.id,
         manufacturer: "Himalaya",
         requiresPrescription: false,
