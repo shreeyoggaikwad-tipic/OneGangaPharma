@@ -39,7 +39,8 @@ import {
 interface CSVRow {
   name: string;
   description: string;
-  price: string;
+  mrp: string;
+  discount: string;
   dosage: string;
   category: string;
   manufacturer: string;
@@ -91,7 +92,7 @@ export default function BulkUpload() {
     const headers = lines[0].split(',').map(h => h.trim());
     
     const expectedHeaders = [
-      'name', 'description', 'price', 'dosage', 'category', 
+      'name', 'description', 'mrp', 'discount', 'dosage', 'category', 
       'manufacturer', 'stock', 'batch', 'expiryDate', 'requiresPrescription'
     ];
     
@@ -133,10 +134,16 @@ export default function BulkUpload() {
         errors.push({ row: rowNum, field: 'description', message: 'Description is required' });
       }
       
-      if (!row.price?.trim()) {
-        errors.push({ row: rowNum, field: 'price', message: 'Price is required' });
-      } else if (isNaN(parseFloat(row.price)) || parseFloat(row.price) <= 0) {
-        errors.push({ row: rowNum, field: 'price', message: 'Price must be a valid positive number' });
+      if (!row.mrp?.trim()) {
+        errors.push({ row: rowNum, field: 'mrp', message: 'MRP is required' });
+      } else if (isNaN(parseFloat(row.mrp)) || parseFloat(row.mrp) <= 0) {
+        errors.push({ row: rowNum, field: 'mrp', message: 'MRP must be a valid positive number' });
+      }
+      
+      if (!row.discount?.trim()) {
+        errors.push({ row: rowNum, field: 'discount', message: 'Discount is required' });
+      } else if (isNaN(parseFloat(row.discount)) || parseFloat(row.discount) < 0 || parseFloat(row.discount) > 100) {
+        errors.push({ row: rowNum, field: 'discount', message: 'Discount must be a number between 0 and 100' });
       }
       
       if (!row.dosage?.trim()) {
@@ -209,12 +216,13 @@ export default function BulkUpload() {
           // Convert requiresPrescription to boolean
           const requiresPrescription = ['true', '1', 'yes'].includes(row.requiresPrescription.toLowerCase());
           
-          // Create medicine
+          // Create medicine with MRP and discount
           const medicineData = {
             name: row.name,
             description: row.description,
             dosage: row.dosage,
-            price: parseFloat(row.price).toString(),
+            mrp: parseFloat(row.mrp).toString(),
+            discount: parseFloat(row.discount).toString(),
             categoryId: category.id,
             manufacturer: row.manufacturer,
             requiresPrescription,
@@ -369,7 +377,7 @@ export default function BulkUpload() {
   };
 
   const downloadTemplate = () => {
-    const template = 'name,description,price,dosage,category,manufacturer,stock,batch,expiryDate,requiresPrescription';
+    const template = 'name,description,mrp,discount,dosage,category,manufacturer,stock,batch,expiryDate,requiresPrescription';
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -667,7 +675,8 @@ export default function BulkUpload() {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
+                      <TableHead>MRP</TableHead>
+                      <TableHead>Discount</TableHead>
                       <TableHead>Stock</TableHead>
                       <TableHead>Batch</TableHead>
                       <TableHead>Prescription</TableHead>
