@@ -277,9 +277,26 @@ export default function Medicines() {
 
                     {/* Price and Stock */}
                     <div className="flex items-center justify-between pt-2">
-                      <span className="text-base sm:text-lg font-bold text-primary">
-                        ₹{parseFloat(medicine.price).toFixed(2)}
-                      </span>
+                      <div className="flex flex-col items-start">
+                        {/* Show discount badge if discount exists */}
+                        {parseFloat(medicine.discount) >= 5 && (
+                          <Badge variant="destructive" className="text-xs mb-1 bg-red-500 hover:bg-red-600">
+                            {Math.round(parseFloat(medicine.discount))}% OFF
+                          </Badge>
+                        )}
+                        
+                        {/* Price display */}
+                        <div className="flex items-center gap-2">
+                          {parseFloat(medicine.discount) > 0 && (
+                            <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                              ₹{parseFloat(medicine.mrp).toFixed(2)}
+                            </span>
+                          )}
+                          <span className="text-base sm:text-lg font-bold text-primary">
+                            ₹{parseFloat(medicine.discountedPrice).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
                       <Badge variant={stockStatus.variant} className="text-xs">
                         {stockStatus.label}
                         {medicine.totalStock > 0 && ` (${medicine.totalStock})`}

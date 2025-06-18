@@ -118,7 +118,7 @@ export default function Cart() {
 
   // Calculate totals
   const subtotal = cartItems.reduce(
-    (sum: number, item) => sum + parseFloat(item.medicine.price) * item.quantity,
+    (sum: number, item) => sum + parseFloat(item.medicine.discountedPrice) * item.quantity,
     0
   );
 
@@ -284,12 +284,26 @@ export default function Cart() {
                         </Button>
                       </div>
                       <div className="text-right">
+                        {/* Show discount badge if discount exists */}
+                        {parseFloat(item.medicine.discount) >= 5 && (
+                          <Badge variant="destructive" className="text-xs mb-1 bg-red-500 hover:bg-red-600">
+                            {Math.round(parseFloat(item.medicine.discount))}% OFF
+                          </Badge>
+                        )}
+                        
                         <p className="font-semibold">
-                          ₹{(parseFloat(item.medicine.price) * item.quantity).toFixed(2)}
+                          ₹{(parseFloat(item.medicine.discountedPrice) * item.quantity).toFixed(2)}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          ₹{parseFloat(item.medicine.price).toFixed(2)} each
-                        </p>
+                        
+                        {/* Price per unit with MRP strikethrough if discount exists */}
+                        <div className="text-sm text-muted-foreground">
+                          {parseFloat(item.medicine.discount) > 0 && (
+                            <span className="line-through mr-2">
+                              ₹{parseFloat(item.medicine.mrp).toFixed(2)}
+                            </span>
+                          )}
+                          ₹{parseFloat(item.medicine.discountedPrice).toFixed(2)} each
+                        </div>
                       </div>
                     </div>
                   </div>

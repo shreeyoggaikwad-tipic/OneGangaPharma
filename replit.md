@@ -164,6 +164,15 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Improves shopping workflow by eliminating manual search bar clearing
   - Allows users to immediately search for next product after adding items
   - Combined with existing scroll-to-search feature for optimal shopping flow
+- June 18, 2025. Implemented comprehensive discount pricing system
+  - Replaced single `price` column with `mrp`, `discount`, and `discountedPrice` structure
+  - Added auto-calculation logic: discountedPrice = mrp - (mrp × discount / 100)
+  - Frontend displays MRP with strikethrough when discount > 0%
+  - Shows prominent discounted price as main price
+  - Added "X% OFF" badges for products with discount ≥ 5%
+  - Updated all price references across frontend (Medicines, Cart, Orders pages)
+  - Enhanced visual appeal with discount indicators and savings display
+  - Maintained backward compatibility with existing order data
 
 ## User Preferences
 

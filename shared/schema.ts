@@ -212,7 +212,9 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAddressSchema = createInsertSchema(addresses).omit({ id: true, createdAt: true });
-export const insertMedicineSchema = createInsertSchema(medicines).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMedicineSchema = createInsertSchema(medicines).omit({ id: true, createdAt: true, updatedAt: true }).extend({
+  discountedPrice: z.string().optional(), // Make discountedPrice optional since it's auto-calculated
+});
 export const insertMedicineInventorySchema = createInsertSchema(medicineInventory).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPrescriptionSchema = createInsertSchema(prescriptions).omit({ id: true, uploadedAt: true });
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, addedAt: true });
