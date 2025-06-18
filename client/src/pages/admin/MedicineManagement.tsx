@@ -119,7 +119,19 @@ export default function MedicineManagement() {
 
   // Get medicines
   const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: searchQuery ? ["/api/medicines", { search: searchQuery }] : ["/api/medicines"],
+    queryKey: ["/api/medicines", searchQuery],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
+      }
+      const url = `/api/medicines${params.toString() ? `?${params.toString()}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch medicines');
+      }
+      return response.json();
+    },
   });
 
   // Get categories

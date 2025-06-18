@@ -129,6 +129,10 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Added automatic scroll back to search bar after adding items to cart
   - Enhanced user experience for continuous shopping workflow
   - Uses smooth scrolling animation with center positioning
+- June 14, 2025. Fixed admin medicine management search functionality
+  - Updated search query implementation to properly pass parameters to API
+  - Search now correctly filters medicines by name, description, manufacturer, and category
+  - Fixed frontend query function to handle search parameters correctly
 
 ## User Preferences
 
