@@ -298,7 +298,7 @@ export default function Cart() {
                         {/* Price per unit with MRP strikethrough if discount exists */}
                         <div className="text-sm text-muted-foreground">
                           {parseFloat(item.medicine.discount) > 0 && (
-                            <span className="line-through mr-2">
+                            <span className="line-through mr-2 text-red-500">
                               ₹{parseFloat(item.medicine.mrp).toFixed(2)}
                             </span>
                           )}

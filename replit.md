@@ -186,6 +186,7 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Updated medicine queries to show actual available stock
   - Enhanced cart and order management with stock availability checks
   - Admin low-stock alerts now account for reserved cart items
+  - Changed strikethrough MRP prices to red color for better visual distinction
 
 ## User Preferences
 

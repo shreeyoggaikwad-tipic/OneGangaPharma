@@ -562,7 +562,7 @@ export default function Home() {
                               {/* Price display */}
                               <div className="flex items-center gap-2">
                                 {parseFloat(medicine.discount) > 0 && (
-                                  <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                  <span className="text-xs sm:text-sm text-red-500 line-through">
                                     ₹{parseFloat(medicine.mrp).toFixed(2)}
                                   </span>
                                 )}
