@@ -413,29 +413,56 @@ export default function OrderManagement() {
                                   </Card>
                                 </div>
 
-                                {/* Items */}
+                                {/* Items with proper scrolling */}
                                 <div>
-                                  <h4 className="font-semibold mb-3">Order Items</h4>
-                                  <div className="space-y-3">
-                                    {selectedOrder.items?.map((item: any) => (
-                                      <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                          <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                                            <Package className="h-6 w-6 text-blue-400" />
+                                  <h4 className="font-semibold mb-3">Order Items ({selectedOrder.items?.length || 0})</h4>
+                                  <div className="max-h-80 overflow-y-auto border rounded-lg">
+                                    <div className="space-y-0 divide-y">
+                                      {selectedOrder.items?.map((item: any) => (
+                                        <div key={item.id} className="flex items-center justify-between p-3 hover:bg-muted/30 transition-colors">
+                                          <div className="flex items-center gap-3">
+                                            {/* Medicine Image */}
+                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                              {item.medicine?.frontImageUrl ? (
+                                                <img
+                                                  src={item.medicine.frontImageUrl}
+                                                  alt={item.medicine.name}
+                                                  className="w-full h-full object-contain rounded-lg"
+                                                />
+                                              ) : (
+                                                <Package className="h-6 w-6 text-blue-400" />
+                                              )}
+                                            </div>
+                                            <div>
+                                              <p className="font-medium">{item.medicine?.name}</p>
+                                              <p className="text-sm text-muted-foreground">
+                                                {item.medicine?.dosage} | {item.medicine?.manufacturer}
+                                              </p>
+                                              <p className="text-sm text-muted-foreground">
+                                                ₹{item.unitPrice} × {item.quantity}
+                                              </p>
+                                              {item.medicine?.requiresPrescription && (
+                                                <Badge variant="destructive" className="text-xs mt-1">
+                                                  Schedule H
+                                                </Badge>
+                                              )}
+                                            </div>
                                           </div>
-                                          <div>
-                                            <p className="font-medium">{item.medicine?.name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                              {item.medicine?.dosage} | {item.medicine?.manufacturer}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
-                                              ₹{item.unitPrice} × {item.quantity}
-                                            </p>
-                                          </div>
+                                          <p className="font-semibold">₹{item.totalPrice}</p>
                                         </div>
-                                        <p className="font-semibold">₹{item.totalPrice}</p>
-                                      </div>
-                                    ))}
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Order Total Summary */}
+                                  <div className="mt-3 pt-3 border-t bg-muted/20 rounded-lg p-3">
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-semibold">Total Amount:</span>
+                                      <span className="font-bold text-lg text-primary">₹{selectedOrder.totalAmount}</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {selectedOrder.items?.length || 0} item{(selectedOrder.items?.length || 0) !== 1 ? 's' : ''} • Payment: Cash on Delivery
+                                    </p>
                                   </div>
                                 </div>
 
