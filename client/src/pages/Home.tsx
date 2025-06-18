@@ -90,6 +90,9 @@ export default function Home() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
       
+      // Clear search bar after adding to cart for better UX
+      setSearchQuery("");
+      
       // Scroll back to search bar for better UX
       if (searchBarRef.current) {
         searchBarRef.current.scrollIntoView({ 
