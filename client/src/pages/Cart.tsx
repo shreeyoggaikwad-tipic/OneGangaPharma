@@ -208,9 +208,17 @@ export default function Cart() {
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
-                  {/* Medicine Image Placeholder */}
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                    <Package className="h-8 w-8 text-blue-400" />
+                  {/* Medicine Image */}
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center overflow-hidden">
+                    {item.medicine.frontImageUrl ? (
+                      <img
+                        src={item.medicine.frontImageUrl}
+                        alt={item.medicine.name}
+                        className="w-full h-full object-contain rounded-lg"
+                      />
+                    ) : (
+                      <Package className="h-8 w-8 text-blue-400" />
+                    )}
                   </div>
 
                   <div className="flex-1">
