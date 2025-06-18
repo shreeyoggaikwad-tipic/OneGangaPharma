@@ -388,45 +388,45 @@ export default function AdminOrders() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Order Management</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Order Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage customer orders with smart filtering and lifecycle tracking
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
           <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] })}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           <div className="flex items-center gap-2">
-            <Package className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold">{orders.length} Total Orders</span>
+            <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <span className="text-base sm:text-lg font-semibold">{orders.length} Total Orders</span>
           </div>
         </div>
       </div>
 
       {/* Search Bar */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
+      <Card className="mb-4 sm:mb-6">
+        <CardContent className="p-3 sm:p-4">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by order number, customer name, or email..."
+              placeholder="Search orders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 text-sm sm:text-base"
             />
           </div>
         </CardContent>
       </Card>
 
       {/* Smart Order Management Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 gap-1">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
           <TabsTrigger value="active" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Active Orders

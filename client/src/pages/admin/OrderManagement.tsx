@@ -187,33 +187,33 @@ export default function OrderManagement() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Order Management</h1>
-        <p className="text-muted-foreground">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Order Management</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">
           Track and manage customer orders
         </p>
       </div>
 
       {/* Search and Filters */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+      <Card className="mb-4 sm:mb-6">
+        <CardContent className="p-3 sm:p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {/* Search */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search by order number or customer name..."
+                placeholder="Search orders..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 text-sm sm:text-base"
               />
             </div>
 
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full sm:w-48 lg:w-52">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -249,21 +249,189 @@ export default function OrderManagement() {
           ) : (
             <div className="overflow-x-auto max-h-96 overflow-y-auto border rounded-lg">
               <Table>
-                <TableHeader>
+                <TableHeader className="hidden sm:table-header-group">
                   <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="min-w-[120px]">Order</TableHead>
+                    <TableHead className="min-w-[150px]">Customer</TableHead>
+                    <TableHead className="min-w-[100px]">Date</TableHead>
+                    <TableHead className="min-w-[100px]">Amount</TableHead>
+                    <TableHead className="min-w-[120px]">Status</TableHead>
+                    <TableHead className="min-w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredOrders.map((order: any) => (
-                    <TableRow key={order.id}>
-                      <TableCell>
-                        <div>
+                    <TableRow key={order.id} className="sm:table-row block border-b sm:border-b-0 mb-4 sm:mb-0">
+                      {/* Mobile Card Layout */}
+                      <TableCell className="sm:table-cell block w-full sm:w-auto p-3 sm:p-4">
+                        <div className="sm:hidden space-y-3 bg-gray-50 rounded-lg p-3 mb-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-medium flex items-center gap-2 text-sm">
+                                #{order.orderNumber}
+                                {order.prescription && (
+                                  <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    RX
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {order.items?.length || 0} item(s)
+                              </div>
+                            </div>
+                            <Badge className={`${getStatusColor(order.status)} text-xs`}>
+                              {order.status.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                          
+                          <div>
+                            <div className="font-medium text-sm">
+                              {order.user?.firstName} {order.user?.lastName}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {order.user?.email}
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-semibold text-sm">₹{order.totalAmount}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(order.placedAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedOrder(order)}
+                                  className="text-xs"
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View
+                                </Button>
+                              </DialogTrigger>
+                              {/* Dialog content remains the same */}
+                              <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh]">
+                                <DialogHeader>
+                                  <DialogTitle>Order Details - #{order.orderNumber}</DialogTitle>
+                                </DialogHeader>
+                                
+                                {selectedOrder && (
+                                  <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                                    {/* Customer & Status */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div>
+                                        <h3 className="font-semibold mb-2">Customer</h3>
+                                        <p className="text-sm">{selectedOrder.user?.firstName} {selectedOrder.user?.lastName}</p>
+                                        <p className="text-sm text-muted-foreground">{selectedOrder.user?.email}</p>
+                                      </div>
+                                      <div>
+                                        <h3 className="font-semibold mb-2">Current Status</h3>
+                                        <Badge className="capitalize">{selectedOrder.status}</Badge>
+                                      </div>
+                                    </div>
+
+                                    {/* Status Update Buttons */}
+                                    <div>
+                                      <h3 className="font-semibold mb-3">Update Status</h3>
+                                      <div className="flex flex-wrap gap-2">
+                                        {['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
+                                          <Button
+                                            key={status}
+                                            variant={selectedOrder.status === status ? "default" : "outline"}
+                                            size="sm"
+                                            onClick={() => handleStatusUpdate(selectedOrder.id, status)}
+                                            disabled={updateStatusMutation.isPending}
+                                            className="capitalize"
+                                          >
+                                            {status}
+                                          </Button>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    {/* Prescription if exists */}
+                                    {selectedOrder.prescription && (
+                                      <div>
+                                        <h3 className="font-semibold mb-3">Prescription Details</h3>
+                                        <div className="border rounded-lg p-4 bg-gray-50">
+                                          <div className="flex items-center justify-between">
+                                            <div>
+                                              <p className="text-sm font-medium">
+                                                {selectedOrder.prescription.fileName}
+                                              </p>
+                                              <p className="text-xs text-muted-foreground">
+                                                Uploaded: {new Date(selectedOrder.prescription.uploadedAt).toLocaleDateString()}
+                                              </p>
+                                              <p className="text-xs text-muted-foreground">
+                                                Reviewed: {new Date(selectedOrder.prescription.reviewedAt).toLocaleDateString()}
+                                              </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Badge variant={selectedOrder.prescription.status === 'approved' ? 'default' : 'secondary'}>
+                                                {selectedOrder.prescription.status}
+                                              </Badge>
+                                              <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => window.open(`/uploads/prescriptions/${selectedOrder.prescription.fileName}`, '_blank')}
+                                              >
+                                                View
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Order Items - SCROLLABLE SECTION */}
+                                    <div className="border-t pt-4">
+                                      <h3 className="font-semibold mb-3">Order Items</h3>
+                                      
+                                      {/* Compact scrollable list */}
+                                      <div className="bg-gray-50 rounded-lg p-3">
+                                        <div className="max-h-40 overflow-y-auto space-y-2">
+                                          {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                                            selectedOrder.items.map((item: any, index: number) => (
+                                              <div key={item.id || index} className="bg-white rounded p-2 text-sm">
+                                                <div className="flex justify-between items-start">
+                                                  <div>
+                                                    <p className="font-medium">{item.medicine?.name || 'Medicine'}</p>
+                                                    <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
+                                                  </div>
+                                                  <p className="font-semibold">₹{item.totalPrice}</p>
+                                                </div>
+                                              </div>
+                                            ))
+                                          ) : (
+                                            <p className="text-center text-gray-500">No items</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Total Amount */}
+                                    <div className="border-t pt-4">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-lg font-semibold">Total Amount</span>
+                                        <span className="text-2xl font-bold text-primary">₹{selectedOrder.totalAmount}</span>
+                                      </div>
+                                      <p className="text-sm text-muted-foreground mt-1">
+                                        Payment Method: Cash on Delivery
+                                      </p>
+                                    </div>
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                        
+                        {/* Desktop Table Layout */}
+                        <div className="hidden sm:block">
                           <div className="font-medium flex items-center gap-2">
                             #{order.orderNumber}
                             {order.prescription && (
@@ -278,7 +446,8 @@ export default function OrderManagement() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      
+                      <TableCell className="hidden sm:table-cell">
                         <div>
                           <div className="font-medium">
                             {order.user?.firstName} {order.user?.lastName}
@@ -288,68 +457,22 @@ export default function OrderManagement() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         {new Date(order.placedAt).toLocaleDateString("en-IN", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="hidden sm:table-cell font-medium">
                         ₹{order.totalAmount}
                       </TableCell>
-                      <TableCell>
-                        <Select
-                          value={order.status}
-                          onValueChange={(status) => updateOrderStatus(order.id, status)}
-                          disabled={updateStatusMutation.isPending}
-                        >
-                          <SelectTrigger className="w-36">
-                            <Badge className={getStatusColor(order.status)}>
-                              {getStatusIcon(order.status)}
-                              <span className="ml-1">{formatStatus(order.status)}</span>
-                            </Badge>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem 
-                              value="placed" 
-                              disabled={isStatusDisabled(order.status, "placed")}
-                              className={isStatusDisabled(order.status, "placed") ? "opacity-50 cursor-not-allowed" : ""}
-                            >
-                              Placed
-                            </SelectItem>
-                            <SelectItem 
-                              value="confirmed" 
-                              disabled={isStatusDisabled(order.status, "confirmed")}
-                              className={isStatusDisabled(order.status, "confirmed") ? "opacity-50 cursor-not-allowed" : ""}
-                            >
-                              Confirmed
-                            </SelectItem>
-                            <SelectItem 
-                              value="out_for_delivery" 
-                              disabled={isStatusDisabled(order.status, "out_for_delivery")}
-                              className={isStatusDisabled(order.status, "out_for_delivery") ? "opacity-50 cursor-not-allowed" : ""}
-                            >
-                              Out for Delivery
-                            </SelectItem>
-                            <SelectItem 
-                              value="delivered" 
-                              disabled={isStatusDisabled(order.status, "delivered")}
-                              className={isStatusDisabled(order.status, "delivered") ? "opacity-50 cursor-not-allowed" : ""}
-                            >
-                              Delivered
-                            </SelectItem>
-                            <SelectItem 
-                              value="cancelled" 
-                              disabled={isStatusDisabled(order.status, "cancelled")}
-                              className={isStatusDisabled(order.status, "cancelled") ? "opacity-50 cursor-not-allowed" : ""}
-                            >
-                              Cancelled
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className={`${getStatusColor(order.status)} text-xs`}>
+                          {order.status.replace('_', ' ')}
+                        </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
