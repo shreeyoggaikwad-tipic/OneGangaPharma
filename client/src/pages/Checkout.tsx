@@ -257,8 +257,8 @@ export default function Checkout() {
       items: cartItems.map((item: any) => ({
         medicineId: item.medicineId,
         quantity: item.quantity,
-        unitPrice: item.medicine.price,
-        totalPrice: parseFloat(item.medicine.price) * item.quantity,
+        unitPrice: parseFloat(item.medicine.discountedPrice || "0") || 0,
+        totalPrice: (parseFloat(item.medicine.discountedPrice || "0") || 0) * item.quantity,
       })),
       billingAddressId: selectedBillingAddress,
       shippingAddressId: selectedShippingAddress,
