@@ -554,24 +554,36 @@ export class DatabaseStorage implements IStorage {
     await db.delete(cartItems).where(eq(cartItems.userId, userId));
   }
 
-  async getOrdersByUserId(userId: number): Promise<(Order & { items: (OrderItem & { medicine: Medicine })[] })[]> {
+  async getOrdersByUserId(userId: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; shippingAddress?: Address; billingAddress?: Address })[]> {
     const ordersData = await db
       .select({
         order: orders,
+        user: users,
         item: orderItems,
         medicine: medicines,
+        shippingAddress: sql`shipping_addr`,
+        billingAddress: sql`billing_addr`,
       })
       .from(orders)
+      .leftJoin(users, eq(orders.userId, users.id))
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+      .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
+      .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
       .where(eq(orders.userId, userId))
       .orderBy(desc(orders.placedAt));
 
     // Group by order
     const orderMap = new Map();
-    ordersData.forEach(({ order, item, medicine }) => {
+    ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
       if (!orderMap.has(order.id)) {
-        orderMap.set(order.id, { ...order, items: [] });
+        orderMap.set(order.id, { 
+          ...order, 
+          user, 
+          items: [], 
+          shippingAddress: shippingAddress || undefined,
+          billingAddress: billingAddress || undefined
+        });
       }
       if (item && medicine) {
         orderMap.get(order.id).items.push({ ...item, medicine });

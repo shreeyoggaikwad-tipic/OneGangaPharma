@@ -412,6 +412,19 @@ export default function Orders() {
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Invoice Button in Dialog */}
+                      <div className="mt-6 flex justify-center">
+                        <Invoice 
+                          order={selectedOrder}
+                          trigger={
+                            <Button variant="default" size="lg" className="w-full sm:w-auto">
+                              <Receipt className="h-4 w-4 mr-2" />
+                              View & Download Invoice
+                            </Button>
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                 )}

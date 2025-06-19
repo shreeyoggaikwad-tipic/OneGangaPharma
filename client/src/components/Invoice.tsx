@@ -54,11 +54,13 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
   };
 
   const calculateTotals = () => {
-    const subtotal = order.orderItems.reduce((sum: number, item: any) => {
+    const orderItems = order.items || order.orderItems || [];
+    
+    const subtotal = orderItems.reduce((sum: number, item: any) => {
       return sum + (parseFloat(item.medicine.discountedPrice) * item.quantity);
     }, 0);
     
-    const totalMrp = order.orderItems.reduce((sum: number, item: any) => {
+    const totalMrp = orderItems.reduce((sum: number, item: any) => {
       return sum + (parseFloat(item.medicine.mrp) * item.quantity);
     }, 0);
     
@@ -138,7 +140,7 @@ Date: ${formatDate(order.createdAt)}
 Total Amount: ₹${totals.finalTotal.toFixed(2)}
 
 Items:
-${order.orderItems.map((item: any) => 
+${(order.items || order.orderItems || []).map((item: any) => 
   `• ${item.medicine.name} (${item.quantity}x) - ₹${(parseFloat(item.medicine.discountedPrice) * item.quantity).toFixed(2)}`
 ).join('\n')}
 
