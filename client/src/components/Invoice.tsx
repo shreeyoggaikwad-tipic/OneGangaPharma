@@ -384,16 +384,49 @@ For support: Call +91-XXXXXXXXXX`;
                   Bill To
                 </h3>
                 <div className="space-y-1 text-xs sm:text-sm">
-                  <div className="font-medium">{order.user?.firstName} {order.user?.lastName}</div>
-                  <div>{order.user?.email}</div>
-                  <div>{order.user?.phone}</div>
-                  {order.shippingAddress && (
-                    <div className="mt-2">
-                      <div className="font-medium">Delivery Address:</div>
-                      <div>{order.shippingAddress.addressLine1}</div>
-                      {order.shippingAddress.addressLine2 && <div>{order.shippingAddress.addressLine2}</div>}
-                      <div>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}</div>
-                    </div>
+                  {order.billingAddress ? (
+                    <>
+                      <div className="font-medium">{order.billingAddress.fullName}</div>
+                      <div>{order.billingAddress.phone}</div>
+                      <div className="mt-2">
+                        <div className="font-medium">Billing Address:</div>
+                        <div>{order.billingAddress.addressLine1}</div>
+                        {order.billingAddress.addressLine2 && <div>{order.billingAddress.addressLine2}</div>}
+                        <div>{order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.postalCode}</div>
+                      </div>
+                      {order.shippingAddress && order.billingAddress.id !== order.shippingAddress.id && (
+                        <div className="mt-3">
+                          <div className="font-medium">Delivery Address:</div>
+                          <div>{order.shippingAddress.fullName}</div>
+                          <div>{order.shippingAddress.addressLine1}</div>
+                          {order.shippingAddress.addressLine2 && <div>{order.shippingAddress.addressLine2}</div>}
+                          <div>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</div>
+                          <div>Phone: {order.shippingAddress.phone}</div>
+                        </div>
+                      )}
+                      {order.billingAddress.id === order.shippingAddress?.id && (
+                        <div className="mt-2 text-xs italic text-gray-500">
+                          (Delivery address same as billing address)
+                        </div>
+                      )}
+                    </>
+                  ) : order.shippingAddress ? (
+                    <>
+                      <div className="font-medium">{order.shippingAddress.fullName}</div>
+                      <div>{order.shippingAddress.phone}</div>
+                      <div className="mt-2">
+                        <div className="font-medium">Address:</div>
+                        <div>{order.shippingAddress.addressLine1}</div>
+                        {order.shippingAddress.addressLine2 && <div>{order.shippingAddress.addressLine2}</div>}
+                        <div>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="font-medium">{order.user?.firstName} {order.user?.lastName}</div>
+                      <div>{order.user?.email}</div>
+                      <div>{order.user?.phone}</div>
+                    </>
                   )}
                 </div>
               </div>

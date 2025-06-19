@@ -380,51 +380,34 @@ export default function Orders() {
                           <h4 className="font-semibold mb-3 text-sm sm:text-base">Billing Address</h4>
                           <div className="bg-muted/20 rounded-lg p-3 sm:p-4">
                             <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
-                              {selectedOrder.shippingAddress ? (
+                              {/* Show billing address if different from shipping, otherwise show shipping address */}
+                              {selectedOrder.billingAddress && selectedOrder.billingAddress.id !== selectedOrder.shippingAddress?.id ? (
                                 <>
-                                  {(selectedOrder.user?.firstName || selectedOrder.user?.lastName) && (
-                                    <p className="font-medium text-foreground">
-                                      {[selectedOrder.user?.firstName, selectedOrder.user?.lastName].filter(Boolean).join(' ')}
-                                    </p>
+                                  <p className="font-medium text-foreground">{selectedOrder.billingAddress.fullName}</p>
+                                  <p>{selectedOrder.billingAddress.addressLine1}</p>
+                                  {selectedOrder.billingAddress.addressLine2 && (
+                                    <p>{selectedOrder.billingAddress.addressLine2}</p>
                                   )}
-                                  {selectedOrder.shippingAddress.addressLine1 && (
-                                    <p>{selectedOrder.shippingAddress.addressLine1}</p>
-                                  )}
+                                  <p>{selectedOrder.billingAddress.city}, {selectedOrder.billingAddress.state}</p>
+                                  <p>{selectedOrder.billingAddress.postalCode}</p>
+                                  <p className="font-medium text-foreground mt-2">Phone: {selectedOrder.billingAddress.phone}</p>
+                                </>
+                              ) : selectedOrder.shippingAddress ? (
+                                <>
+                                  <p className="font-medium text-foreground">{selectedOrder.shippingAddress.fullName}</p>
+                                  <p>{selectedOrder.shippingAddress.addressLine1}</p>
                                   {selectedOrder.shippingAddress.addressLine2 && (
                                     <p>{selectedOrder.shippingAddress.addressLine2}</p>
                                   )}
-                                  {(selectedOrder.shippingAddress.city || selectedOrder.shippingAddress.state) && (
-                                    <p>
-                                      {[selectedOrder.shippingAddress.city, selectedOrder.shippingAddress.state].filter(Boolean).join(', ')}
-                                    </p>
-                                  )}
-                                  {selectedOrder.shippingAddress.pincode && (
-                                    <p>{selectedOrder.shippingAddress.pincode}</p>
-                                  )}
-                                  {selectedOrder.user?.phone && (
-                                    <p className="font-medium text-foreground mt-2">Phone: {selectedOrder.user.phone}</p>
-                                  )}
-                                  {selectedOrder.user?.email && (
-                                    <p className="text-foreground">Email: {selectedOrder.user.email}</p>
+                                  <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
+                                  <p>{selectedOrder.shippingAddress.postalCode}</p>
+                                  <p className="font-medium text-foreground mt-2">Phone: {selectedOrder.shippingAddress.phone}</p>
+                                  {selectedOrder.billingAddress?.id === selectedOrder.shippingAddress.id && (
+                                    <p className="text-xs italic text-muted-foreground mt-1">(Same as delivery address)</p>
                                   )}
                                 </>
                               ) : (
-                                <div className="space-y-1">
-                                  {(selectedOrder.user?.firstName || selectedOrder.user?.lastName) && (
-                                    <p className="font-medium text-foreground">
-                                      {[selectedOrder.user?.firstName, selectedOrder.user?.lastName].filter(Boolean).join(' ')}
-                                    </p>
-                                  )}
-                                  {selectedOrder.user?.phone && (
-                                    <p>Phone: {selectedOrder.user.phone}</p>
-                                  )}
-                                  {selectedOrder.user?.email && (
-                                    <p>Email: {selectedOrder.user.email}</p>
-                                  )}
-                                  {!selectedOrder.user?.firstName && !selectedOrder.user?.lastName && !selectedOrder.user?.phone && !selectedOrder.user?.email && (
-                                    <p className="text-muted-foreground">No billing information available</p>
-                                  )}
-                                </div>
+                                <p className="text-muted-foreground">No address information available</p>
                               )}
                             </div>
                           </div>
