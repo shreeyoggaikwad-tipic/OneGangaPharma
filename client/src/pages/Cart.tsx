@@ -116,11 +116,11 @@ export default function Cart() {
     clearCartMutation.mutate();
   };
 
-  // Calculate totals
-  const subtotal = cartItems.reduce(
-    (sum: number, item) => sum + parseFloat(item.medicine.discountedPrice) * item.quantity,
-    0
-  );
+  // Calculate totals with safe parsing
+  const subtotal = cartItems.reduce((sum: number, item) => {
+    const parsedPrice = parseFloat(item.medicine.discountedPrice || "0") || 0;
+    return sum + (parsedPrice * item.quantity);
+  }, 0);
 
   const hasScheduleHMedicines = cartItems.some((item) => item.medicine.requiresPrescription);
 
@@ -285,24 +285,40 @@ export default function Cart() {
                       </div>
                       <div className="text-right">
                         {/* Show discount badge if discount exists */}
-                        {parseFloat(item.medicine.discount) >= 5 && (
-                          <Badge variant="destructive" className="text-xs mb-1 bg-green-400 hover:bg-green-500 text-white border-green-400 animate-pulse">
-                            {Math.round(parseFloat(item.medicine.discount))}% OFF
-                          </Badge>
-                        )}
+                        {(() => {
+                          const discount = parseFloat(item.medicine.discount || "0") || 0;
+                          return discount >= 5 && (
+                            <Badge variant="destructive" className="text-xs mb-1 bg-green-400 hover:bg-green-500 text-white border-green-400 animate-pulse">
+                              {Math.round(discount)}% OFF
+                            </Badge>
+                          );
+                        })()}
                         
                         <p className="font-semibold">
-                          ₹{(parseFloat(item.medicine.discountedPrice) * item.quantity).toFixed(2)}
+                          {(() => {
+                            const parsedPrice = parseFloat(item.medicine.discountedPrice || "0") || 0;
+                            return `₹${(parsedPrice * item.quantity).toFixed(2)}`;
+                          })()}
                         </p>
                         
                         {/* Price per unit with MRP strikethrough if discount exists */}
                         <div className="text-sm text-muted-foreground">
-                          {parseFloat(item.medicine.discount) > 0 && (
-                            <span className="line-through mr-2 text-red-500">
-                              ₹{parseFloat(item.medicine.mrp).toFixed(2)}
-                            </span>
-                          )}
-                          ₹{parseFloat(item.medicine.discountedPrice).toFixed(2)} each
+                          {(() => {
+                            const discount = parseFloat(item.medicine.discount || "0") || 0;
+                            const mrp = parseFloat(item.medicine.mrp || "0") || 0;
+                            const parsedPrice = parseFloat(item.medicine.discountedPrice || "0") || 0;
+                            
+                            return (
+                              <>
+                                {discount > 0 && mrp > 0 && (
+                                  <span className="line-through mr-2 text-red-500">
+                                    ₹{mrp.toFixed(2)}
+                                  </span>
+                                )}
+                                ₹{parsedPrice.toFixed(2)} each
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>

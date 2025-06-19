@@ -204,11 +204,11 @@ export default function Checkout() {
     },
   });
 
-  // Calculate totals
-  const subtotal = cartItems.reduce(
-    (sum: number, item: any) => sum + parseFloat(item.medicine.price) * item.quantity,
-    0
-  );
+  // Calculate totals with safe parsing
+  const subtotal = cartItems.reduce((sum: number, item: any) => {
+    const parsedPrice = parseFloat(item.medicine.discountedPrice || "0") || 0;
+    return sum + (parsedPrice * item.quantity);
+  }, 0);
 
   const hasScheduleHMedicines = cartItems.some((item: any) => item.medicine.requiresPrescription);
   const approvedPrescriptions = prescriptions.filter((p: any) => p.status === "approved");
@@ -753,7 +753,7 @@ export default function Checkout() {
                       <p className="text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                     <p className="font-medium text-right">
-                      ₹{(parseFloat(item.medicine.price) * item.quantity).toFixed(2)}
+                      ₹{(parseFloat(item.medicine.discountedPrice || "0") * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
