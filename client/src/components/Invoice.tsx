@@ -93,8 +93,8 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
     }, 0);
     
     const totalDiscount = totalMrp - subtotal;
-    const deliveryCharges = subtotal >= 500 ? 0 : 50;
-    const tax = subtotal * 0.05; // 5% tax
+    const deliveryCharges = 0; // Always FREE delivery
+    const tax = 0; // No tax
     const finalTotal = subtotal + deliveryCharges + tax;
 
     return {
@@ -559,9 +559,9 @@ For support: Call +91-XXXXXXXXXX`;
                         <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Subtotal</div>
                         <div className="text-sm font-semibold text-gray-700">₹{totals.subtotal.toFixed(2)}</div>
                       </div>
-                      <div className="bg-white rounded-lg p-2 border">
-                        <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Tax (18%)</div>
-                        <div className="text-sm font-semibold text-gray-700">₹{totals.tax.toFixed(2)}</div>
+                      <div className="bg-green-50 rounded-lg p-2 border border-green-200">
+                        <div className="text-xs text-green-600 font-medium uppercase tracking-wide">Delivery Charges</div>
+                        <div className="text-sm font-bold text-green-600">FREE</div>
                       </div>
                       <div className="bg-blue-50 rounded-lg p-2 border border-blue-200">
                         <div className="text-xs text-blue-600 font-medium uppercase tracking-wide">Total Amount</div>
@@ -707,13 +707,9 @@ For support: Call +91-XXXXXXXXXX`;
                     <span>Subtotal:</span>
                     <span>₹{totals.subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-green-600">
                     <span>Delivery Charges:</span>
-                    <span>{totals.deliveryCharges === 0 ? "FREE" : `₹${totals.deliveryCharges.toFixed(2)}`}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax (5%):</span>
-                    <span>₹{totals.tax.toFixed(2)}</span>
+                    <span className="font-semibold">FREE</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-sm sm:text-lg">
