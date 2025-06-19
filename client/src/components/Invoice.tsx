@@ -546,7 +546,7 @@ For support: Call +91-XXXXXXXXXX`;
                           whiteSpace: 'normal',
                           lineHeight: '1.3'
                         }}>
-                          {(order.paymentStatus || "Pending").replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          {(order.paymentStatus || "Pending").replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}
                         </span>
                       </div>
                     </div>
