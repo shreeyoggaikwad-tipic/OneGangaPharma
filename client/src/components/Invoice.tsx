@@ -38,16 +38,44 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
   const [showDialog, setShowDialog] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-IN", {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return new Date().toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "long", 
+      day: "numeric",
+    });
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return new Date().toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+    
+    return date.toLocaleDateString("en-IN", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
   };
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-IN", {
+  const formatTime = (dateString: string | null | undefined) => {
+    if (!dateString) return new Date().toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return new Date().toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    
+    return date.toLocaleTimeString("en-IN", {
       hour: "2-digit",
       minute: "2-digit",
     });

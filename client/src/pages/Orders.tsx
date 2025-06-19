@@ -380,13 +380,20 @@ export default function Orders() {
                           <h4 className="font-semibold mb-3 text-sm sm:text-base">Billing Address</h4>
                           <div className="bg-muted/20 rounded-lg p-3 sm:p-4">
                             <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
-                              <p className="font-medium text-foreground">{selectedOrder.billingAddress?.fullName}</p>
-                              <p>{selectedOrder.billingAddress?.addressLine1}</p>
-                              {selectedOrder.billingAddress?.addressLine2 && (
-                                <p>{selectedOrder.billingAddress.addressLine2}</p>
+                              {selectedOrder.shippingAddress ? (
+                                <>
+                                  <p className="font-medium text-foreground">{selectedOrder.user?.firstName} {selectedOrder.user?.lastName}</p>
+                                  <p>{selectedOrder.shippingAddress.addressLine1}</p>
+                                  {selectedOrder.shippingAddress.addressLine2 && (
+                                    <p>{selectedOrder.shippingAddress.addressLine2}</p>
+                                  )}
+                                  <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
+                                  <p>{selectedOrder.shippingAddress.pincode}</p>
+                                  <p className="font-medium text-foreground mt-2">Phone: {selectedOrder.user?.phone}</p>
+                                </>
+                              ) : (
+                                <p className="text-muted-foreground">No address information available</p>
                               )}
-                              <p>{selectedOrder.billingAddress?.city}, {selectedOrder.billingAddress?.state}</p>
-                              <p>{selectedOrder.billingAddress?.postalCode}</p>
                             </div>
                           </div>
                         </div>
