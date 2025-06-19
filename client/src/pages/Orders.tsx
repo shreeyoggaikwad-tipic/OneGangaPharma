@@ -290,6 +290,7 @@ export default function Orders() {
             order={order}
             trigger={
               <Button variant="outline" size="sm">
+                <span className="text-base mr-1">₹</span>
                 <Receipt className="h-4 w-4 mr-2" />
                 Invoice
               </Button>
@@ -441,6 +442,7 @@ export default function Orders() {
                           order={selectedOrder}
                           trigger={
                             <Button variant="default" size="lg" className="w-full sm:w-auto">
+                              <span className="text-base mr-1">₹</span>
                               <Receipt className="h-4 w-4 mr-2" />
                               View & Download Invoice
                             </Button>
