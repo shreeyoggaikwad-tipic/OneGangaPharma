@@ -747,25 +747,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { items, billingAddressId, shippingAddressId, prescriptionId, totalAmount, hasScheduleH } = req.body;
       
+      // Validate required fields
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ message: "Order must contain at least one item" });
+      }
+      
+      if (!totalAmount || parseFloat(totalAmount) <= 0) {
+        return res.status(400).json({ message: "Invalid total amount" });
+      }
+      
+      console.log("Creating order with data:", { 
+        userId: req.user.id, 
+        itemsCount: items.length, 
+        totalAmount,
+        billingAddressId,
+        shippingAddressId
+      });
+      
       // Determine order status based on whether it contains Schedule H medicines and prescription status
       let orderStatus = "confirmed"; // Default for non-Schedule H orders
       let notificationMessage = `Your order has been confirmed and will be processed shortly.`;
       
       if (hasScheduleH) {
         if (prescriptionId) {
-          // Check if the prescription is already approved
-          const prescription = await db
-            .select()
-            .from(prescriptions)
-            .where(eq(prescriptions.id, prescriptionId))
-            .limit(1);
-          
-          if (prescription.length > 0 && prescription[0].status === "approved") {
-            // If prescription is approved, confirm the order immediately
-            orderStatus = "confirmed";
-            notificationMessage = `Your Order will be confirmed and processed shortly. Approved prescription linked successfully.`;
-          } else {
-            // If prescription is pending or not found, wait for review
+          try {
+            // Check if the prescription is already approved
+            const prescription = await db
+              .select()
+              .from(prescriptions)
+              .where(eq(prescriptions.id, prescriptionId))
+              .limit(1);
+            
+            if (prescription.length > 0 && prescription[0].status === "approved") {
+              // If prescription is approved, confirm the order immediately
+              orderStatus = "confirmed";
+              notificationMessage = `Your Order will be confirmed and processed shortly. Approved prescription linked successfully.`;
+            } else {
+              // If prescription is pending or not found, wait for review
+              orderStatus = "pending_prescription_review";
+              notificationMessage = `Your Order has been placed and is awaiting prescription review. You'll be notified once approved.`;
+            }
+          } catch (prescError) {
+            console.error("Error checking prescription:", prescError);
+            // Continue with pending status if prescription check fails
             orderStatus = "pending_prescription_review";
             notificationMessage = `Your Order has been placed and is awaiting prescription review. You'll be notified once approved.`;
           }
@@ -779,43 +803,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orderData = {
         userId: req.user.id,
         totalAmount: totalAmount.toString(),
-        billingAddressId,
-        shippingAddressId,
+        billingAddressId: billingAddressId || null,
+        shippingAddressId: shippingAddressId || null,
         prescriptionId: prescriptionId || null,
         paymentMethod: "cod",
         status: orderStatus,
       };
 
+      console.log("Calling storage.createOrder with:", orderData);
       const order = await storage.createOrder(orderData, items);
+      console.log("Order created successfully:", order.id);
       
       // Clear cart after successful order
-      await storage.clearCart(req.user.id);
+      try {
+        await storage.clearCart(req.user.id);
+        console.log("Cart cleared successfully");
+      } catch (cartError) {
+        console.error("Error clearing cart:", cartError);
+        // Don't fail the order if cart clearing fails
+      }
       
       // Create notification for customer
-      await storage.createNotification({
-        userId: req.user.id,
-        type: "order_update",
-        title: "Order Placed Successfully",
-        message: notificationMessage,
-      });
+      try {
+        await storage.createNotification({
+          userId: req.user.id,
+          type: "order_update",
+          title: "Order Placed Successfully",
+          message: notificationMessage,
+        });
+        console.log("Customer notification created");
+      } catch (notifError) {
+        console.error("Error creating customer notification:", notifError);
+        // Don't fail the order if notification fails
+      }
       
       // If order has Schedule H medicines, notify admin for prescription review
       if (hasScheduleH) {
-        const adminUsers = await storage.getUserByEmail("admin@test.com");
-        if (adminUsers) {
-          await storage.createNotification({
-            userId: adminUsers.id,
-            type: "order_prescription_review",
-            title: "Order Needs Prescription Review",
-            message: `Order #${order.orderNumber} contains Schedule H medicines and requires prescription approval.`,
-          });
+        try {
+          const adminUsers = await storage.getUserByEmail("admin@test.com");
+          if (adminUsers) {
+            await storage.createNotification({
+              userId: adminUsers.id,
+              type: "order_prescription_review",
+              title: "Order Needs Prescription Review",
+              message: `Order #${order.orderNumber} contains Schedule H medicines and requires prescription approval.`,
+            });
+            console.log("Admin notification created");
+          }
+        } catch (adminNotifError) {
+          console.error("Error creating admin notification:", adminNotifError);
+          // Don't fail the order if admin notification fails
         }
       }
       
       res.json(order);
     } catch (error) {
       console.error("Create order error:", error);
-      res.status(500).json({ message: "Failed to create order" });
+      console.error("Error stack:", error.stack);
+      
+      // Provide more specific error messages
+      if (error.message.includes("Insufficient stock")) {
+        res.status(400).json({ message: error.message });
+      } else if (error.message.includes("violates foreign key constraint")) {
+        res.status(400).json({ message: "Invalid address or prescription reference" });
+      } else {
+        res.status(500).json({ message: "Failed to create order. Please try again." });
+      }
     }
   });
 
