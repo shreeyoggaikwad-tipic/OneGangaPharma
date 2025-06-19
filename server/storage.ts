@@ -561,8 +561,36 @@ export class DatabaseStorage implements IStorage {
         user: users,
         item: orderItems,
         medicine: medicines,
-        shippingAddress: sql`shipping_addr`,
-        billingAddress: sql`billing_addr`,
+        shippingAddress: {
+          id: sql`shipping_addr.id`,
+          userId: sql`shipping_addr.user_id`,
+          type: sql`shipping_addr.type`,
+          fullName: sql`shipping_addr.full_name`,
+          addressLine1: sql`shipping_addr.address_line_1`,
+          addressLine2: sql`shipping_addr.address_line_2`,
+          city: sql`shipping_addr.city`,
+          state: sql`shipping_addr.state`,
+          postalCode: sql`shipping_addr.postal_code`,
+          phone: sql`shipping_addr.phone`,
+          isDefault: sql`shipping_addr.is_default`,
+          createdAt: sql`shipping_addr.created_at`,
+          updatedAt: sql`shipping_addr.updated_at`,
+        },
+        billingAddress: {
+          id: sql`billing_addr.id`,
+          userId: sql`billing_addr.user_id`,
+          type: sql`billing_addr.type`,
+          fullName: sql`billing_addr.full_name`,
+          addressLine1: sql`billing_addr.address_line_1`,
+          addressLine2: sql`billing_addr.address_line_2`,
+          city: sql`billing_addr.city`,
+          state: sql`billing_addr.state`,
+          postalCode: sql`billing_addr.postal_code`,
+          phone: sql`billing_addr.phone`,
+          isDefault: sql`billing_addr.is_default`,
+          createdAt: sql`billing_addr.created_at`,
+          updatedAt: sql`billing_addr.updated_at`,
+        },
       })
       .from(orders)
       .leftJoin(users, eq(orders.userId, users.id))
@@ -581,8 +609,8 @@ export class DatabaseStorage implements IStorage {
           ...order, 
           user, 
           items: [], 
-          shippingAddress: shippingAddress || undefined,
-          billingAddress: billingAddress || undefined
+          shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
+          billingAddress: billingAddress?.id ? billingAddress : undefined
         });
       }
       if (item && medicine) {
