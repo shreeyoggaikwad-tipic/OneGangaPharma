@@ -382,17 +382,49 @@ export default function Orders() {
                             <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
                               {selectedOrder.shippingAddress ? (
                                 <>
-                                  <p className="font-medium text-foreground">{selectedOrder.user?.firstName} {selectedOrder.user?.lastName}</p>
-                                  <p>{selectedOrder.shippingAddress.addressLine1}</p>
+                                  {(selectedOrder.user?.firstName || selectedOrder.user?.lastName) && (
+                                    <p className="font-medium text-foreground">
+                                      {[selectedOrder.user?.firstName, selectedOrder.user?.lastName].filter(Boolean).join(' ')}
+                                    </p>
+                                  )}
+                                  {selectedOrder.shippingAddress.addressLine1 && (
+                                    <p>{selectedOrder.shippingAddress.addressLine1}</p>
+                                  )}
                                   {selectedOrder.shippingAddress.addressLine2 && (
                                     <p>{selectedOrder.shippingAddress.addressLine2}</p>
                                   )}
-                                  <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}</p>
-                                  <p>{selectedOrder.shippingAddress.pincode}</p>
-                                  <p className="font-medium text-foreground mt-2">Phone: {selectedOrder.user?.phone}</p>
+                                  {(selectedOrder.shippingAddress.city || selectedOrder.shippingAddress.state) && (
+                                    <p>
+                                      {[selectedOrder.shippingAddress.city, selectedOrder.shippingAddress.state].filter(Boolean).join(', ')}
+                                    </p>
+                                  )}
+                                  {selectedOrder.shippingAddress.pincode && (
+                                    <p>{selectedOrder.shippingAddress.pincode}</p>
+                                  )}
+                                  {selectedOrder.user?.phone && (
+                                    <p className="font-medium text-foreground mt-2">Phone: {selectedOrder.user.phone}</p>
+                                  )}
+                                  {selectedOrder.user?.email && (
+                                    <p className="text-foreground">Email: {selectedOrder.user.email}</p>
+                                  )}
                                 </>
                               ) : (
-                                <p className="text-muted-foreground">No address information available</p>
+                                <div className="space-y-1">
+                                  {(selectedOrder.user?.firstName || selectedOrder.user?.lastName) && (
+                                    <p className="font-medium text-foreground">
+                                      {[selectedOrder.user?.firstName, selectedOrder.user?.lastName].filter(Boolean).join(' ')}
+                                    </p>
+                                  )}
+                                  {selectedOrder.user?.phone && (
+                                    <p>Phone: {selectedOrder.user.phone}</p>
+                                  )}
+                                  {selectedOrder.user?.email && (
+                                    <p>Email: {selectedOrder.user.email}</p>
+                                  )}
+                                  {!selectedOrder.user?.firstName && !selectedOrder.user?.lastName && !selectedOrder.user?.phone && !selectedOrder.user?.email && (
+                                    <p className="text-muted-foreground">No billing information available</p>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
