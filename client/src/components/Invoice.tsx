@@ -263,8 +263,49 @@ For support: Call +91-XXXXXXXXXX`;
             <div 
               ref={invoiceRef}
               className="bg-white text-black p-3 sm:p-4 md:p-6 print:p-0"
-              style={{ fontFamily: "Arial, sans-serif", maxWidth: '800px', margin: '0 auto' }}
+              style={{ 
+                fontFamily: "Arial, sans-serif", 
+                maxWidth: '800px', 
+                margin: '0 auto',
+                lineHeight: '1.4'
+              }}
             >
+              <style>{`
+                @media print {
+                  .invoice-badge {
+                    display: inline-block !important;
+                    padding: 2px 6px !important;
+                    border-radius: 4px !important;
+                    font-size: 10px !important;
+                    font-weight: 500 !important;
+                    line-height: 1.2 !important;
+                    white-space: nowrap !important;
+                    vertical-align: baseline !important;
+                  }
+                  .invoice-status-delivered {
+                    background-color: #dcfce7 !important;
+                    color: #166534 !important;
+                  }
+                  .invoice-status-processing {
+                    background-color: #dbeafe !important;
+                    color: #1e40af !important;
+                  }
+                  .invoice-status-pending {
+                    background-color: #f3f4f6 !important;
+                    color: #374151 !important;
+                  }
+                  .invoice-prescription-required {
+                    background-color: #fecaca !important;
+                    color: #991b1b !important;
+                  }
+                  .invoice-flex-row {
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    margin-bottom: 8px !important;
+                  }
+                }
+              `}</style>
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start mb-6 sm:mb-8 gap-4">
               <div className="flex-1">
@@ -335,28 +376,30 @@ For support: Call +91-XXXXXXXXXX`;
                   Order Details
                 </h3>
                 <div className="space-y-2 text-xs sm:text-sm">
-                  <div className="flex justify-between items-center">
+                  <div className="invoice-flex-row">
                     <span>Status:</span>
-                    <Badge variant={
-                      order.status === "delivered" ? "default" :
-                      order.status === "processing" ? "secondary" :
-                      order.status === "shipped" ? "outline" : "destructive"
-                    } className="text-xs">
+                    <span className={`invoice-badge ${
+                      order.status === "delivered" ? "invoice-status-delivered" :
+                      order.status === "processing" ? "invoice-status-processing" :
+                      order.status === "shipped" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
+                    }`}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Payment Method:</span>
-                    <span className="flex items-center gap-1">
-                      <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span className="text-xs sm:text-sm">{order.paymentMethod || "Cash on Delivery"}</span>
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="invoice-flex-row">
+                    <span>Payment Method:</span>
+                    <span className="flex items-center gap-1">
+                      <span className="text-xs">💳</span>
+                      <span className="text-xs sm:text-sm">{order.paymentMethod || "COD"}</span>
+                    </span>
+                  </div>
+                  <div className="invoice-flex-row">
                     <span>Payment Status:</span>
-                    <Badge variant={order.paymentStatus === "paid" ? "default" : "outline"} className="text-xs">
+                    <span className={`invoice-badge ${
+                      order.paymentStatus === "paid" ? "invoice-status-delivered" : "invoice-status-pending"
+                    }`}>
                       {order.paymentStatus || "Pending"}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -404,9 +447,9 @@ For support: Call +91-XXXXXXXXXX`;
                                 <div className="font-medium text-xs sm:text-sm">{item.medicine.name}</div>
                                 <div className="text-xs text-gray-600">{item.medicine.dosage}</div>
                                 {item.medicine.requiresPrescription && (
-                                  <Badge variant="destructive" className="text-xs mt-1">
+                                  <div className="invoice-badge invoice-prescription-required mt-1">
                                     Prescription Required
-                                  </Badge>
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -447,9 +490,9 @@ For support: Call +91-XXXXXXXXXX`;
                           <div className="font-medium text-sm">{item.medicine.name}</div>
                           <div className="text-xs text-gray-600 mb-2">{item.medicine.dosage}</div>
                           {item.medicine.requiresPrescription && (
-                            <Badge variant="destructive" className="text-xs mb-2">
+                            <div className="invoice-badge invoice-prescription-required mb-2">
                               Prescription Required
-                            </Badge>
+                            </div>
                           )}
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div>
