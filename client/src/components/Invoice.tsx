@@ -211,45 +211,58 @@ For support: Call +91-XXXXXXXXXX`;
           </DialogHeader>
           
           {/* Action Buttons - Fixed Header */}
-          <div className="flex flex-wrap justify-end gap-2 px-3 sm:px-6 py-2 sm:py-3 border-b print:hidden flex-shrink-0 bg-gray-50">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrint}
-              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm"
-            >
-              <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Print</span>
-              <span className="sm:hidden">Print</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadPDF}
-              disabled={isGenerating}
-              className="text-green-600 hover:text-green-700 text-xs sm:text-sm"
-            >
-              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">{isGenerating ? "Generating..." : "Download PDF"}</span>
-              <span className="sm:hidden">{isGenerating ? "..." : "PDF"}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleWhatsAppShare}
-              className="text-green-600 hover:text-green-700 text-xs sm:text-sm"
-            >
-              <Share className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">WhatsApp</span>
-              <span className="sm:hidden">Share</span>
-            </Button>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 border-b print:hidden flex-shrink-0 bg-gray-50">
+            <div className="text-xs text-gray-500 hidden sm:block">
+              Scroll down to view complete invoice
+            </div>
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm"
+              >
+                <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Print</span>
+                <span className="sm:hidden">Print</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadPDF}
+                disabled={isGenerating}
+                className="text-green-600 hover:text-green-700 text-xs sm:text-sm"
+              >
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{isGenerating ? "Generating..." : "Download PDF"}</span>
+                <span className="sm:hidden">{isGenerating ? "..." : "PDF"}</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleWhatsAppShare}
+                className="text-green-600 hover:text-green-700 text-xs sm:text-sm"
+              >
+                <Share className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">WhatsApp</span>
+                <span className="sm:hidden">Share</span>
+              </Button>
+            </div>
           </div>
 
           {/* Scrollable Invoice Content */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div 
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 relative" 
+            style={{ 
+              maxHeight: 'calc(95vh - 140px)',
+              scrollBehavior: 'smooth'
+            }}
+          >
+            {/* Scroll indicator gradient at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none z-10 print:hidden"></div>
             <div 
               ref={invoiceRef}
-              className="bg-white text-black p-3 sm:p-4 md:p-6 print:p-0 min-h-full"
+              className="bg-white text-black p-3 sm:p-4 md:p-6 print:p-0"
               style={{ fontFamily: "Arial, sans-serif", maxWidth: '800px', margin: '0 auto' }}
             >
             {/* Header */}
