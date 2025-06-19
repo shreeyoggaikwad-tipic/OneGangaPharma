@@ -100,29 +100,59 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
     
     setIsGenerating(true);
     try {
+      // Generate and inject QR code first
+      const qrCodeDataUrl = await generateQRCode();
+      const qrElement = invoiceRef.current.querySelector('#invoice-qr-code') as HTMLImageElement;
+      if (qrElement && qrCodeDataUrl) {
+        qrElement.src = qrCodeDataUrl;
+        qrElement.style.display = 'block';
+        qrElement.style.width = '80px';
+        qrElement.style.height = '80px';
+      }
+
+      // Wait for QR code to render
+      await new Promise(resolve => setTimeout(resolve, 200));
+
       const canvas = await html2canvas(invoiceRef.current, {
-        scale: 2,
+        scale: 1.8,
         useCORS: true,
         allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: 800,
+        logging: false,
       });
       
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
+      
+      // A4 dimensions with margins
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      const margin = 10;
+      const contentWidth = pdfWidth - (2 * margin);
+      const contentHeight = pdfHeight - (2 * margin);
+      
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      
+      // Scale to fit width with margins
+      const scale = contentWidth / (imgWidth * 0.264583); // Convert pixels to mm
+      const scaledHeight = (imgHeight * 0.264583) * scale;
+      
+      // Simple single page approach with better scaling
+      const finalScale = Math.min(
+        contentWidth / (imgWidth * 0.264583),
+        contentHeight / (imgHeight * 0.264583)
+      );
+      
+      const finalWidth = (imgWidth * 0.264583) * finalScale;
+      const finalHeight = (imgHeight * 0.264583) * finalScale;
+      
+      // Center the image on the page
+      const xPos = margin + (contentWidth - finalWidth) / 2;
+      const yPos = margin;
+      
+      pdf.addImage(imgData, "PNG", xPos, yPos, finalWidth, finalHeight);
 
       pdf.save(`Invoice-${order.orderNumber}.pdf`);
     } catch (error) {
@@ -162,80 +192,92 @@ For support: Call +91-XXXXXXXXXX`;
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5" />
+      <DialogContent className="w-[95vw] max-w-6xl h-[95vh] max-h-[95vh] overflow-hidden p-3 sm:p-6">
+        <DialogHeader className="pb-2 sm:pb-4">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
             Invoice - {order.orderNumber}
           </DialogTitle>
         </DialogHeader>
         
         <div className="flex flex-col h-full">
           {/* Action Buttons */}
-          <div className="flex justify-end gap-2 mb-4 print:hidden">
+          <div className="flex flex-wrap justify-end gap-2 mb-2 sm:mb-4 print:hidden">
             <Button
               variant="outline"
               size="sm"
               onClick={handlePrint}
-              className="text-blue-600 hover:text-blue-700"
+              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm"
             >
-              <Printer className="h-4 w-4 mr-2" />
-              Print
+              <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Print</span>
+              <span className="sm:hidden">Print</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleDownloadPDF}
               disabled={isGenerating}
-              className="text-green-600 hover:text-green-700"
+              className="text-green-600 hover:text-green-700 text-xs sm:text-sm"
             >
-              <Download className="h-4 w-4 mr-2" />
-              {isGenerating ? "Generating..." : "Download PDF"}
+              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{isGenerating ? "Generating..." : "Download PDF"}</span>
+              <span className="sm:hidden">{isGenerating ? "..." : "PDF"}</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleWhatsAppShare}
-              className="text-green-600 hover:text-green-700"
+              className="text-green-600 hover:text-green-700 text-xs sm:text-sm"
             >
-              <Share className="h-4 w-4 mr-2" />
-              WhatsApp
+              <Share className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">WhatsApp</span>
+              <span className="sm:hidden">Share</span>
             </Button>
           </div>
 
           {/* Invoice Content */}
           <div 
             ref={invoiceRef}
-            className="flex-1 overflow-y-auto bg-white text-black p-6 print:p-0"
-            style={{ fontFamily: "Arial, sans-serif" }}
+            className="flex-1 overflow-y-auto bg-white text-black p-3 sm:p-4 md:p-6 print:p-0"
+            style={{ fontFamily: "Arial, sans-serif", maxWidth: '800px', margin: '0 auto' }}
           >
             {/* Header */}
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-blue-600 mb-2">Sharda Med</h1>
-                <p className="text-gray-600 text-sm">Your Trusted Online Pharmacy</p>
-                <div className="mt-4 space-y-1 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
+            <div className="flex flex-col sm:flex-row justify-between items-start mb-6 sm:mb-8 gap-4">
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">Sharda Med</h1>
+                <p className="text-gray-600 text-xs sm:text-sm">Your Trusted Online Pharmacy</p>
+                <div className="mt-3 sm:mt-4 space-y-1 text-xs sm:text-sm text-gray-600">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mt-0.5 flex-shrink-0" />
                     <span>123 Medical Street, Healthcare City, HC 110001</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
+                    <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span>+91-XXXXXXXXXX</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
+                    <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span>support@shardamed.com</span>
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-gray-800 mb-2">INVOICE</div>
-                <div className="space-y-1 text-sm">
+              <div className="text-left sm:text-right w-full sm:w-auto">
+                <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">INVOICE</div>
+                <div className="space-y-1 text-xs sm:text-sm">
                   <div><strong>Invoice #:</strong> INV-{order.orderNumber}</div>
                   <div><strong>Order #:</strong> {order.orderNumber}</div>
                   <div><strong>Date:</strong> {formatDate(order.createdAt)}</div>
                   <div><strong>Time:</strong> {formatTime(order.createdAt)}</div>
+                </div>
+                {/* QR Code Container */}
+                <div className="mt-3 sm:mt-4 flex justify-start sm:justify-end">
+                  <img 
+                    id="invoice-qr-code" 
+                    style={{ display: 'none' }}
+                    className="w-16 h-16 sm:w-20 sm:h-20 border border-gray-200 rounded"
+                    alt="Invoice QR Code"
+                  />
                 </div>
               </div>
             </div>
