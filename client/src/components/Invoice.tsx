@@ -111,8 +111,28 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
 
   const generateQRCode = async () => {
     try {
-      const qrData = `Invoice: ${order.orderNumber}\nTotal: ₹${totals.finalTotal.toFixed(2)}\nDate: ${formatDate(order.createdAt)}`;
-      return await QRCode.toDataURL(qrData, { width: 100 });
+      // Enhanced QR code with comprehensive order information
+      const qrData = `🏥 SHARDA MED - Digital Invoice Verification
+📋 Invoice: INV-${order.orderNumber}
+🛒 Order: ${order.orderNumber}
+💰 Total: ₹${totals.finalTotal.toFixed(2)}
+📅 Date: ${formatDate(order.createdAt)}
+⏰ Time: ${formatTime(order.createdAt)}
+📦 Items: ${order.items?.length || 0} medicine(s)
+🚚 Status: ${order.status?.toUpperCase()}
+💳 Payment: ${order.paymentMethod?.toUpperCase() || 'COD'}
+🌐 Verify at: https://shardamed.com/verify/${order.orderNumber}
+📞 Support: +91-800-SHARDA (742732)
+✅ Authentic Digital Receipt`;
+      return await QRCode.toDataURL(qrData, { 
+        width: 120,
+        margin: 2,
+        color: {
+          dark: '#1e40af',  // Blue color for QR
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'M'
+      });
     } catch (error) {
       console.error("Error generating QR code:", error);
       return "";
@@ -290,7 +310,7 @@ For support: Call +91-XXXXXXXXXX`;
             <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none z-10 print:hidden"></div>
             <div 
               ref={invoiceRef}
-              className="bg-white text-black p-3 sm:p-4 md:p-6 print:p-0"
+              className="bg-white text-black p-3 sm:p-4 md:p-6 print:p-0 invoice-container invoice-content-enhanced"
               style={{ 
                 fontFamily: "Arial, sans-serif", 
                 maxWidth: '800px', 
@@ -298,46 +318,187 @@ For support: Call +91-XXXXXXXXXX`;
                 lineHeight: '1.4'
               }}
             >
+              {/* Professional Watermark */}
+              <div className="invoice-watermark print:block hidden">SHARDA MED</div>
               <style>{`
                 @media print {
+                  * {
+                    -webkit-print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                  }
+                  
+                  body {
+                    font-family: 'Segoe UI', 'Arial', sans-serif !important;
+                  }
+                  
+                  .invoice-container {
+                    box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15) !important;
+                    border: 3px solid #1e40af !important;
+                    border-radius: 12px !important;
+                    overflow: hidden !important;
+                  }
+                  
+                  .invoice-header-enhanced {
+                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%) !important;
+                    color: white !important;
+                    padding: 24px !important;
+                    margin: -24px -24px 24px -24px !important;
+                    position: relative !important;
+                  }
+                  
+                  .invoice-header-enhanced::before {
+                    content: '' !important;
+                    position: absolute !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>') !important;
+                    pointer-events: none !important;
+                  }
+                  
                   .invoice-badge {
                     display: inline-block !important;
-                    padding: 2px 6px !important;
-                    border-radius: 4px !important;
-                    font-size: 10px !important;
-                    font-weight: 500 !important;
+                    padding: 4px 10px !important;
+                    border-radius: 8px !important;
+                    font-size: 11px !important;
+                    font-weight: 700 !important;
                     line-height: 1.2 !important;
                     white-space: nowrap !important;
                     vertical-align: baseline !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 0.8px !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
                   }
+                  
                   .invoice-status-delivered {
-                    background-color: #dcfce7 !important;
-                    color: #166534 !important;
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+                    color: white !important;
                   }
                   .invoice-status-processing {
-                    background-color: #dbeafe !important;
-                    color: #1e40af !important;
+                    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+                    color: white !important;
                   }
                   .invoice-status-pending {
-                    background-color: #f3f4f6 !important;
-                    color: #374151 !important;
+                    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+                    color: white !important;
                   }
                   .invoice-prescription-required {
-                    background-color: #fecaca !important;
-                    color: #991b1b !important;
+                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+                    color: white !important;
                   }
+                  
                   .invoice-flex-row {
                     display: flex !important;
                     justify-content: space-between !important;
                     align-items: center !important;
-                    margin-bottom: 8px !important;
+                    margin-bottom: 10px !important;
+                    padding: 4px 0 !important;
+                  }
+                  
+                  .invoice-table-enhanced {
+                    border: 2px solid #e5e7eb !important;
+                    border-radius: 12px !important;
+                    overflow: hidden !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                  }
+                  
+                  .invoice-table-enhanced th {
+                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+                    color: white !important;
+                    font-weight: 700 !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 1px !important;
+                    padding: 16px 12px !important;
+                    border: none !important;
+                    font-size: 12px !important;
+                  }
+                  
+                  .invoice-table-enhanced td {
+                    padding: 14px 12px !important;
+                    border-bottom: 1px solid #f3f4f6 !important;
+                    font-size: 11px !important;
+                    vertical-align: middle !important;
+                  }
+                  
+                  .invoice-table-enhanced tr:nth-child(even) {
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+                  }
+                  
+                  .invoice-summary-enhanced {
+                    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+                    border: 2px solid #cbd5e1 !important;
+                    border-radius: 12px !important;
+                    padding: 20px !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+                  }
+                  
+                  .invoice-total-enhanced {
+                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+                    color: white !important;
+                    padding: 16px 20px !important;
+                    border-radius: 10px !important;
+                    font-weight: 800 !important;
+                    font-size: 20px !important;
+                    text-align: center !important;
+                    margin-top: 12px !important;
+                    box-shadow: 0 6px 16px rgba(30, 64, 175, 0.3) !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 1px !important;
+                  }
+                  
+                  .invoice-footer-enhanced {
+                    background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important;
+                    color: white !important;
+                    padding: 24px !important;
+                    margin: 24px -24px -24px -24px !important;
+                    text-align: center !important;
+                    position: relative !important;
+                  }
+                  
+                  .invoice-qr-enhanced {
+                    border: 3px solid #1e40af !important;
+                    border-radius: 12px !important;
+                    padding: 8px !important;
+                    background: white !important;
+                    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2) !important;
+                  }
+                  
+                  .invoice-company-name {
+                    font-size: 32px !important;
+                    font-weight: 900 !important;
+                    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+                    -webkit-background-clip: text !important;
+                    -webkit-text-fill-color: transparent !important;
+                    background-clip: text !important;
+                    text-shadow: 0 2px 4px rgba(30, 64, 175, 0.3) !important;
+                  }
+                  
+                  .invoice-watermark {
+                    position: fixed !important;
+                    top: 45% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) rotate(-45deg) !important;
+                    font-size: 120px !important;
+                    color: rgba(30, 64, 175, 0.03) !important;
+                    font-weight: 900 !important;
+                    z-index: 0 !important;
+                    pointer-events: none !important;
+                    text-transform: uppercase !important;
+                    letter-spacing: 8px !important;
+                  }
+                  
+                  .invoice-content-enhanced {
+                    position: relative !important;
+                    z-index: 1 !important;
                   }
                 }
               `}</style>
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start mb-6 sm:mb-8 gap-4">
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">Sharda Med</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2 invoice-company-name">Sharda Med</h1>
                 <p className="text-gray-600 text-xs sm:text-sm">Your Trusted Online Pharmacy</p>
                 <div className="mt-3 sm:mt-4 space-y-1 text-xs sm:text-sm text-gray-600">
                   <div className="flex items-start gap-2">
@@ -369,7 +530,7 @@ For support: Call +91-XXXXXXXXXX`;
                   <img 
                     id="invoice-qr-code" 
                     style={{ display: 'none' }}
-                    className="w-16 h-16 sm:w-20 sm:h-20 border border-gray-200 rounded"
+                    className="w-16 h-16 sm:w-20 sm:h-20 invoice-qr-enhanced"
                     alt="Invoice QR Code"
                   />
                 </div>
