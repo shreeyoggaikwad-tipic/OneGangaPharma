@@ -28,7 +28,9 @@ import {
   ShoppingCart,
   Eye,
   RotateCcw,
+  Receipt,
 } from "lucide-react";
+import Invoice from "@/components/Invoice";
 
 export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -283,6 +285,17 @@ export default function Orders() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2">
+          {/* Invoice Button */}
+          <Invoice 
+            order={order}
+            trigger={
+              <Button variant="outline" size="sm">
+                <Receipt className="h-4 w-4 mr-2" />
+                Invoice
+              </Button>
+            }
+          />
+          
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
