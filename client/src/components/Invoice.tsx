@@ -325,9 +325,11 @@ For support: Call +91-XXXXXXXXXX`;
                     border-radius: 4px !important;
                     font-size: 10px !important;
                     font-weight: 600 !important;
-                    line-height: 1.2 !important;
-                    white-space: nowrap !important;
+                    line-height: 1.3 !important;
+                    white-space: normal !important;
+                    word-break: break-word !important;
                     vertical-align: baseline !important;
+                    max-width: 100% !important;
                   }
                   
                   .invoice-status-delivered {
@@ -501,13 +503,20 @@ For support: Call +91-XXXXXXXXXX`;
                     {/* Order Status */}
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Order Status</div>
-                      <span className={`inline-block invoice-badge ${
-                        order.status === "delivered" ? "invoice-status-delivered" :
-                        order.status === "processing" ? "invoice-status-processing" :
-                        order.status === "shipped" ? "bg-yellow-100 text-yellow-800" : "invoice-status-pending"
-                      }`}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </span>
+                      <div className="break-words">
+                        <span className={`inline-block invoice-badge ${
+                          order.status === "delivered" ? "invoice-status-delivered" :
+                          order.status === "processing" ? "invoice-status-processing" :
+                          order.status === "shipped" ? "bg-yellow-100 text-yellow-800" : "invoice-status-pending"
+                        }`} style={{ 
+                          maxWidth: '100%',
+                          wordBreak: 'break-word',
+                          whiteSpace: 'normal',
+                          lineHeight: '1.3'
+                        }}>
+                          {order.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}
+                        </span>
+                      </div>
                     </div>
                     
                     {/* Item Count */}
@@ -528,11 +537,18 @@ For support: Call +91-XXXXXXXXXX`;
                     {/* Payment Status */}
                     <div className="space-y-1">
                       <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Payment Status</div>
-                      <span className={`inline-block invoice-badge ${
-                        order.paymentStatus === "paid" ? "invoice-status-delivered" : "invoice-status-pending"
-                      }`}>
-                        {(order.paymentStatus || "Pending").charAt(0).toUpperCase() + (order.paymentStatus || "Pending").slice(1)}
-                      </span>
+                      <div className="break-words">
+                        <span className={`inline-block invoice-badge ${
+                          order.paymentStatus === "paid" ? "invoice-status-delivered" : "invoice-status-pending"
+                        }`} style={{ 
+                          maxWidth: '100%',
+                          wordBreak: 'break-word',
+                          whiteSpace: 'normal',
+                          lineHeight: '1.3'
+                        }}>
+                          {(order.paymentStatus || "Pending").replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   

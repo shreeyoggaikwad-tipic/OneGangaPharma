@@ -203,6 +203,15 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Added comprehensive order summary with MRP, discounts, taxes, and totals
   - Optimized PDF output with centered positioning and improved readability
   - Enhanced WhatsApp sharing with formatted invoice details
+- June 19, 2025. Enhanced invoice order details section with professional layout
+  - Redesigned order details section with professional card-based layout
+  - Added comprehensive information grid displaying order/invoice numbers, dates, and times
+  - Implemented order summary cards showing subtotal, tax (18%), and total amount
+  - Enhanced typography with color-coded status badges and proper visual hierarchy
+  - Added monospace fonts for order/invoice numbers for better readability
+  - Integrated INR currency symbols throughout for consistent Indian market branding
+  - Fixed QR code styling and content to include essential order verification information
+  - Simplified CSS to ensure reliable PDF generation across all browsers
 
 ## User Preferences
 
