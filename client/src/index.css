@@ -2,6 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Print styles for invoices */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  /* Hide all dialogs and modals during print */
+  [data-radix-popper-content-wrapper],
+  [data-radix-dialog-overlay] {
+    display: none !important;
+  }
+
+  [data-radix-dialog-content] {
+    position: static !important;
+    transform: none !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Page break controls */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .no-page-break {
+    page-break-inside: avoid;
+  }
+
+  /* Table styling for print */
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* Ensure borders are visible */
+  .border {
+    border: 1px solid #d1d5db !important;
+  }
+
+  .border-t {
+    border-top: 1px solid #d1d5db !important;
+  }
+
+  .border-b {
+    border-bottom: 1px solid #d1d5db !important;
+  }
+
+  /* Background colors for print */
+  .bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+}
+
 /* Global responsive fixes */
 * {
   box-sizing: border-box;

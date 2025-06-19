@@ -318,7 +318,7 @@ For support: Call +91-XXXXXXXXXX`;
                     </tr>
                   </thead>
                   <tbody>
-                    {order.orderItems.map((item: any, index: number) => (
+                    {(order.items || order.orderItems || []).map((item: any, index: number) => (
                       <tr key={index} className="border-t">
                         <td className="p-3">
                           <div className="flex items-center gap-3">
