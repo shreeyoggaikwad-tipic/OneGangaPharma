@@ -472,31 +472,86 @@ For support: Call +91-XXXXXXXXXX`;
                   <Package className="h-4 w-4 sm:h-5 sm:w-5" />
                   Order Details
                 </h3>
-                <div className="space-y-2 text-xs sm:text-sm">
-                  <div className="invoice-flex-row">
-                    <span>Status:</span>
-                    <span className={`invoice-badge ${
-                      order.status === "delivered" ? "invoice-status-delivered" :
-                      order.status === "processing" ? "invoice-status-processing" :
-                      order.status === "shipped" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
-                    }`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </span>
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {/* Order Number */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Order Number</div>
+                      <div className="text-sm font-mono font-semibold text-blue-600">{order.orderNumber}</div>
+                    </div>
+                    
+                    {/* Invoice Number */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Invoice Number</div>
+                      <div className="text-sm font-mono font-semibold text-blue-600">INV-{order.orderNumber}</div>
+                    </div>
+                    
+                    {/* Order Date */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Order Date</div>
+                      <div className="text-sm font-medium">{formatDate(order.createdAt)}</div>
+                    </div>
+                    
+                    {/* Order Time */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Order Time</div>
+                      <div className="text-sm font-medium">{formatTime(order.createdAt)}</div>
+                    </div>
+                    
+                    {/* Order Status */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Order Status</div>
+                      <span className={`inline-block invoice-badge ${
+                        order.status === "delivered" ? "invoice-status-delivered" :
+                        order.status === "processing" ? "invoice-status-processing" :
+                        order.status === "shipped" ? "bg-yellow-100 text-yellow-800" : "invoice-status-pending"
+                      }`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </div>
+                    
+                    {/* Item Count */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Items</div>
+                      <div className="text-sm font-medium">{order.items?.length || 0} Medicine(s)</div>
+                    </div>
+                    
+                    {/* Payment Method */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Payment Method</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-blue-600">₹</span>
+                        <span className="text-sm font-medium">{(order.paymentMethod || "COD").toUpperCase()}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Payment Status */}
+                    <div className="space-y-1">
+                      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Payment Status</div>
+                      <span className={`inline-block invoice-badge ${
+                        order.paymentStatus === "paid" ? "invoice-status-delivered" : "invoice-status-pending"
+                      }`}>
+                        {(order.paymentStatus || "Pending").charAt(0).toUpperCase() + (order.paymentStatus || "Pending").slice(1)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="invoice-flex-row">
-                    <span>Payment Method:</span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-xs">💳</span>
-                      <span className="text-xs sm:text-sm">{order.paymentMethod || "COD"}</span>
-                    </span>
-                  </div>
-                  <div className="invoice-flex-row">
-                    <span>Payment Status:</span>
-                    <span className={`invoice-badge ${
-                      order.paymentStatus === "paid" ? "invoice-status-delivered" : "invoice-status-pending"
-                    }`}>
-                      {order.paymentStatus || "Pending"}
-                    </span>
+                  
+                  {/* Order Summary Section */}
+                  <div className="mt-4 pt-3 border-t border-gray-200">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                      <div className="bg-white rounded-lg p-2 border">
+                        <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Subtotal</div>
+                        <div className="text-sm font-semibold text-gray-700">₹{totals.subtotal.toFixed(2)}</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-2 border">
+                        <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Tax (18%)</div>
+                        <div className="text-sm font-semibold text-gray-700">₹{totals.tax.toFixed(2)}</div>
+                      </div>
+                      <div className="bg-blue-50 rounded-lg p-2 border border-blue-200">
+                        <div className="text-xs text-blue-600 font-medium uppercase tracking-wide">Total Amount</div>
+                        <div className="text-sm font-bold text-blue-600">₹{totals.finalTotal.toFixed(2)}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
