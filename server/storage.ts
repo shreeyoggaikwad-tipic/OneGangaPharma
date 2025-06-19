@@ -574,7 +574,6 @@ export class DatabaseStorage implements IStorage {
           phone: sql`shipping_addr.phone`,
           isDefault: sql`shipping_addr.is_default`,
           createdAt: sql`shipping_addr.created_at`,
-          updatedAt: sql`shipping_addr.updated_at`,
         },
         billingAddress: {
           id: sql`billing_addr.id`,
@@ -589,7 +588,6 @@ export class DatabaseStorage implements IStorage {
           phone: sql`billing_addr.phone`,
           isDefault: sql`billing_addr.is_default`,
           createdAt: sql`billing_addr.created_at`,
-          updatedAt: sql`billing_addr.updated_at`,
         },
       })
       .from(orders)
