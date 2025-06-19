@@ -201,17 +201,17 @@ For support: Call +91-XXXXXXXXXX`;
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[95vw] max-w-6xl h-[95vh] max-h-[95vh] overflow-hidden p-3 sm:p-6">
-        <DialogHeader className="pb-2 sm:pb-4">
-          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
-            Invoice - {order.orderNumber}
-          </DialogTitle>
-        </DialogHeader>
-        
+      <DialogContent className="w-[95vw] max-w-6xl h-[95vh] max-h-[95vh] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
-          {/* Action Buttons */}
-          <div className="flex flex-wrap justify-end gap-2 mb-2 sm:mb-4 print:hidden">
+          <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b flex-shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
+              Invoice - {order.orderNumber}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {/* Action Buttons - Fixed Header */}
+          <div className="flex flex-wrap justify-end gap-2 px-3 sm:px-6 py-2 sm:py-3 border-b print:hidden flex-shrink-0 bg-gray-50">
             <Button
               variant="outline"
               size="sm"
@@ -245,12 +245,13 @@ For support: Call +91-XXXXXXXXXX`;
             </Button>
           </div>
 
-          {/* Invoice Content */}
-          <div 
-            ref={invoiceRef}
-            className="flex-1 overflow-y-auto bg-white text-black p-3 sm:p-4 md:p-6 print:p-0"
-            style={{ fontFamily: "Arial, sans-serif", maxWidth: '800px', margin: '0 auto' }}
-          >
+          {/* Scrollable Invoice Content */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div 
+              ref={invoiceRef}
+              className="bg-white text-black p-3 sm:p-4 md:p-6 print:p-0 min-h-full"
+              style={{ fontFamily: "Arial, sans-serif", maxWidth: '800px', margin: '0 auto' }}
+            >
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start mb-6 sm:mb-8 gap-4">
               <div className="flex-1">
@@ -531,6 +532,7 @@ For support: Call +91-XXXXXXXXXX`;
               <div className="text-center mt-4 sm:mt-6 text-xs text-gray-500">
                 Thank you for choosing Sharda Med - Your Health, Our Priority
               </div>
+            </div>
             </div>
           </div>
         </div>
