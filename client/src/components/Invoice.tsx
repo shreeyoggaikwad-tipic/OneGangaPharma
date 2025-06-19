@@ -233,7 +233,7 @@ For support: Call +91-XXXXXXXXXX`;
         <div className="flex flex-col h-full">
           <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b flex-shrink-0">
             <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-lg sm:text-xl">₹</span>
               Invoice - {order.orderNumber}
             </DialogTitle>
           </DialogHeader>
