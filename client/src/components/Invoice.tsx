@@ -355,9 +355,8 @@ For support: Call +91-XXXXXXXXXX`;
                 </div>
               </div>
               <div className="text-left sm:text-right w-full sm:w-auto">
-                <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <span className="text-xl sm:text-2xl">₹</span>
-                  INVOICE
+                <div className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+                  ₹ INVOICE
                 </div>
                 <div className="space-y-1 text-xs sm:text-sm">
                   <div><strong>Invoice #:</strong> INV-{order.orderNumber}</div>
