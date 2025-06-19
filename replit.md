@@ -187,6 +187,22 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Enhanced cart and order management with stock availability checks
   - Admin low-stock alerts now account for reserved cart items
   - Changed strikethrough MRP prices to red color for better visual distinction
+- June 19, 2025. Fixed NaN pricing issues and order creation failures
+  - Resolved cart subtotal calculation errors by using discountedPrice with proper fallbacks
+  - Fixed checkout order creation by mapping unitPrice correctly from discountedPrice field
+  - Updated all pricing references from deprecated 'price' field to 'discountedPrice'
+  - Added comprehensive error logging and validation for order creation process
+  - Enhanced order creation with detailed debugging and proper error handling
+- June 19, 2025. Implemented comprehensive responsive invoice system
+  - Made invoice popup fully responsive for all screen sizes (mobile, tablet, desktop)
+  - Added mobile-first design with adaptive layouts and proper breakpoints
+  - Implemented dual-layout system: responsive table for desktop, card layout for mobile
+  - Enhanced PDF generation with proper scaling, margins, and QR code integration
+  - Fixed QR code generation using qrcode library with proper data encoding
+  - Replaced all currency symbols with INR (₹) throughout invoice system
+  - Added comprehensive order summary with MRP, discounts, taxes, and totals
+  - Optimized PDF output with centered positioning and improved readability
+  - Enhanced WhatsApp sharing with formatted invoice details
 
 ## User Preferences
 
