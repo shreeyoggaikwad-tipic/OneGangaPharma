@@ -221,6 +221,13 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Enhanced database schema with paymentStatus and createdAt fields for orders
   - Fixed decimal number conversion errors in PaymentAnalytics component display
   - Added bulk WhatsApp reminder sending for efficient payment follow-ups
+- June 20, 2025. Implemented manual payment status management system
+  - Added Payment Status Management UI in admin Orders.tsx for delivered orders
+  - Payment status controls appear when order status is set to "delivered"
+  - Blue highlighted section with "Mark as Paid" and "Mark as Pending" buttons
+  - Available in both "Completed/Done" and "All Orders" sections
+  - Separate payment status tracking independent of order delivery status
+  - Real payment data integration with Payment Analytics dashboard
 
 ## User Preferences
 

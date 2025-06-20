@@ -301,14 +301,6 @@ export default function AdminOrders() {
                         </div>
                       )}
 
-                      {/* Debug Payment Status */}
-                      <div className="border p-2 bg-yellow-50">
-                        <p className="text-xs">DEBUG: Status = {order.status}</p>
-                        <p className="text-xs">DEBUG: PaymentStatus = {order.paymentStatus || 'undefined'}</p>
-                        <p className="text-xs">DEBUG: IsReadOnly = {isReadOnly.toString()}</p>
-                        <p className="text-xs">DEBUG: Condition = {(!isReadOnly && order.status === 'delivered').toString()}</p>
-                      </div>
-
                       {/* Payment Status Management - Only show when order is delivered */}
                       {!isReadOnly && order.status === 'delivered' && (
                         <div className="border-t pt-4">
@@ -592,7 +584,7 @@ export default function AdminOrders() {
                 Completed Orders ({getOrdersForTab("completed").length})
               </CardTitle>
               <p className="text-muted-foreground text-sm">
-                Successfully delivered orders (read-only)
+                Successfully delivered orders with payment management
               </p>
             </CardHeader>
             <CardContent>
@@ -605,7 +597,7 @@ export default function AdminOrders() {
                   </p>
                 </div>
               ) : (
-                renderOrderTable(getOrdersForTab("completed"), true)
+                renderOrderTable(getOrdersForTab("completed"), false)
               )}
             </CardContent>
           </Card>
