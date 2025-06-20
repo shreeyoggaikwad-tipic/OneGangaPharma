@@ -63,12 +63,16 @@ export default function OrderManagement() {
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: number; status: string }) =>
       apiRequest("PUT", `/api/admin/orders/${orderId}/status`, { status }),
-    onSuccess: () => {
+    onSuccess: (updatedOrder: any) => {
       toast({
         title: "Order Updated",
         description: "Order status has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      // Update selectedOrder state immediately to show payment UI
+      if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+        setSelectedOrder({ ...selectedOrder, status: updatedOrder.status });
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -83,13 +87,17 @@ export default function OrderManagement() {
   const updatePaymentStatusMutation = useMutation({
     mutationFn: ({ orderId, paymentStatus }: { orderId: number; paymentStatus: string }) =>
       apiRequest("PUT", `/api/admin/orders/${orderId}/payment-status`, { paymentStatus }),
-    onSuccess: () => {
+    onSuccess: (updatedOrder: any) => {
       toast({
         title: "Payment Status Updated",
         description: "Payment status has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/payment-analytics"] });
+      // Update selectedOrder state with new payment status
+      if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+        setSelectedOrder({ ...selectedOrder, paymentStatus: updatedOrder.paymentStatus });
+      }
     },
     onError: (error: Error) => {
       toast({
