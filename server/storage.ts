@@ -805,7 +805,7 @@ export class DatabaseStorage implements IStorage {
     const [salesResult] = await db
       .select({ totalSales: sum(orders.totalAmount) })
       .from(orders)
-      .where(eq(orders.status, "delivered"));
+      .where(eq(orders.paymentStatus, "paid"));
 
     const [ordersTodayResult] = await db
       .select({ count: count() })
@@ -856,8 +856,8 @@ export class DatabaseStorage implements IStorage {
             return orderDate >= dayStart && orderDate <= dayEnd;
           });
           
-          const deliveredOrders = dayOrders.filter(order => order.status === "delivered");
-          const totalSales = deliveredOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+          const paidOrders = dayOrders.filter(order => order.paymentStatus === "paid");
+          const totalSales = paidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
           
           data.push({
             date: date.toISOString().split('T')[0],
@@ -869,8 +869,8 @@ export class DatabaseStorage implements IStorage {
         break;
       
       default:
-        const deliveredOrders = allOrders.filter(order => order.status === "delivered");
-        const totalSales = deliveredOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+        const paidOrders = allOrders.filter(order => order.paymentStatus === "paid");
+        const totalSales = paidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
         
         data.push({
           date: today.toISOString().split('T')[0],
