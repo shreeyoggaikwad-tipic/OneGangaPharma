@@ -142,10 +142,11 @@ export default function AdminOrders() {
   });
 
   const handlePrescriptionApproval = (prescriptionId: number, status: 'approved' | 'rejected') => {
-    if (!prescriptionReviewData.reviewNotes.trim()) {
+    // Only require reason for rejection
+    if (status === 'rejected' && !prescriptionReviewData.reviewNotes.trim()) {
       toast({
-        title: "Review Notes Required",
-        description: "Please provide a reason for your decision",
+        title: "Reason Required for Rejection",
+        description: "Please provide a reason for rejecting this prescription",
         variant: "destructive",
       });
       return;
@@ -154,7 +155,7 @@ export default function AdminOrders() {
     prescriptionApprovalMutation.mutate({
       prescriptionId,
       status,
-      reviewNotes: prescriptionReviewData.reviewNotes.trim()
+      reviewNotes: prescriptionReviewData.reviewNotes.trim() || ''
     });
   };
 
@@ -475,7 +476,7 @@ export default function AdminOrders() {
                                 <div className="space-y-3">
                                   <div>
                                     <Label className="text-xs text-gray-700 mb-1 block">
-                                      Review Notes (Required)
+                                      Review Notes (Required for rejection)
                                     </Label>
                                     <Textarea
                                       placeholder="Provide reason for approval/rejection..."
