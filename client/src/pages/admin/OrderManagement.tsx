@@ -377,6 +377,11 @@ export default function OrderManagement() {
                 </div>
               </div>
 
+              {/* Debug: Show current status */}
+              <div className="border-t pt-4">
+                <p className="text-xs text-gray-500 mb-2">Debug: Current status = "{selectedOrder.status}"</p>
+              </div>
+
               {/* Payment Status Management - Only show when order is delivered */}
               {selectedOrder.status === 'delivered' && (
                 <div className="border-t pt-4">
