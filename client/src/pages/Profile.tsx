@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
+import type { User as UserType, Address, Prescription } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "@/lib/i18n";
 import { useToast } from "@/hooks/use-toast";
@@ -123,24 +124,35 @@ export default function Profile() {
   });
 
   // Get addresses
-  const { data: addresses = [] } = useQuery({
+  const { data: addresses = [] } = useQuery<Address[]>({
     queryKey: ["/api/addresses"],
   });
 
   // Get prescriptions
-  const { data: prescriptions = [] } = useQuery({
+  const { data: prescriptions = [] } = useQuery<Prescription[]>({
     queryKey: ["/api/prescriptions"],
   });
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data: ProfileForm) => apiRequest("PUT", "/api/profile", data),
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
       });
+      // Update the query cache with the new user data
+      queryClient.setQueryData(["/api/auth/user"], updatedUser);
+      // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Reset form with updated values
+      profileForm.reset({
+        firstName: updatedUser.firstName || "",
+        lastName: updatedUser.lastName || "",
+        phone: updatedUser.phone || "",
+        gender: updatedUser.gender || undefined,
+        dateOfBirth: updatedUser.dateOfBirth || "",
+      });
       scrollToTop();
     },
     onError: (error: Error) => {
@@ -151,6 +163,19 @@ export default function Profile() {
       });
     },
   });
+
+  // Sync form with user data when it changes
+  useEffect(() => {
+    if (user) {
+      profileForm.reset({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phone: user.phone || "",
+        gender: user.gender || undefined,
+        dateOfBirth: user.dateOfBirth || "",
+      });
+    }
+  }, [user, profileForm]);
 
   // Add/Update address mutation
   const addressMutation = useMutation({
