@@ -46,6 +46,7 @@ export interface IStorage {
   createAddress(address: InsertAddress): Promise<Address>;
   updateAddress(id: number, address: Partial<InsertAddress>): Promise<Address>;
   deleteAddress(id: number): Promise<void>;
+  syncUserPhoneToAddresses(userId: number, phone: string): Promise<void>;
 
   // Medicine operations
   getMedicines(): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]>;
@@ -207,6 +208,13 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAddress(id: number): Promise<void> {
     await db.delete(addresses).where(eq(addresses.id, id));
+  }
+
+  async syncUserPhoneToAddresses(userId: number, phone: string): Promise<void> {
+    await db
+      .update(addresses)
+      .set({ phone })
+      .where(eq(addresses.userId, userId));
   }
 
   async getMedicines(): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
