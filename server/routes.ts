@@ -310,6 +310,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updateData = insertUserSchema.partial().parse(req.body);
       const updatedUser = await storage.updateUser(req.user.id, updateData);
+      
+      // If phone number was updated, sync it across all user addresses
+      if (updateData.phone) {
+        await storage.syncUserPhoneToAddresses(req.user.id, updateData.phone);
+      }
+      
       const { password: _, ...userWithoutPassword } = updatedUser;
       res.json(userWithoutPassword);
     } catch (error) {
