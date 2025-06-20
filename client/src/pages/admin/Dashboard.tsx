@@ -227,7 +227,7 @@ export default function Dashboard() {
           </div>
           <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <Link href="/admin/medicines">
             <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:border-green-300">
               <CardContent className="p-4 sm:p-6 text-center">
@@ -267,19 +267,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </Link>
-          <Link href="/admin/prescriptions">
-            <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 hover:border-orange-300">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
-                  <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                </div>
-                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
-                  Review Prescriptions
-                </p>
-                <p className="text-xs text-gray-600">Approve requests</p>
-              </CardContent>
-            </Card>
-          </Link>
+
         </div>
       </div>
 

@@ -240,6 +240,13 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Full name field also auto-populates with firstName + lastName from profile
   - Prevents phone number inconsistency between profile and order billing addresses
   - Enhanced user experience with pre-filled checkout forms and proper form reset handling
+- June 20, 2025. Streamlined prescription approval workflow in admin panel
+  - Moved prescription approval functionality directly into order details eye menu
+  - Added inline prescription approval section with required reason field for admin decisions
+  - Integrated approve/reject buttons with mandatory review notes within Prescription Details
+  - Removed separate "Review Prescriptions" card from admin dashboard for simplified workflow
+  - Enhanced UX by consolidating prescription management into single order management interface
+  - Prescription approval now occurs contextually within order processing for better admin efficiency
 
 ## User Preferences
 
