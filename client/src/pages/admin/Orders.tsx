@@ -56,16 +56,45 @@ export default function AdminOrders() {
   const updateOrderStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: number; status: string }) =>
       apiRequest("PUT", `/api/admin/orders/${orderId}/status`, { status }),
-    onSuccess: () => {
+    onSuccess: (updatedOrder: any) => {
       toast({
         title: "Order Updated",
         description: "Order status has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      // Update selectedOrder state immediately to show payment UI
+      if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+        setSelectedOrder({ ...selectedOrder, status: updatedOrder.status });
+      }
     },
     onError: (error: Error) => {
       toast({
         title: "Update Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update payment status mutation
+  const updatePaymentStatusMutation = useMutation({
+    mutationFn: ({ orderId, paymentStatus }: { orderId: number; paymentStatus: string }) =>
+      apiRequest("PUT", `/api/admin/orders/${orderId}/payment-status`, { paymentStatus }),
+    onSuccess: (updatedOrder: any) => {
+      toast({
+        title: "Payment Status Updated",
+        description: "Payment status has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/payment-analytics"] });
+      // Update selectedOrder state with new payment status
+      if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+        setSelectedOrder({ ...selectedOrder, paymentStatus: updatedOrder.paymentStatus });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -112,6 +141,10 @@ export default function AdminOrders() {
 
   const handleStatusUpdate = (orderId: number, newStatus: string) => {
     updateOrderStatusMutation.mutate({ orderId, status: newStatus });
+  };
+
+  const handlePaymentStatusUpdate = (orderId: number, paymentStatus: string) => {
+    updatePaymentStatusMutation.mutate({ orderId, paymentStatus });
   };
 
   // Function to check if a status option should be disabled
@@ -264,6 +297,59 @@ export default function AdminOrders() {
                                 {status.label}
                               </Button>
                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Payment Status Management - Only show when order is delivered */}
+                      {!isReadOnly && order.status === 'delivered' && (
+                        <div className="border-t pt-4">
+                          <Label className="text-sm">Payment Status Management</Label>
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <p className="font-medium text-blue-800 text-sm">Current Payment Status</p>
+                                <Badge 
+                                  variant={order.paymentStatus === "paid" ? "default" : "secondary"}
+                                  className={`text-xs mt-1 ${
+                                    order.paymentStatus === "paid" 
+                                      ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                                      : "bg-orange-100 text-orange-800 hover:bg-orange-100"
+                                  }`}
+                                >
+                                  {order.paymentStatus === "paid" ? "Paid" : "Pending"}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-blue-600 font-medium">
+                                ₹{order.totalAmount}
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <p className="text-sm text-blue-700 mb-2">
+                                Update payment status after delivery confirmation:
+                              </p>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant={order.paymentStatus === "paid" ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => handlePaymentStatusUpdate(order.id, "paid")}
+                                  disabled={updatePaymentStatusMutation.isPending || order.paymentStatus === "paid"}
+                                  className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                                >
+                                  Mark as Paid
+                                </Button>
+                                <Button
+                                  variant={order.paymentStatus === "pending" ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => handlePaymentStatusUpdate(order.id, "pending")}
+                                  disabled={updatePaymentStatusMutation.isPending || order.paymentStatus === "pending"}
+                                  className="bg-orange-600 hover:bg-orange-700 text-white text-xs"
+                                >
+                                  Mark as Pending
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )}
