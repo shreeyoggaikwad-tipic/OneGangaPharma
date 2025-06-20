@@ -239,7 +239,7 @@ Sharda Med Team`;
                           {order.customerPhone}
                         </TableCell>
                         <TableCell className="font-semibold">
-                          ₹{parseFloat(order.totalAmount.toString()).toFixed(2)}
+                          ₹{safeAmountToNumber(order.totalAmount).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <span className="text-sm px-2 py-1 bg-gray-100 rounded">
