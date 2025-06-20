@@ -52,9 +52,11 @@ export default function OrderManagement() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Get orders
+  // Get orders - force fresh data on every load
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["/api/admin/orders"],
+    staleTime: 0, // Always refetch
+    gcTime: 0, // Don't cache (renamed from cacheTime in v5)
   });
 
   const ordersArray = Array.isArray(orders) ? orders : [];

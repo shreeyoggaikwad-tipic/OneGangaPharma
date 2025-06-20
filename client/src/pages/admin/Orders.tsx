@@ -47,9 +47,11 @@ export default function AdminOrders() {
   const [activeTab, setActiveTab] = useState<string>("active");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Get all orders
+  // Get all orders - force fresh data on every load
   const { data: orders = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/orders"],
+    staleTime: 0, // Always refetch
+    gcTime: 0, // Don't cache (renamed from cacheTime in v5)
   });
 
   // Update order status mutation

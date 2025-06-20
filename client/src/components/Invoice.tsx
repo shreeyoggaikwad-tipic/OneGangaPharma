@@ -466,6 +466,7 @@ For support: Call +91-XXXXXXXXXX`;
                       <div>{order.user?.phone}</div>
                       {/* Debug: Log user data */}
                       {console.log('Invoice user data:', order.user)}
+                      {console.log('Invoice phone specifically:', order.user?.phone)}
                     </>
                   )}
                 </div>
