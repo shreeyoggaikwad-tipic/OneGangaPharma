@@ -922,6 +922,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid payment status" });
       }
       
+      // Get current order to check existing payment status
+      const currentOrder = await storage.getOrderById(id);
+      if (!currentOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Prevent changing from "paid" to any other status (irreversible)
+      if (currentOrder.paymentStatus === "paid" && paymentStatus !== "paid") {
+        return res.status(400).json({ 
+          message: "Payment status cannot be changed from 'paid' to another status. Paid status is irreversible for security." 
+        });
+      }
+      
       const order = await storage.updateOrderPaymentStatus(id, paymentStatus);
       
       // Create notification for customer

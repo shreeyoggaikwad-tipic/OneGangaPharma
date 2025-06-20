@@ -328,7 +328,17 @@ export default function AdminOrders() {
                             <div className="space-y-2">
                               <p className="text-sm text-blue-700 mb-2">
                                 Update payment status after delivery confirmation:
+                                {order.paymentStatus === "pending" && (
+                                  <span className="block text-xs text-orange-600 mt-1">
+                                    Note: Once marked as "Paid", this status cannot be reversed.
+                                  </span>
+                                )}
                               </p>
+                              {order.paymentStatus === "paid" && (
+                                <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                  ✓ Payment confirmed and locked. This status cannot be changed for security reasons.
+                                </p>
+                              )}
                               <div className="flex gap-2">
                                 <Button
                                   variant={order.paymentStatus === "paid" ? "default" : "outline"}
@@ -343,8 +353,8 @@ export default function AdminOrders() {
                                   variant={order.paymentStatus === "pending" ? "default" : "outline"}
                                   size="sm"
                                   onClick={() => handlePaymentStatusUpdate(order.id, "pending")}
-                                  disabled={updatePaymentStatusMutation.isPending || order.paymentStatus === "pending"}
-                                  className="bg-orange-600 hover:bg-orange-700 text-white text-xs"
+                                  disabled={updatePaymentStatusMutation.isPending || order.paymentStatus === "pending" || order.paymentStatus === "paid"}
+                                  className="bg-orange-600 hover:bg-orange-700 text-white text-xs disabled:bg-gray-400 disabled:hover:bg-gray-400"
                                 >
                                   Mark as Pending
                                 </Button>
