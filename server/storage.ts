@@ -1060,7 +1060,7 @@ export class DatabaseStorage implements IStorage {
           id: orders.id,
           orderNumber: orders.orderNumber,
           customerName: sql<string>`COALESCE(${addresses.fullName}, CONCAT(${users.firstName}, ' ', ${users.lastName}))`.as('customerName'),
-          customerPhone: sql<string>`COALESCE(${addresses.phone}, ${users.phone})`.as('customerPhone'),
+          customerPhone: users.phone, // Always use current user phone, not historical address phone
           totalAmount: orders.totalAmount,
           paymentMethod: orders.paymentMethod,
           paymentStatus: orders.paymentStatus,

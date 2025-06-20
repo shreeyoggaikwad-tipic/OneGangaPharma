@@ -44,6 +44,8 @@ export function PaymentAnalytics({ children }: PaymentAnalyticsProps) {
   const { data: paymentData = [], isLoading } = useQuery<PaymentAnalyticsData[]>({
     queryKey: ["/api/admin/payment-analytics", dateFilter],
     enabled: isOpen,
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache data
   });
 
   const filteredData = paymentData.filter((order: PaymentAnalyticsData) => {
