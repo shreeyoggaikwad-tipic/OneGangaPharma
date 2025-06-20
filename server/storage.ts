@@ -591,7 +591,7 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .from(orders)
-      .leftJoin(users, eq(orders.userId, users.id))
+      .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
       .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
@@ -629,7 +629,7 @@ export class DatabaseStorage implements IStorage {
         prescription: prescriptions,
       })
       .from(orders)
-      .leftJoin(users, eq(orders.userId, users.id))
+      .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
       .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
@@ -747,7 +747,7 @@ export class DatabaseStorage implements IStorage {
         prescription: prescriptions,
       })
       .from(orders)
-      .leftJoin(users, eq(orders.userId, users.id))
+      .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
       .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
@@ -1068,7 +1068,7 @@ export class DatabaseStorage implements IStorage {
           items: sql<number>`COUNT(${orderItems.id})`.as('items'),
         })
         .from(orders)
-        .leftJoin(users, eq(orders.userId, users.id))
+        .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
         .leftJoin(addresses, eq(orders.shippingAddressId, addresses.id))
         .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
         .where(dateCondition)

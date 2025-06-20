@@ -141,8 +141,12 @@ export default function Profile() {
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
       });
-      // Invalidate and refetch user data
+      // Invalidate and refetch user data everywhere
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Also invalidate admin order data to show updated user info
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/payment-analytics"] });
       scrollToTop();
     },
     onError: (error: Error) => {
