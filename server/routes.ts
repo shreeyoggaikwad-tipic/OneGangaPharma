@@ -880,6 +880,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/orders", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
       const orders = await storage.getAllOrders();
+      // Debug: Log user data for first order
+      if (orders.length > 0) {
+        console.log("Admin orders - First order user data:", orders[0].user);
+      }
       res.json(orders);
     } catch (error) {
       console.error("Get all orders error:", error);
