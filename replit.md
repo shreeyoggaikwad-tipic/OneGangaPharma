@@ -228,6 +228,9 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Available in both "Completed/Done" and "All Orders" sections
   - Separate payment status tracking independent of order delivery status
   - Real payment data integration with Payment Analytics dashboard
+  - Fixed sales calculation logic: Total sales now based on paymentStatus="paid" instead of delivery status
+  - Delivery confirmation no longer automatically adds to sales amount
+  - Only orders marked as "paid" contribute to total sales and analytics calculations
 
 ## User Preferences
 
