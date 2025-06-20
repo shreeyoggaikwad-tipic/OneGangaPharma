@@ -97,6 +97,11 @@ export default function Checkout() {
     queryKey: ["/api/prescriptions"],
   });
 
+  // Get current user profile
+  const { data: currentUser } = useQuery<any>({
+    queryKey: ["/api/auth/user"],
+  });
+
   // Address form
   const addressForm = useForm<AddressForm>({
     resolver: zodResolver(addressSchema),
@@ -111,6 +116,22 @@ export default function Checkout() {
       type: "billing",
     },
   });
+
+  // Auto-populate phone field with current user's phone when form opens
+  useEffect(() => {
+    if (currentUser && showAddressDialog) {
+      addressForm.setValue("phone", currentUser.phone || "");
+      // Also auto-populate name if available
+      if (currentUser.firstName && currentUser.lastName) {
+        addressForm.setValue("fullName", `${currentUser.firstName} ${currentUser.lastName}`);
+      }
+    }
+    
+    // Reset form when dialog closes
+    if (!showAddressDialog) {
+      addressForm.reset();
+    }
+  }, [currentUser, showAddressDialog, addressForm]);
 
   // Add address mutation
   const addAddressMutation = useMutation({
@@ -819,10 +840,17 @@ export default function Checkout() {
                 control={addressForm.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mb-6">
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <div className="relative">
+                        <Input {...field} />
+                        {currentUser?.phone && field.value === currentUser.phone && (
+                          <div className="absolute -bottom-5 left-0 text-xs text-green-600 font-medium">
+                            ✓ Auto-filled from your profile
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
