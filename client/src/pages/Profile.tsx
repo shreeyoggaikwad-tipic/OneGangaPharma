@@ -84,7 +84,7 @@ type ProfileForm = z.infer<typeof profileSchema>;
 type AddressForm = z.infer<typeof addressSchema>;
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: UserType | null };
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -136,23 +136,13 @@ export default function Profile() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data: ProfileForm) => apiRequest("PUT", "/api/profile", data),
-    onSuccess: (updatedUser) => {
+    onSuccess: () => {
       toast({
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
       });
-      // Update the query cache with the new user data
-      queryClient.setQueryData(["/api/auth/user"], updatedUser);
-      // Also invalidate to ensure fresh data
+      // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      // Reset form with updated values
-      profileForm.reset({
-        firstName: updatedUser.firstName || "",
-        lastName: updatedUser.lastName || "",
-        phone: updatedUser.phone || "",
-        gender: updatedUser.gender || undefined,
-        dateOfBirth: updatedUser.dateOfBirth || "",
-      });
       scrollToTop();
     },
     onError: (error: Error) => {
