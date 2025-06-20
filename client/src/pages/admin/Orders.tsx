@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -46,6 +47,15 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("active");
   const [searchQuery, setSearchQuery] = useState("");
+  const [prescriptionReviewData, setPrescriptionReviewData] = useState<{
+    prescriptionId: number | null;
+    status: 'approved' | 'rejected' | null;
+    reviewNotes: string;
+  }>({
+    prescriptionId: null,
+    status: null,
+    reviewNotes: ''
+  });
 
   // Get all orders - force fresh data on every load
   const { data: orders = [], isLoading } = useQuery<any[]>({
@@ -102,6 +112,51 @@ export default function AdminOrders() {
       });
     },
   });
+
+  // Prescription approval mutation
+  const prescriptionApprovalMutation = useMutation({
+    mutationFn: async ({ prescriptionId, status, reviewNotes }: { prescriptionId: number; status: 'approved' | 'rejected'; reviewNotes: string }) => {
+      return apiRequest("PUT", `/api/admin/prescriptions/${prescriptionId}`, { status, reviewNotes });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Prescription review completed successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/prescriptions"] });
+      // Reset prescription review form
+      setPrescriptionReviewData({
+        prescriptionId: null,
+        status: null,
+        reviewNotes: ''
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handlePrescriptionApproval = (prescriptionId: number, status: 'approved' | 'rejected') => {
+    if (!prescriptionReviewData.reviewNotes.trim()) {
+      toast({
+        title: "Review Notes Required",
+        description: "Please provide a reason for your decision",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    prescriptionApprovalMutation.mutate({
+      prescriptionId,
+      status,
+      reviewNotes: prescriptionReviewData.reviewNotes.trim()
+    });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -409,6 +464,54 @@ export default function AdminOrders() {
                               <p className="text-xs text-muted-foreground mt-1">
                                 Reviewed: {new Date(order.prescription.reviewedAt).toLocaleDateString()}
                               </p>
+                            )}
+                            
+                            {/* Prescription Approval Section - Only show for pending prescriptions */}
+                            {order.prescription.status === 'pending' && (
+                              <div className="mt-3 p-3 border-t bg-blue-50 rounded-b-lg">
+                                <Label className="text-sm font-medium text-blue-800 mb-2 block">
+                                  Prescription Review
+                                </Label>
+                                <div className="space-y-3">
+                                  <div>
+                                    <Label className="text-xs text-gray-700 mb-1 block">
+                                      Review Notes (Required)
+                                    </Label>
+                                    <Textarea
+                                      placeholder="Provide reason for approval/rejection..."
+                                      value={prescriptionReviewData.prescriptionId === order.prescription.id ? prescriptionReviewData.reviewNotes : ''}
+                                      onChange={(e) => setPrescriptionReviewData({
+                                        prescriptionId: order.prescription.id,
+                                        status: null,
+                                        reviewNotes: e.target.value
+                                      })}
+                                      className="text-xs resize-none"
+                                      rows={2}
+                                    />
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handlePrescriptionApproval(order.prescription.id, 'approved')}
+                                      disabled={prescriptionApprovalMutation.isPending}
+                                      className="bg-green-600 hover:bg-green-700 text-white text-xs flex-1"
+                                    >
+                                      <Check className="h-3 w-3 mr-1" />
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handlePrescriptionApproval(order.prescription.id, 'rejected')}
+                                      disabled={prescriptionApprovalMutation.isPending}
+                                      className="text-xs flex-1"
+                                    >
+                                      <XCircle className="h-3 w-3 mr-1" />
+                                      Reject
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
