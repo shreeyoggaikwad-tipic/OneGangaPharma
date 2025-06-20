@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,17 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
+
+  // Fetch fresh user data to ensure updated information appears in invoice
+  const { data: currentUser } = useQuery({
+    queryKey: [`/api/user/${order.userId}`],
+    enabled: !!order.userId && showDialog, // Only fetch when dialog is open
+    staleTime: 0, // Always get fresh data
+    gcTime: 0, // Don't cache
+  });
+
+  // Use fresh user data if available, fallback to order.user
+  const userToDisplay = currentUser || order.user;
 
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return new Date().toLocaleDateString("en-IN", {
@@ -461,12 +473,13 @@ For support: Call +91-XXXXXXXXXX`;
                     </>
                   ) : (
                     <>
-                      <div className="font-medium">{order.user?.firstName} {order.user?.lastName}</div>
-                      <div>{order.user?.email}</div>
-                      <div>{order.user?.phone}</div>
+                      <div className="font-medium">{userToDisplay?.firstName} {userToDisplay?.lastName}</div>
+                      <div>{userToDisplay?.email}</div>
+                      <div>{userToDisplay?.phone}</div>
                       {/* Debug: Log user data */}
-                      {console.log('Invoice user data:', order.user)}
-                      {console.log('Invoice phone specifically:', order.user?.phone)}
+                      {console.log('Invoice user data (fresh):', userToDisplay)}
+                      {console.log('Invoice phone specifically:', userToDisplay?.phone)}
+                      {console.log('Original order user data:', order.user)}
                     </>
                   )}
                 </div>
