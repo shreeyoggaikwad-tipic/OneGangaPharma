@@ -51,7 +51,7 @@ export function PaymentAnalytics({ children }: PaymentAnalyticsProps) {
   const paidCount = filteredData.filter((order: PaymentAnalyticsData) => order.paymentStatus === "paid").length;
   const totalPending = filteredData
     .filter((order: PaymentAnalyticsData) => order.paymentStatus === "pending")
-    .reduce((sum, order) => sum + order.totalAmount, 0);
+    .reduce((sum: number, order: PaymentAnalyticsData) => sum + order.totalAmount, 0);
 
   const sendWhatsAppReminder = (order: PaymentAnalyticsData) => {
     const message = `Dear ${order.customerName},

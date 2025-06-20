@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { PaymentAnalytics } from "@/components/PaymentAnalytics";
 import {
   Select,
   SelectContent,
@@ -296,27 +297,29 @@ export default function Dashboard() {
           <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100 text-xs sm:text-sm font-medium">
-                    Total Sales
-                  </p>
-                  <p className="text-2xl sm:text-3xl font-bold">
-                    ₹{(stats?.totalSales || 0).toLocaleString()}
-                  </p>
-                  <div className="flex items-center mt-1 sm:mt-2 text-green-100">
-                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="text-xs sm:text-sm">
-                      +12% from yesterday
-                    </span>
+          <PaymentAnalytics>
+            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-100 text-xs sm:text-sm font-medium">
+                      Total Sales
+                    </p>
+                    <p className="text-2xl sm:text-3xl font-bold">
+                      ₹{(stats?.totalSales || 0).toLocaleString()}
+                    </p>
+                    <div className="flex items-center mt-1 sm:mt-2 text-green-100">
+                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <span className="text-xs sm:text-sm">
+                        +12% from yesterday
+                      </span>
+                    </div>
                   </div>
+                  <IndianRupee className="h-6 w-6 sm:h-8 sm:w-8 text-green-200" />
                 </div>
-                <IndianRupee className="h-6 w-6 sm:h-8 sm:w-8 text-green-200" />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </PaymentAnalytics>
 
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
             <CardContent className="p-4 sm:p-6">

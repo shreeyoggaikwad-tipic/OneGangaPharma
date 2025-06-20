@@ -128,11 +128,13 @@ export const orders = pgTable("orders", {
   status: varchar("status", { length: 50 }).notNull().default("placed"), // placed, confirmed, pending_prescription_review, out_for_delivery, delivered, cancelled
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   paymentMethod: varchar("payment_method", { length: 20 }).notNull().default("cod"),
+  paymentStatus: varchar("payment_status", { length: 20 }).notNull().default("pending"), // pending, paid, failed
   prescriptionId: integer("prescription_id"),
   billingAddressId: integer("billing_address_id").notNull(),
   shippingAddressId: integer("shipping_address_id").notNull(),
   deliveryNotes: text("delivery_notes"),
   placedAt: timestamp("placed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
   deliveredAt: timestamp("delivered_at"),
 });
 
