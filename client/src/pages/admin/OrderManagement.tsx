@@ -79,9 +79,35 @@ export default function OrderManagement() {
     },
   });
 
+  // Update payment status mutation
+  const updatePaymentStatusMutation = useMutation({
+    mutationFn: ({ orderId, paymentStatus }: { orderId: number; paymentStatus: string }) =>
+      apiRequest("PUT", `/api/admin/orders/${orderId}/payment-status`, { paymentStatus }),
+    onSuccess: () => {
+      toast({
+        title: "Payment Status Updated",
+        description: "Payment status has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/payment-analytics"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Handle status update
   const handleStatusUpdate = (orderId: number, status: string) => {
     updateStatusMutation.mutate({ orderId, status });
+  };
+
+  // Handle payment status update
+  const handlePaymentStatusUpdate = (orderId: number, paymentStatus: string) => {
+    updatePaymentStatusMutation.mutate({ orderId, paymentStatus });
   };
 
   // Filter orders
@@ -521,6 +547,59 @@ export default function OrderManagement() {
                                     ))}
                                   </div>
                                 </div>
+
+                                {/* Payment Status Management - Only show when order is delivered */}
+                                {selectedOrder.status === 'delivered' && (
+                                  <div className="border-t pt-4">
+                                    <h3 className="font-semibold mb-3">Payment Status Management</h3>
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                      <div className="flex items-center justify-between mb-3">
+                                        <div>
+                                          <p className="font-medium text-blue-800">Current Payment Status</p>
+                                          <Badge 
+                                            variant={selectedOrder.paymentStatus === "paid" ? "default" : "secondary"}
+                                            className={
+                                              selectedOrder.paymentStatus === "paid" 
+                                                ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                                                : "bg-orange-100 text-orange-800 hover:bg-orange-100"
+                                            }
+                                          >
+                                            {selectedOrder.paymentStatus === "paid" ? "Paid" : "Pending"}
+                                          </Badge>
+                                        </div>
+                                        <div className="text-sm text-blue-600">
+                                          ₹{selectedOrder.totalAmount}
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="space-y-2">
+                                        <p className="text-sm text-blue-700 mb-3">
+                                          Update payment status after order delivery confirmation:
+                                        </p>
+                                        <div className="flex gap-2">
+                                          <Button
+                                            variant={selectedOrder.paymentStatus === "paid" ? "default" : "outline"}
+                                            size="sm"
+                                            onClick={() => handlePaymentStatusUpdate(selectedOrder.id, "paid")}
+                                            disabled={updatePaymentStatusMutation.isPending || selectedOrder.paymentStatus === "paid"}
+                                            className="bg-green-600 hover:bg-green-700 text-white"
+                                          >
+                                            Mark as Paid
+                                          </Button>
+                                          <Button
+                                            variant={selectedOrder.paymentStatus === "pending" ? "default" : "outline"}
+                                            size="sm"
+                                            onClick={() => handlePaymentStatusUpdate(selectedOrder.id, "pending")}
+                                            disabled={updatePaymentStatusMutation.isPending || selectedOrder.paymentStatus === "pending"}
+                                            className="bg-orange-600 hover:bg-orange-700 text-white"
+                                          >
+                                            Mark as Pending
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
 
                                 {/* Prescription if exists */}
                                 {selectedOrder.prescription && (

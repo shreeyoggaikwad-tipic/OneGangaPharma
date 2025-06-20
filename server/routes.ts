@@ -913,6 +913,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/admin/orders/:id/payment-status", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { paymentStatus } = req.body;
+      
+      if (!["paid", "pending", "failed"].includes(paymentStatus)) {
+        return res.status(400).json({ message: "Invalid payment status" });
+      }
+      
+      const order = await storage.updateOrderPaymentStatus(id, paymentStatus);
+      
+      // Create notification for customer
+      await storage.createNotification({
+        userId: order.userId,
+        type: "payment_update",
+        title: "Payment Status Updated",
+        message: `Payment for Order ${order.orderNumber} has been marked as ${paymentStatus}.`,
+      });
+      
+      res.json(order);
+    } catch (error) {
+      console.error("Update payment status error:", error);
+      res.status(500).json({ message: "Failed to update payment status" });
+    }
+  });
+
   // Prescription routes
   app.get("/api/prescriptions", isAuthenticated, async (req: any, res: Response) => {
     try {
