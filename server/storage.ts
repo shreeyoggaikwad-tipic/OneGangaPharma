@@ -1019,6 +1019,59 @@ export class DatabaseStorage implements IStorage {
       isDefault: true,
     });
   }
+
+  async getPaymentAnalytics(dateFilter: string = 'today'): Promise<any[]> {
+    try {
+      let dateCondition = sql`1=1`;
+      const now = new Date();
+      
+      switch (dateFilter) {
+        case 'today':
+          const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+          const endOfDay = new Date(now.setHours(23, 59, 59, 999));
+          dateCondition = sql`${orders.createdAt} >= ${startOfDay} AND ${orders.createdAt} <= ${endOfDay}`;
+          break;
+        case 'week':
+          const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+          startOfWeek.setHours(0, 0, 0, 0);
+          dateCondition = sql`${orders.createdAt} >= ${startOfWeek}`;
+          break;
+        case 'month':
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          dateCondition = sql`${orders.createdAt} >= ${startOfMonth}`;
+          break;
+        case 'all':
+        default:
+          dateCondition = sql`1=1`;
+          break;
+      }
+
+      const paymentAnalytics = await db
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          customerName: sql<string>`COALESCE(${addresses.fullName}, CONCAT(${users.firstName}, ' ', ${users.lastName}))`.as('customerName'),
+          customerPhone: sql<string>`COALESCE(${addresses.phone}, ${users.phone})`.as('customerPhone'),
+          totalAmount: orders.totalAmount,
+          paymentMethod: orders.paymentMethod,
+          paymentStatus: orders.paymentStatus,
+          orderDate: orders.createdAt,
+          items: sql<number>`COUNT(${orderItems.id})`.as('items'),
+        })
+        .from(orders)
+        .leftJoin(users, eq(orders.userId, users.id))
+        .leftJoin(addresses, eq(orders.shippingAddressId, addresses.id))
+        .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+        .where(dateCondition)
+        .groupBy(orders.id, addresses.fullName, addresses.phone, users.firstName, users.lastName, users.phone)
+        .orderBy(sql`${orders.createdAt} DESC`);
+
+      return paymentAnalytics;
+    } catch (error) {
+      console.error("Error in getPaymentAnalytics:", error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();

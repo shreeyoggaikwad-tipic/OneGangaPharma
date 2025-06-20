@@ -13,10 +13,14 @@ import {
   insertOrderSchema,
   insertPrescriptionSchema,
   notifications,
-  prescriptions
+  prescriptions,
+  orders,
+  orderItems,
+  users,
+  addresses
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -1083,6 +1087,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching category analytics:", error);
       res.status(500).json({ message: "Failed to fetch category analytics" });
+    }
+  });
+
+  // Payment Analytics endpoint
+  app.get("/api/admin/payment-analytics", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const paymentAnalytics = await storage.getPaymentAnalytics(req.query.dateFilter as string);
+      res.json(paymentAnalytics);
+    } catch (error) {
+      console.error("Error fetching payment analytics:", error);
+      res.status(500).json({ message: "Failed to fetch payment analytics" });
     }
   });
 
