@@ -51,12 +51,12 @@ export function PaymentAnalytics({ children }: PaymentAnalyticsProps) {
   const paidCount = filteredData.filter((order: PaymentAnalyticsData) => order.paymentStatus === "paid").length;
   const totalPending = filteredData
     .filter((order: PaymentAnalyticsData) => order.paymentStatus === "pending")
-    .reduce((sum: number, order: PaymentAnalyticsData) => sum + order.totalAmount, 0);
+    .reduce((sum: number, order: PaymentAnalyticsData) => sum + parseFloat(order.totalAmount.toString()), 0);
 
   const sendWhatsAppReminder = (order: PaymentAnalyticsData) => {
     const message = `Dear ${order.customerName},
 
-This is a gentle reminder from Sharda Med regarding your order #${order.orderNumber} worth ₹${order.totalAmount.toFixed(2)}.
+This is a gentle reminder from Sharda Med regarding your order #${order.orderNumber} worth ₹${parseFloat(order.totalAmount.toString()).toFixed(2)}.
 
 Your payment is still pending. Please complete the payment at your earliest convenience.
 
@@ -227,7 +227,7 @@ Sharda Med Team`;
                           {order.customerPhone}
                         </TableCell>
                         <TableCell className="font-semibold">
-                          ₹{order.totalAmount.toFixed(2)}
+                          ₹{parseFloat(order.totalAmount.toString()).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <span className="text-sm px-2 py-1 bg-gray-100 rounded">
