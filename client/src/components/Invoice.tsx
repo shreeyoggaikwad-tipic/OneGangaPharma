@@ -464,6 +464,8 @@ For support: Call +91-XXXXXXXXXX`;
                       <div className="font-medium">{order.user?.firstName} {order.user?.lastName}</div>
                       <div>{order.user?.email}</div>
                       <div>{order.user?.phone}</div>
+                      {/* Debug: Log user data */}
+                      {console.log('Invoice user data:', order.user)}
                     </>
                   )}
                 </div>
