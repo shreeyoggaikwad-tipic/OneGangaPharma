@@ -14,7 +14,7 @@ interface PaymentAnalyticsData {
   orderNumber: string;
   customerName: string;
   customerPhone: string;
-  totalAmount: number;
+  totalAmount: number | string;
   paymentMethod: string;
   paymentStatus: "paid" | "pending";
   orderDate: string;
@@ -24,6 +24,16 @@ interface PaymentAnalyticsData {
 interface PaymentAnalyticsProps {
   children: React.ReactNode;
 }
+
+// Helper function to safely convert amount to number
+const safeAmountToNumber = (amount: number | string): number => {
+  if (typeof amount === 'number') return isNaN(amount) ? 0 : amount;
+  if (typeof amount === 'string') {
+    const parsed = parseFloat(amount);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
 
 export function PaymentAnalytics({ children }: PaymentAnalyticsProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,12 +61,14 @@ export function PaymentAnalytics({ children }: PaymentAnalyticsProps) {
   const paidCount = filteredData.filter((order: PaymentAnalyticsData) => order.paymentStatus === "paid").length;
   const totalPending = filteredData
     .filter((order: PaymentAnalyticsData) => order.paymentStatus === "pending")
-    .reduce((sum: number, order: PaymentAnalyticsData) => sum + parseFloat(order.totalAmount.toString()), 0);
+    .reduce((sum: number, order: PaymentAnalyticsData) => {
+      return sum + safeAmountToNumber(order.totalAmount);
+    }, 0);
 
   const sendWhatsAppReminder = (order: PaymentAnalyticsData) => {
     const message = `Dear ${order.customerName},
 
-This is a gentle reminder from Sharda Med regarding your order #${order.orderNumber} worth ₹${parseFloat(order.totalAmount.toString()).toFixed(2)}.
+This is a gentle reminder from Sharda Med regarding your order #${order.orderNumber} worth ₹${safeAmountToNumber(order.totalAmount).toFixed(2)}.
 
 Your payment is still pending. Please complete the payment at your earliest convenience.
 
@@ -79,7 +91,7 @@ Sharda Med Team`;
     const csvContent = [
       "Order Number,Customer Name,Phone,Amount,Payment Method,Status,Date,Items",
       ...filteredData.map((order: PaymentAnalyticsData) => 
-        `${order.orderNumber},${order.customerName},${order.customerPhone},₹${order.totalAmount.toFixed(2)},${order.paymentMethod},${order.paymentStatus},${order.orderDate},${order.items}`
+        `${order.orderNumber},${order.customerName},${order.customerPhone},₹${safeAmountToNumber(order.totalAmount).toFixed(2)},${order.paymentMethod},${order.paymentStatus},${order.orderDate},${order.items}`
       )
     ].join('\n');
 
@@ -114,7 +126,7 @@ Sharda Med Team`;
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-orange-600">{pendingCount}</div>
-                <p className="text-xs text-gray-500 mt-1">₹{totalPending.toFixed(2)} outstanding</p>
+                <p className="text-xs text-gray-500 mt-1">₹{(totalPending || 0).toFixed(2)} outstanding</p>
               </CardContent>
             </Card>
             
