@@ -51,6 +51,7 @@ export default function OrderManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Get orders
   const { data: orders = [], isLoading } = useQuery({
@@ -335,25 +336,82 @@ export default function OrderManagement() {
                                 {new Date(order.placedAt).toLocaleDateString()}
                               </div>
                             </div>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setSelectedOrder(order)}
-                                  className="text-xs"
-                                >
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View
-                                </Button>
-                              </DialogTrigger>
-                              {/* Dialog content remains the same */}
-                              <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh]">
-                                <DialogHeader>
-                                  <DialogTitle>Order Details - #{order.orderNumber}</DialogTitle>
-                                </DialogHeader>
-                                
-                                {selectedOrder && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setDialogOpen(true);
+                              }}
+                              className="text-xs"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </Button>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Desktop table cells */}
+                      <TableCell className="hidden sm:table-cell font-medium">
+                        <div className="flex items-center gap-2">
+                          #{order.orderNumber}
+                          {order.prescription && (
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                              <FileText className="h-3 w-3 mr-1" />
+                              RX
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <div>
+                          <div className="font-medium">{order.user?.firstName} {order.user?.lastName}</div>
+                          <div className="text-sm text-muted-foreground truncate">{order.user?.email}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-sm">
+                        {new Date(order.placedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell font-medium">
+                        ₹{order.totalAmount}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className={`${getStatusColor(order.status)} text-xs`}>
+                          {order.status.replace('_', ' ')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Single Dialog for Order Details */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>
+              Order Details - #{selectedOrder?.orderNumber}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedOrder && (
                                   <div className="space-y-4 max-h-[70vh] overflow-y-auto">
                                     {/* Customer & Status */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -507,12 +565,15 @@ export default function OrderManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        <Dialog>
+                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                           <DialogTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => setSelectedOrder(order)}
+                              onClick={() => {
+                                setSelectedOrder(order);
+                                setDialogOpen(true);
+                              }}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
