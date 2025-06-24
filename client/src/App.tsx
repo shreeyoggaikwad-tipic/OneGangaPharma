@@ -24,6 +24,7 @@ import PrescriptionReview from "@/pages/admin/PrescriptionReview";
 import Reports from "@/pages/admin/Reports";
 import BulkUpload from "@/pages/admin/BulkUpload";
 import BatchManagement from "@/pages/admin/BatchManagement";
+import ExpiredMedicines from "@/pages/admin/ExpiredMedicines";
 import Notifications from "@/pages/Notifications";
 import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
@@ -125,6 +126,11 @@ function Router() {
         <Route path="/admin/batches">
           <ProtectedRoute requiredRole="admin">
             <BatchManagement />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/expired-medicines">
+          <ProtectedRoute requiredRole="admin">
+            <ExpiredMedicines />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/notifications">

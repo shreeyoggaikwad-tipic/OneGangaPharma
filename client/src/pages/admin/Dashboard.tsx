@@ -280,6 +280,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </Link>
+          <Link href="/admin/expired-medicines">
+            <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer bg-gradient-to-br from-red-50 to-pink-50 border-red-200 hover:border-red-300">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
+                  <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                </div>
+                <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
+                  Expired Medicines
+                </p>
+                <p className="text-xs text-gray-600">Manage expired inventory</p>
+              </CardContent>
+            </Card>
+          </Link>
 
         </div>
       </div>
