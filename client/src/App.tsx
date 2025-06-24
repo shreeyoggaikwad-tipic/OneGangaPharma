@@ -30,6 +30,7 @@ import SystemConfig from "@/pages/admin/SystemConfig";
 import SuperAdminDashboard from "@/pages/superadmin/Dashboard";
 import StoreOnboarding from "@/pages/superadmin/StoreOnboarding";
 import SuperAdminSystemConfig from "@/pages/superadmin/SystemConfig";
+import StoreManagement from "@/pages/superadmin/StoreManagement";
 import Notifications from "@/pages/Notifications";
 import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
@@ -158,6 +159,11 @@ function Router() {
         <Route path="/superadmin/system-config">
           <ProtectedRoute requiredRole="super_admin">
             <SuperAdminSystemConfig />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/superadmin/stores">
+          <ProtectedRoute requiredRole="super_admin">
+            <StoreManagement />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/notifications">

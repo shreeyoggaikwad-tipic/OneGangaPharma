@@ -1325,6 +1325,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/superadmin/stores/:id/deactivate", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deactivateStore(parseInt(req.params.id));
+      res.json({ message: "Store deactivated successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Configuration management endpoints (Super Admin only)
   app.get("/api/superadmin/config", isAuthenticated, isSuperAdmin, (req: Request, res: Response) => {
     res.json({
