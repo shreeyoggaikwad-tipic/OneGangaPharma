@@ -304,7 +304,9 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Added missing super admin storage methods: getSuperAdminStats, getStores, onboardStore, deactivateStore
   - Added /api/superadmin/dashboard-stats route for super admin dashboard functionality
   - Fixed router logic to properly redirect super admin users (role 0) to SuperAdminDashboard
+  - Fixed ProtectedRoute component to handle numeric role values (0=super_admin, 1=admin, 2=customer)
   - Completed multi-tenant system with proper role-based routing and authentication
+  - Updated default store with proper Sharda Medical Store information and detached super admin from store association
 
 ## User Preferences
 
