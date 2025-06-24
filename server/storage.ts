@@ -672,57 +672,45 @@ export class DatabaseStorage implements IStorage {
     const timestamp = Date.now().toString();
     const orderNumber = `SMD${timestamp.slice(-8)}`;
     
-    // Check stock availability and deduct inventory
-    for (const item of items) {
-      const availableStock = await this.getAvailableStock(item.medicineId);
-      if (item.quantity > availableStock) {
-        throw new Error(`Insufficient stock for medicine ID ${item.medicineId}. Only ${availableStock} available.`);
-      }
-      
-      // Deduct from oldest inventory first (FIFO)
-      await this.deductInventory(item.medicineId, item.quantity);
-    }
-    
     const [newOrder] = await db
       .insert(orders)
       .values({ ...order, orderNumber })
       .returning();
 
-    // Add order items
-    const orderItemsWithOrderId = items.map(item => ({ ...item, orderId: newOrder.id }));
-    await db.insert(orderItems).values(orderItemsWithOrderId);
+    // Process each item with batch allocation
+    const orderItemsWithBatches = [];
+    
+    for (const item of items) {
+      // Allocate batches for this item using FIFO
+      const batchAllocations = await this.allocateBatchesForOrder(item.medicineId, item.quantity);
+      
+      // Deduct inventory from allocated batches and create order items
+      for (const allocation of batchAllocations) {
+        await db
+          .update(medicineInventory)
+          .set({ 
+            quantity: sql`${medicineInventory.quantity} - ${allocation.quantity}` 
+          })
+          .where(eq(medicineInventory.id, allocation.batchId));
+        
+        // Create order item entry for each batch allocation
+        orderItemsWithBatches.push({
+          orderId: newOrder.id,
+          medicineId: item.medicineId,
+          quantity: allocation.quantity,
+          unitPrice: item.unitPrice,
+          batchId: allocation.batchId,
+        });
+      }
+    }
+
+    // Add order items with batch information
+    await db.insert(orderItems).values(orderItemsWithBatches);
 
     return newOrder;
   }
 
-  // Helper function to deduct inventory quantities (FIFO)
-  private async deductInventory(medicineId: number, quantityToDeduct: number): Promise<void> {
-    let remainingToDeduct = quantityToDeduct;
-    
-    // Get inventory batches ordered by expiry date (FIFO)
-    const inventoryBatches = await db
-      .select()
-      .from(medicineInventory)
-      .where(and(
-        eq(medicineInventory.medicineId, medicineId),
-        sql`${medicineInventory.quantity} > 0`
-      ))
-      .orderBy(asc(medicineInventory.expiryDate));
-    
-    for (const batch of inventoryBatches) {
-      if (remainingToDeduct <= 0) break;
-      
-      const deductFromBatch = Math.min(remainingToDeduct, batch.quantity);
-      const newQuantity = batch.quantity - deductFromBatch;
-      
-      await db
-        .update(medicineInventory)
-        .set({ quantity: newQuantity })
-        .where(eq(medicineInventory.id, batch.id));
-      
-      remainingToDeduct -= deductFromBatch;
-    }
-  }
+
 
   async updateOrderStatus(id: number, status: string): Promise<Order> {
     const updateData: any = { status };
@@ -1098,6 +1086,94 @@ export class DatabaseStorage implements IStorage {
       console.error("Error in getPaymentAnalytics:", error);
       throw error;
     }
+  }
+
+  // Batch management operations
+  async getBatchesByMedicineId(medicineId: number): Promise<Batch[]> {
+    return await db
+      .select()
+      .from(medicineInventory)
+      .where(eq(medicineInventory.medicineId, medicineId))
+      .orderBy(asc(medicineInventory.expiryDate));
+  }
+
+  async addBatch(batch: InsertBatch): Promise<Batch> {
+    const [newBatch] = await db.insert(medicineInventory).values(batch).returning();
+    return newBatch;
+  }
+
+  async updateBatch(id: number, batch: Partial<InsertBatch>): Promise<Batch> {
+    const [updatedBatch] = await db
+      .update(medicineInventory)
+      .set(batch)
+      .where(eq(medicineInventory.id, id))
+      .returning();
+    return updatedBatch;
+  }
+
+  async deleteBatch(id: number): Promise<void> {
+    await db.delete(medicineInventory).where(eq(medicineInventory.id, id));
+  }
+
+  async getExpiringBatches(days: number): Promise<(Batch & { medicine: Medicine })[]> {
+    const expiryThreshold = new Date();
+    expiryThreshold.setDate(expiryThreshold.getDate() + days);
+
+    return await db
+      .select({
+        id: medicineInventory.id,
+        medicineId: medicineInventory.medicineId,
+        batchNumber: medicineInventory.batchNumber,
+        quantity: medicineInventory.quantity,
+        expiryDate: medicineInventory.expiryDate,
+        createdAt: medicineInventory.createdAt,
+        updatedAt: medicineInventory.updatedAt,
+        medicine: medicines,
+      })
+      .from(medicineInventory)
+      .innerJoin(medicines, eq(medicineInventory.medicineId, medicines.id))
+      .where(
+        and(
+          lte(medicineInventory.expiryDate, expiryThreshold),
+          gte(medicineInventory.quantity, 1)
+        )
+      )
+      .orderBy(asc(medicineInventory.expiryDate));
+  }
+
+  async allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]> {
+    // Get available batches ordered by expiry date (FIFO)
+    const availableBatches = await db
+      .select()
+      .from(medicineInventory)
+      .where(
+        and(
+          eq(medicineInventory.medicineId, medicineId),
+          gte(medicineInventory.quantity, 1)
+        )
+      )
+      .orderBy(asc(medicineInventory.expiryDate));
+
+    const allocations: { batchId: number; quantity: number }[] = [];
+    let remainingQuantity = quantity;
+
+    for (const batch of availableBatches) {
+      if (remainingQuantity <= 0) break;
+
+      const allocateFromBatch = Math.min(batch.quantity, remainingQuantity);
+      allocations.push({
+        batchId: batch.id,
+        quantity: allocateFromBatch,
+      });
+
+      remainingQuantity -= allocateFromBatch;
+    }
+
+    if (remainingQuantity > 0) {
+      throw new Error(`Insufficient stock: ${remainingQuantity} units short for medicine ID ${medicineId}`);
+    }
+
+    return allocations;
   }
 }
 

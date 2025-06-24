@@ -1171,6 +1171,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch Management API Routes
+  app.get("/api/admin/batches/:medicineId", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const medicineId = parseInt(req.params.medicineId);
+      const batches = await storage.getBatchesByMedicineId(medicineId);
+      res.json(batches);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      res.status(500).json({ message: "Failed to fetch batches" });
+    }
+  });
+
+  app.post("/api/admin/batches", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const batchData = insertMedicineInventorySchema.parse(req.body);
+      const newBatch = await storage.addBatch(batchData);
+      res.json(newBatch);
+    } catch (error) {
+      console.error("Error adding batch:", error);
+      res.status(500).json({ message: "Failed to add batch" });
+    }
+  });
+
+  app.put("/api/admin/batches/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const batchData = insertMedicineInventorySchema.partial().parse(req.body);
+      const updatedBatch = await storage.updateBatch(id, batchData);
+      res.json(updatedBatch);
+    } catch (error) {
+      console.error("Error updating batch:", error);
+      res.status(500).json({ message: "Failed to update batch" });
+    }
+  });
+
+  app.delete("/api/admin/batches/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteBatch(id);
+      res.json({ message: "Batch deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting batch:", error);
+      res.status(500).json({ message: "Failed to delete batch" });
+    }
+  });
+
+  app.get("/api/admin/expiring-batches", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const expiringBatches = await storage.getExpiringBatches(days);
+      res.json(expiringBatches);
+    } catch (error) {
+      console.error("Error fetching expiring batches:", error);
+      res.status(500).json({ message: "Failed to fetch expiring batches" });
+    }
+  });
+
   // Serve prescription files with authentication
   app.get('/uploads/prescriptions/:filename', isAuthenticated, async (req: any, res: Response) => {
     try {
