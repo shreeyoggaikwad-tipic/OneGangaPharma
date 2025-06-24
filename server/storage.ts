@@ -119,6 +119,9 @@ export interface IStorage {
   updateBatch(id: number, batch: Partial<InsertBatch>): Promise<Batch>;
   deleteBatch(id: number): Promise<void>;
   getExpiringBatches(days: number): Promise<(Batch & { medicine: Medicine })[]>;
+  getExpiredBatches(): Promise<(Batch & { medicine: Medicine })[]>;
+  markBatchAsDisposed(batchId: number, reason: string): Promise<void>;
+  getBatchDisposalHistory(): Promise<any[]>;
   allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]>;
 
   // Initialize data
@@ -1196,6 +1199,66 @@ export class DatabaseStorage implements IStorage {
     }
 
     return allocations;
+  }
+
+  async getExpiredBatches(): Promise<(Batch & { medicine: Medicine })[]> {
+    const today = new Date();
+    
+    return await db
+      .select({
+        id: medicineInventory.id,
+        medicineId: medicineInventory.medicineId,
+        batchNumber: medicineInventory.batchNumber,
+        quantity: medicineInventory.quantity,
+        expiryDate: medicineInventory.expiryDate,
+        isDisposed: medicineInventory.isDisposed,
+        disposalReason: medicineInventory.disposalReason,
+        disposedAt: medicineInventory.disposedAt,
+        disposedBy: medicineInventory.disposedBy,
+        createdAt: medicineInventory.createdAt,
+        updatedAt: medicineInventory.updatedAt,
+        medicine: medicines,
+      })
+      .from(medicineInventory)
+      .innerJoin(medicines, eq(medicineInventory.medicineId, medicines.id))
+      .where(
+        and(
+          sql`${medicineInventory.expiryDate} < ${today}`,
+          eq(medicineInventory.isDisposed, false),
+          gte(medicineInventory.quantity, 1)
+        )
+      )
+      .orderBy(asc(medicineInventory.expiryDate));
+  }
+
+  async markBatchAsDisposed(batchId: number, reason: string): Promise<void> {
+    await db
+      .update(medicineInventory)
+      .set({
+        isDisposed: true,
+        disposalReason: reason,
+        disposedAt: new Date(),
+        quantity: 0, // Set quantity to 0 when disposed
+      })
+      .where(eq(medicineInventory.id, batchId));
+  }
+
+  async getBatchDisposalHistory(): Promise<any[]> {
+    return await db
+      .select({
+        id: medicineInventory.id,
+        medicineId: medicineInventory.medicineId,
+        medicineName: medicines.name,
+        batchNumber: medicineInventory.batchNumber,
+        expiryDate: medicineInventory.expiryDate,
+        disposalReason: medicineInventory.disposalReason,
+        disposedAt: medicineInventory.disposedAt,
+        disposedBy: medicineInventory.disposedBy,
+      })
+      .from(medicineInventory)
+      .innerJoin(medicines, eq(medicineInventory.medicineId, medicines.id))
+      .where(eq(medicineInventory.isDisposed, true))
+      .orderBy(sql`${medicineInventory.disposedAt} DESC`);
   }
 }
 

@@ -94,6 +94,10 @@ export const medicineInventory = pgTable("medicine_inventory", {
   batchNumber: varchar("batch_number", { length: 100 }).notNull(),
   expiryDate: date("expiry_date").notNull(),
   quantity: integer("quantity").notNull().default(0),
+  isDisposed: boolean("is_disposed").default(false).notNull(),
+  disposalReason: text("disposal_reason"),
+  disposedAt: timestamp("disposed_at"),
+  disposedBy: integer("disposed_by"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

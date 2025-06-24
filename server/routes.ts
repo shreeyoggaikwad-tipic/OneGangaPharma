@@ -1236,6 +1236,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/expired-batches", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const expiredBatches = await storage.getExpiredBatches();
+      res.json(expiredBatches);
+    } catch (error) {
+      console.error("Error fetching expired batches:", error);
+      res.status(500).json({ message: "Failed to fetch expired batches" });
+    }
+  });
+
+  app.post("/api/admin/batches/:id/dispose", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const batchId = parseInt(req.params.id);
+      const { reason } = req.body;
+      
+      if (!reason || reason.trim().length === 0) {
+        return res.status(400).json({ message: "Disposal reason is required" });
+      }
+      
+      await storage.markBatchAsDisposed(batchId, reason);
+      res.json({ message: "Batch marked as disposed successfully" });
+    } catch (error) {
+      console.error("Error disposing batch:", error);
+      res.status(500).json({ message: "Failed to dispose batch" });
+    }
+  });
+
+  app.get("/api/admin/disposal-history", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const disposalHistory = await storage.getBatchDisposalHistory();
+      res.json(disposalHistory);
+    } catch (error) {
+      console.error("Error fetching disposal history:", error);
+      res.status(500).json({ message: "Failed to fetch disposal history" });
+    }
+  });
+
   // Serve prescription files with authentication
   app.get('/uploads/prescriptions/:filename', isAuthenticated, async (req: any, res: Response) => {
     try {
