@@ -1383,6 +1383,85 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  async getPlatformAnalytics(): Promise<{
+    totalStores: number;
+    activeStores: number;
+    totalUsers: number;
+    totalOrders: number;
+    totalSales: number;
+    totalMedicines: number;
+    recentActivity: {
+      newStores: number;
+      newUsers: number;
+      ordersToday: number;
+      salesToday: number;
+    };
+  }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [
+      totalStores,
+      activeStores,
+      totalUsers,
+      totalOrders,
+      totalMedicines,
+      paidOrders,
+      newStoresToday,
+      newUsersToday,
+      ordersTodayCount,
+      salesToday
+    ] = await Promise.all([
+      db.select({ count: count() }).from(stores),
+      db.select({ count: count() }).from(stores).where(eq(stores.isActive, true)),
+      db.select({ count: count() }).from(users),
+      db.select({ count: count() }).from(orders),
+      db.select({ count: count() }).from(medicines),
+      db.select({ sum: sum(orders.totalAmount) }).from(orders).where(eq(orders.paymentStatus, "paid")),
+      db.select({ count: count() }).from(stores).where(gte(stores.createdAt, today)),
+      db.select({ count: count() }).from(users).where(gte(users.createdAt, today)),
+      db.select({ count: count() }).from(orders).where(gte(orders.createdAt, today)),
+      db.select({ sum: sum(orders.totalAmount) }).from(orders)
+        .where(and(eq(orders.paymentStatus, "paid"), gte(orders.createdAt, today)))
+    ]);
+
+    return {
+      totalStores: totalStores[0].count,
+      activeStores: activeStores[0].count,
+      totalUsers: totalUsers[0].count,
+      totalOrders: totalOrders[0].count,
+      totalSales: Number(paidOrders[0].sum) || 0,
+      totalMedicines: totalMedicines[0].count,
+      recentActivity: {
+        newStores: newStoresToday[0].count,
+        newUsers: newUsersToday[0].count,
+        ordersToday: ordersTodayCount[0].count,
+        salesToday: Number(salesToday[0].sum) || 0,
+      }
+    };
+  }
+
+  async getAllUsers(): Promise<any[]> {
+    const usersWithStores = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        phone: users.phone,
+        role: users.role,
+        storeId: users.storeId,
+        storeName: stores.name,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .leftJoin(stores, eq(users.storeId, stores.id))
+      .orderBy(desc(users.createdAt));
+
+    return usersWithStores;
+  }
+
   async getStores(): Promise<Store[]> {
     return await db.select().from(stores).orderBy(desc(stores.createdAt));
   }

@@ -31,6 +31,8 @@ import SuperAdminDashboard from "@/pages/superadmin/Dashboard";
 import StoreOnboarding from "@/pages/superadmin/StoreOnboarding";
 import SuperAdminSystemConfig from "@/pages/superadmin/SystemConfig";
 import StoreManagement from "@/pages/superadmin/StoreManagement";
+import PlatformAnalytics from "@/pages/superadmin/PlatformAnalytics";
+import UserManagement from "@/pages/superadmin/UserManagement";
 import Notifications from "@/pages/Notifications";
 import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
