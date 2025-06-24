@@ -1,4 +1,5 @@
 import {
+  stores,
   users,
   addresses,
   medicines,
@@ -9,6 +10,8 @@ import {
   orders,
   orderItems,
   notifications,
+  type Store,
+  type InsertStore,
   type User,
   type InsertUser,
   type Address,

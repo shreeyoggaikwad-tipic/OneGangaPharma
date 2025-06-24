@@ -71,6 +71,7 @@ export const medicineCategories = pgTable("medicine_categories", {
 // Medicines master table
 export const medicines = pgTable("medicines", {
   id: serial("id").primaryKey(),
+  storeId: integer("store_id").references(() => stores.id).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   dosage: varchar("dosage", { length: 100 }),

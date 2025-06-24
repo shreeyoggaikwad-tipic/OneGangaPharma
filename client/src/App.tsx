@@ -27,6 +27,9 @@ import BatchManagement from "@/pages/admin/BatchManagement";
 import BatchManagementEnhanced from "@/pages/admin/BatchManagementEnhanced";
 import ExpiredMedicines from "@/pages/admin/ExpiredMedicines";
 import SystemConfig from "@/pages/admin/SystemConfig";
+import SuperAdminDashboard from "@/pages/superadmin/Dashboard";
+import StoreOnboarding from "@/pages/superadmin/StoreOnboarding";
+import SuperAdminSystemConfig from "@/pages/superadmin/SystemConfig";
 import Notifications from "@/pages/Notifications";
 import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
@@ -55,11 +58,11 @@ function Router() {
         {/* Public routes */}
         <Route path="/" component={getHomeComponent()} />
         {/* Medicines route - hidden for admin users */}
-        {user?.role !== "admin" && <Route path="/medicines" component={Medicines} />}
+        {(typeof user?.role === "number" ? user.role === 2 : user?.role === "customer") && <Route path="/medicines" component={Medicines} />}
         <Route path="/login" component={Login} />
         
-        {/* Protected customer routes - commented out for admin users */}
-        {user?.role !== "admin" && (
+        {/* Protected customer routes - only for customers */}
+        {(typeof user?.role === "number" ? user.role === 2 : user?.role === "customer") && (
           <>
             <Route path="/cart">
               <ProtectedRoute>
@@ -138,6 +141,23 @@ function Router() {
         <Route path="/admin/system-config">
           <ProtectedRoute requiredRole="admin">
             <SystemConfig />
+          </ProtectedRoute>
+        </Route>
+        
+        {/* Super Admin routes */}
+        <Route path="/superadmin/dashboard">
+          <ProtectedRoute requiredRole="super_admin">
+            <SuperAdminDashboard />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/superadmin/store-onboarding">
+          <ProtectedRoute requiredRole="super_admin">
+            <StoreOnboarding />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/superadmin/system-config">
+          <ProtectedRoute requiredRole="super_admin">
+            <SuperAdminSystemConfig />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/notifications">

@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: "admin" | "customer";
+  requiredRole?: "super_admin" | "admin" | "customer";
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
