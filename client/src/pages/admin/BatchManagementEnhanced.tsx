@@ -42,6 +42,7 @@ export default function BatchManagementEnhanced() {
   // Fetch batches for selected medicine
   const { data: batches = [], isLoading: batchesLoading } = useQuery({
     queryKey: ['/api/admin/batches', selectedMedicineId],
+    queryFn: () => fetch(`/api/admin/batches?medicineId=${selectedMedicineId}`).then(res => res.json()),
     enabled: !!selectedMedicineId,
   });
 

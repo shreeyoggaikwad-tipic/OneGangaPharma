@@ -1183,6 +1183,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/batches", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+    try {
+      const medicineId = req.query.medicineId ? parseInt(req.query.medicineId as string) : null;
+      if (medicineId) {
+        const batches = await storage.getBatchesByMedicineId(medicineId);
+        res.json(batches);
+      } else {
+        res.json([]);
+      }
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      res.status(500).json({ message: "Failed to fetch batches" });
+    }
+  });
+
   app.post("/api/admin/batches", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
       const batchData = insertMedicineInventorySchema.parse(req.body);

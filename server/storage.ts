@@ -1094,7 +1094,18 @@ export class DatabaseStorage implements IStorage {
   // Batch management operations
   async getBatchesByMedicineId(medicineId: number): Promise<Batch[]> {
     return await db
-      .select()
+      .select({
+        id: medicineInventory.id,
+        medicineId: medicineInventory.medicineId,
+        batchNumber: medicineInventory.batchNumber,
+        quantity: medicineInventory.quantity,
+        expiryDate: medicineInventory.expiryDate,
+        isDisposed: medicineInventory.isDisposed,
+        disposalReason: medicineInventory.disposalReason,
+        disposedAt: medicineInventory.disposedAt,
+        createdAt: medicineInventory.createdAt,
+        updatedAt: medicineInventory.updatedAt,
+      })
       .from(medicineInventory)
       .where(eq(medicineInventory.medicineId, medicineId))
       .orderBy(asc(medicineInventory.expiryDate));
