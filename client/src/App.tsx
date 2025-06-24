@@ -23,6 +23,7 @@ import AdminOrders from "@/pages/admin/Orders";
 import PrescriptionReview from "@/pages/admin/PrescriptionReview";
 import Reports from "@/pages/admin/Reports";
 import BulkUpload from "@/pages/admin/BulkUpload";
+import BatchManagement from "@/pages/admin/BatchManagement";
 import Notifications from "@/pages/Notifications";
 import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
@@ -119,6 +120,11 @@ function Router() {
         <Route path="/admin/bulk-upload">
           <ProtectedRoute requiredRole="admin">
             <BulkUpload />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/batches">
+          <ProtectedRoute requiredRole="admin">
+            <BatchManagement />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/notifications">

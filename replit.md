@@ -247,6 +247,15 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Removed separate "Review Prescriptions" card from admin dashboard for simplified workflow
   - Enhanced UX by consolidating prescription management into single order management interface
   - Prescription approval now occurs contextually within order processing for better admin efficiency
+- June 24, 2025. Implemented Simple Batch Management System with FIFO inventory rotation
+  - Enhanced database schema with batch tracking including batch numbers, expiry dates, and quantities
+  - Added batchId column to order_items table for complete inventory traceability
+  - Implemented FIFO (First In, First Out) allocation logic for automatic stock deduction from earliest expiry batches
+  - Created comprehensive batch management API with CRUD operations and expiry alerts
+  - Added BatchManagement admin page with medicine selection, batch listing, and expiry warnings
+  - Integrated batch allocation into order processing for proper pharmaceutical inventory control
+  - Updated createOrder method to use batch allocation system instead of simple stock deduction
+  - Added expiring batches alert system with 30-day advance warnings for better inventory management
 
 ## User Preferences
 
