@@ -147,7 +147,13 @@ export default function BatchManagement() {
     const today = new Date();
     const diffTime = expiry.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 30;
+    return diffDays <= 30 && diffDays > 0;
+  };
+
+  const isExpired = (expiryDate: string) => {
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    return expiry < today;
   };
 
   return (
@@ -333,7 +339,9 @@ export default function BatchManagement() {
                         <TableCell>{batch.quantity}</TableCell>
                         <TableCell>{format(new Date(batch.expiryDate), 'MMM dd, yyyy')}</TableCell>
                         <TableCell>
-                          {isExpiringSoon(batch.expiryDate) ? (
+                          {isExpired(batch.expiryDate) ? (
+                            <Badge variant="destructive" className="bg-red-600">Expired</Badge>
+                          ) : isExpiringSoon(batch.expiryDate) ? (
                             <Badge variant="destructive">Expiring Soon</Badge>
                           ) : (
                             <Badge variant="secondary">Active</Badge>

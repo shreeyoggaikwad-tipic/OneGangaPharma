@@ -1098,11 +1098,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addBatch(batch: InsertBatch): Promise<Batch> {
+    // Validate expiry date is not in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+    const expiryDate = new Date(batch.expiryDate);
+    
+    if (expiryDate < today) {
+      throw new Error('Cannot add batch with expiry date in the past');
+    }
+    
     const [newBatch] = await db.insert(medicineInventory).values(batch).returning();
     return newBatch;
   }
 
   async updateBatch(id: number, batch: Partial<InsertBatch>): Promise<Batch> {
+    // Validate expiry date if being updated
+    if (batch.expiryDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiryDate = new Date(batch.expiryDate);
+      
+      if (expiryDate < today) {
+        throw new Error('Cannot update batch with expiry date in the past');
+      }
+    }
+    
     const [updatedBatch] = await db
       .update(medicineInventory)
       .set(batch)
@@ -1142,14 +1162,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]> {
-    // Get available batches ordered by expiry date (FIFO)
+    // Get available batches ordered by expiry date (FIFO), excluding expired batches
+    const today = new Date();
     const availableBatches = await db
       .select()
       .from(medicineInventory)
       .where(
         and(
           eq(medicineInventory.medicineId, medicineId),
-          gte(medicineInventory.quantity, 1)
+          gte(medicineInventory.quantity, 1),
+          gte(medicineInventory.expiryDate, today) // Only non-expired batches
         )
       )
       .orderBy(asc(medicineInventory.expiryDate));
@@ -1170,7 +1192,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (remainingQuantity > 0) {
-      throw new Error(`Insufficient stock: ${remainingQuantity} units short for medicine ID ${medicineId}`);
+      throw new Error(`Insufficient non-expired stock: ${remainingQuantity} units short for medicine ID ${medicineId}. Please check for expired batches.`);
     }
 
     return allocations;

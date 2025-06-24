@@ -1190,7 +1190,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(newBatch);
     } catch (error) {
       console.error("Error adding batch:", error);
-      res.status(500).json({ message: "Failed to add batch" });
+      if (error instanceof Error && error.message.includes('expiry date in the past')) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to add batch" });
+      }
     }
   });
 
@@ -1202,7 +1206,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedBatch);
     } catch (error) {
       console.error("Error updating batch:", error);
-      res.status(500).json({ message: "Failed to update batch" });
+      if (error instanceof Error && error.message.includes('expiry date in the past')) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to update batch" });
+      }
     }
   });
 
