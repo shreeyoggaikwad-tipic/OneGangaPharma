@@ -69,8 +69,15 @@ const isAuthenticated = async (req: any, res: Response, next: any) => {
 
 // Admin middleware
 const isAdmin = (req: any, res: Response, next: any) => {
-  if (req.user?.role !== "admin") {
+  if (req.user?.role !== 1) { // Role 1 = admin
     return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
+};
+
+const isSuperAdmin = (req: any, res: Response, next: any) => {
+  if (req.user?.role !== 0) { // Role 0 = super admin
+    return res.status(403).json({ message: "Super admin access required" });
   }
   next();
 };
@@ -1290,8 +1297,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve prescription files with authentication
-  // Configuration management endpoints
-  app.get("/api/admin/config", isAuthenticated, isAdmin, (req: Request, res: Response) => {
+  // Super Admin routes
+  app.get("/api/superadmin/dashboard-stats", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const stats = await storage.getSuperAdminStats();
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/superadmin/stores", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const stores = await storage.getStores();
+      res.json(stores);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/superadmin/stores/onboard", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const result = await storage.onboardStore(req.body);
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Configuration management endpoints (Super Admin only)
+  app.get("/api/superadmin/config", isAuthenticated, isSuperAdmin, (req: Request, res: Response) => {
     res.json({
       minimumShelfLifeMonths: config.minimumShelfLifeMonths,
       lowStockThreshold: config.lowStockThreshold,
@@ -1300,7 +1335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.put("/api/admin/config/shelf-life", isAuthenticated, isAdmin, (req: Request, res: Response) => {
+  app.put("/api/superadmin/config/shelf-life", isAuthenticated, isSuperAdmin, (req: Request, res: Response) => {
     try {
       const { months } = req.body;
       if (!months || typeof months !== 'number') {
