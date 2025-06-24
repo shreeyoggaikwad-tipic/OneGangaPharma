@@ -128,6 +128,7 @@ export interface IStorage {
   }>;
   getStores(): Promise<Store[]>;
   onboardStore(data: any): Promise<{ store: Store; admin: User }>;
+  updateStore(storeId: number, data: Partial<Store>): Promise<Store>;
   deactivateStore(storeId: number): Promise<void>;
 
   // Batch management operations
@@ -1399,6 +1400,15 @@ export class DatabaseStorage implements IStorage {
     }).returning();
 
     return { store, admin };
+  }
+
+  async updateStore(storeId: number, data: Partial<Store>): Promise<Store> {
+    const [updatedStore] = await db
+      .update(stores)
+      .set(data)
+      .where(eq(stores.id, storeId))
+      .returning();
+    return updatedStore;
   }
 
   async deactivateStore(storeId: number): Promise<void> {

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Store, 
@@ -40,6 +42,8 @@ export default function StoreManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
+  const [editingStore, setEditingStore] = useState<StoreData | null>(null);
 
   const { data: stores, isLoading } = useQuery<StoreData[]>({
     queryKey: ["/api/superadmin/stores"],
@@ -70,6 +74,41 @@ export default function StoreManagement() {
       });
     },
   });
+
+  const updateStoreMutation = useMutation({
+    mutationFn: async (storeData: StoreData) => {
+      const response = await fetch(`/api/superadmin/stores/${storeData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(storeData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update store");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Store Updated",
+        description: "Store information has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/superadmin/stores"] });
+      setEditingStore(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update store.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpdateStore = () => {
+    if (editingStore) {
+      updateStoreMutation.mutate(editingStore);
+    }
+  };
 
   const filteredStores = stores?.filter((store) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -214,14 +253,179 @@ export default function StoreManagement() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedStore(store)}>
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Store Details</DialogTitle>
+                      </DialogHeader>
+                      {selectedStore && (
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600">Store Name</Label>
+                              <p className="text-lg font-semibold">{selectedStore.name}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600">Status</Label>
+                              <Badge variant={selectedStore.isActive ? "default" : "secondary"} className="ml-2">
+                                {selectedStore.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600">Email</Label>
+                              <p>{selectedStore.email}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600">Phone</Label>
+                              <p>{selectedStore.phone}</p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label className="text-sm font-medium text-gray-600">Address</Label>
+                            <p>{selectedStore.address}</p>
+                            <p>{selectedStore.city}, {selectedStore.state} - {selectedStore.pincode}</p>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600">License Number</Label>
+                              <p>{selectedStore.licenseNumber}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600">GST Number</Label>
+                              <p>{selectedStore.gstNumber}</p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label className="text-sm font-medium text-gray-600">Onboarded</Label>
+                            <p>{new Date(selectedStore.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" onClick={() => setEditingStore(store)}>
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Edit Store</DialogTitle>
+                      </DialogHeader>
+                      {editingStore && (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="storeName">Store Name</Label>
+                              <Input
+                                id="storeName"
+                                value={editingStore.name}
+                                onChange={(e) => setEditingStore({...editingStore, name: e.target.value})}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="storeEmail">Email</Label>
+                              <Input
+                                id="storeEmail"
+                                type="email"
+                                value={editingStore.email}
+                                onChange={(e) => setEditingStore({...editingStore, email: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="storePhone">Phone</Label>
+                              <Input
+                                id="storePhone"
+                                value={editingStore.phone}
+                                onChange={(e) => setEditingStore({...editingStore, phone: e.target.value})}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="licenseNumber">License Number</Label>
+                              <Input
+                                id="licenseNumber"
+                                value={editingStore.licenseNumber}
+                                onChange={(e) => setEditingStore({...editingStore, licenseNumber: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="address">Address</Label>
+                            <Input
+                              id="address"
+                              value={editingStore.address}
+                              onChange={(e) => setEditingStore({...editingStore, address: e.target.value})}
+                            />
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <Label htmlFor="city">City</Label>
+                              <Input
+                                id="city"
+                                value={editingStore.city}
+                                onChange={(e) => setEditingStore({...editingStore, city: e.target.value})}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="state">State</Label>
+                              <Input
+                                id="state"
+                                value={editingStore.state}
+                                onChange={(e) => setEditingStore({...editingStore, state: e.target.value})}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="pincode">Pincode</Label>
+                              <Input
+                                id="pincode"
+                                value={editingStore.pincode}
+                                onChange={(e) => setEditingStore({...editingStore, pincode: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="gstNumber">GST Number</Label>
+                            <Input
+                              id="gstNumber"
+                              value={editingStore.gstNumber}
+                              onChange={(e) => setEditingStore({...editingStore, gstNumber: e.target.value})}
+                            />
+                          </div>
+                          
+                          <div className="flex justify-end space-x-2 pt-4">
+                            <Button variant="outline" onClick={() => setEditingStore(null)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={() => handleUpdateStore()}>
+                              Save Changes
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
+                  
                   {store.isActive && (
                     <Button 
                       variant="outline" 
