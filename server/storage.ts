@@ -727,11 +727,13 @@ export class DatabaseStorage implements IStorage {
           .where(eq(medicineInventory.id, allocation.batchId));
         
         // Create order item entry for each batch allocation
+        const totalPrice = allocation.quantity * parseFloat(item.unitPrice.toString());
         orderItemsWithBatches.push({
           orderId: newOrder.id,
           medicineId: item.medicineId,
           quantity: allocation.quantity,
           unitPrice: item.unitPrice,
+          totalPrice: totalPrice.toString(),
           batchId: allocation.batchId,
         });
       }
@@ -1236,7 +1238,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (remainingQuantity > 0) {
-      throw new Error(`Insufficient non-expired stock: ${remainingQuantity} units short for medicine ID ${medicineId}. Please check for expired batches.`);
+      throw new Error(`Insufficient stock with 3+ months shelf life: ${remainingQuantity} units short for medicine ID ${medicineId}. Available stock: ${quantity - remainingQuantity} units.`);
     }
 
     return allocations;
