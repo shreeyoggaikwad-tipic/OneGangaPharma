@@ -380,79 +380,80 @@ export default function BatchManagement() {
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{editingBatch ? 'Edit Batch' : 'Add New Batch'}</DialogTitle>
-                    <DialogDescription>
-                      {editingBatch ? 'Update batch information' : 'Add a new inventory batch for this medicine'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="batchNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Batch Number</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter batch number" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="quantity"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Quantity</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="1"
-                                placeholder="Enter quantity" 
-                                {...field} 
-                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="expiryDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Expiry Date</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="date" 
-                                min={format(new Date(), 'yyyy-MM-dd')}
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Expiry date must be today or in the future
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={addBatchMutation.isPending || updateBatchMutation.isPending}>
-                          {editingBatch ? 'Update' : 'Add'} Batch
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
-            </div>
+                      <DialogHeader>
+                        <DialogTitle>{editingBatch ? 'Edit Batch' : 'Add New Batch'}</DialogTitle>
+                        <DialogDescription>
+                          {editingBatch ? 'Update batch information' : 'Add a new inventory batch for this medicine'}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="batchNumber"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Batch Number</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter batch number" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="quantity"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Quantity</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="number" 
+                                    min="1"
+                                    placeholder="Enter quantity" 
+                                    {...field} 
+                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="expiryDate"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Expiry Date</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="date" 
+                                    min={format(new Date(), 'yyyy-MM-dd')}
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Expiry date must be today or in the future
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                              Cancel
+                            </Button>
+                            <Button type="submit" disabled={addBatchMutation.isPending || updateBatchMutation.isPending}>
+                              {editingBatch ? 'Update' : 'Add'} Batch
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Search and Filter Controls */}
