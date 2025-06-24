@@ -51,9 +51,9 @@ function Router() {
   // Determine home component based on user role
   const getHomeComponent = () => {
     if (!isAuthenticated) return Landing;
-    if (user?.role === 0) return SuperAdminDashboard; // Super admin
+    if (user?.role === 0 || user?.role === "super_admin") return SuperAdminDashboard; // Super admin
     if (user?.role === 1 || user?.role === "admin") return Dashboard; // Admin
-    return Home; // Customer
+    return Home; // Customer (role 2)
   };
 
   return (
@@ -61,12 +61,12 @@ function Router() {
       <Switch>
         {/* Public routes */}
         <Route path="/" component={getHomeComponent()} />
-        {/* Medicines route - hidden for admin users */}
-        {(typeof user?.role === "number" ? user.role === 2 : user?.role === "customer") && <Route path="/medicines" component={Medicines} />}
+        {/* Medicines route - only for customers (role 2) */}
+        {(user?.role === 2 || user?.role === "customer") && <Route path="/medicines" component={Medicines} />}
         <Route path="/login" component={Login} />
         
-        {/* Protected customer routes - only for customers */}
-        {(typeof user?.role === "number" ? user.role === 2 : user?.role === "customer") && (
+        {/* Protected customer routes - only for customers (role 2) */}
+        {(user?.role === 2 || user?.role === "customer") && (
           <>
             <Route path="/cart">
               <ProtectedRoute>
