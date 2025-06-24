@@ -117,6 +117,19 @@ export interface IStorage {
   getSalesAnalytics(timePeriod: string): Promise<any[]>;
   getCategoryAnalytics(): Promise<any[]>;
 
+  // Super Admin operations
+  getSuperAdminStats(): Promise<{
+    totalStores: number;
+    activeStores: number;
+    totalAdmins: number;
+    totalCustomers: number;
+    totalOrders: number;
+    totalSales: number;
+  }>;
+  getStores(): Promise<Store[]>;
+  onboardStore(data: any): Promise<{ store: Store; admin: User }>;
+  deactivateStore(storeId: number): Promise<void>;
+
   // Batch management operations
   getBatchesByMedicineId(medicineId: number): Promise<Batch[]>;
   addBatch(batch: InsertBatch): Promise<Batch>;

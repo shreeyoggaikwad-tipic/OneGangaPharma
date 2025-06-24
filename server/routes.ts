@@ -1298,6 +1298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve prescription files with authentication
   // Super Admin routes
+  // Super Admin Dashboard Stats
   app.get("/api/superadmin/dashboard-stats", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
     try {
       const stats = await storage.getSuperAdminStats();
