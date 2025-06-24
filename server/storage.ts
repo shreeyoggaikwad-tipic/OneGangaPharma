@@ -32,6 +32,7 @@ import {
   type InsertBatch,
 } from "@shared/schema";
 import { db } from "./db";
+import { config, getShelfLifeInterval } from "./config";
 import { eq, and, desc, asc, count, sum, sql, gte, lte } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
@@ -1217,7 +1218,7 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(medicineInventory.medicineId, medicineId),
           gte(medicineInventory.quantity, 1),
-          sql`${medicineInventory.expiryDate} >= ${sql`CURRENT_DATE + INTERVAL '3 months'`}` // Only batches with 3+ months shelf life
+          sql`${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}'` // Only batches with minimum shelf life
         )
       )
       .orderBy(asc(medicineInventory.expiryDate));
@@ -1238,7 +1239,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (remainingQuantity > 0) {
-      throw new Error(`Insufficient stock with 3+ months shelf life: ${remainingQuantity} units short for medicine ID ${medicineId}. Available stock: ${quantity - remainingQuantity} units.`);
+      throw new Error(`Insufficient stock with ${config.minimumShelfLifeMonths}+ months shelf life: ${remainingQuantity} units short for medicine ID ${medicineId}. Available stock: ${quantity - remainingQuantity} units.`);
     }
 
     return allocations;

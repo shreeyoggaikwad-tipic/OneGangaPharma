@@ -20,6 +20,7 @@ import {
   addresses
 } from "@shared/schema";
 import { db } from "./db";
+import { config, updateMinimumShelfLife } from "./config";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import multer from "multer";
@@ -1289,6 +1290,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve prescription files with authentication
+  // Configuration management endpoints
+  app.get("/api/admin/config", isAuthenticated, isAdmin, (req: Request, res: Response) => {
+    res.json({
+      minimumShelfLifeMonths: config.minimumShelfLifeMonths,
+      lowStockThreshold: config.lowStockThreshold,
+      expiryWarningDays: config.expiryWarningDays,
+      maxItemsPerOrder: config.maxItemsPerOrder
+    });
+  });
+
+  app.put("/api/admin/config/shelf-life", isAuthenticated, isAdmin, (req: Request, res: Response) => {
+    try {
+      const { months } = req.body;
+      if (!months || typeof months !== 'number') {
+        return res.status(400).json({ message: "Invalid months value" });
+      }
+      
+      updateMinimumShelfLife(months);
+      res.json({ 
+        message: `Minimum shelf life updated to ${months} months`,
+        minimumShelfLifeMonths: config.minimumShelfLifeMonths 
+      });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.get('/uploads/prescriptions/:filename', isAuthenticated, async (req: any, res: Response) => {
     try {
       const { filename } = req.params;
