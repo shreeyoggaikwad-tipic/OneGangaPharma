@@ -1372,7 +1372,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Configuration management endpoints (Super Admin only)
+  // Admin configuration management endpoints
+  app.get("/api/admin/config", isAuthenticated, isAdmin, (req: Request, res: Response) => {
+    res.json({
+      minimumShelfLifeMonths: config.minimumShelfLifeMonths,
+      lowStockThreshold: config.lowStockThreshold,
+      expiryWarningDays: config.expiryWarningDays,
+      maxItemsPerOrder: config.maxItemsPerOrder,
+    });
+  });
+
+  app.put("/api/admin/config/shelf-life", isAuthenticated, isAdmin, (req: Request, res: Response) => {
+    try {
+      const { months } = req.body;
+      if (!months || typeof months !== 'number' || months < 1 || months > 12) {
+        return res.status(400).json({ message: "Shelf life must be between 1 and 12 months" });
+      }
+      updateMinimumShelfLife(months);
+      res.json({ message: "Shelf life policy updated successfully", minimumShelfLifeMonths: months });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Super Admin configuration management endpoints
   app.get("/api/superadmin/config", isAuthenticated, isSuperAdmin, (req: Request, res: Response) => {
     res.json({
       minimumShelfLifeMonths: config.minimumShelfLifeMonths,

@@ -58,15 +58,19 @@ function SystemConfig() {
   });
 
   const handleUpdateShelfLife = () => {
-    if (shelfLifeMonths < 1 || shelfLifeMonths > 12) {
+    // Ensure we have a valid number before updating
+    const finalValue = shelfLifeMonths === 0 ? 1 : shelfLifeMonths;
+    
+    if (finalValue < 1 || finalValue > 12) {
       toast({
         title: "Invalid Value",
         description: "Shelf life must be between 1 and 12 months",
         variant: "destructive",
       });
+      setShelfLifeMonths(config?.minimumShelfLifeMonths || 3); // Reset to current config value
       return;
     }
-    updateShelfLifeMutation.mutate(shelfLifeMonths);
+    updateShelfLifeMutation.mutate(finalValue);
   };
 
   if (isLoading) {
@@ -109,7 +113,26 @@ function SystemConfig() {
                   min="1"
                   max="12"
                   value={shelfLifeMonths}
-                  onChange={(e) => setShelfLifeMonths(parseInt(e.target.value) || 1)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '') {
+                      setShelfLifeMonths(0); // Allow empty state for editing
+                    } else {
+                      const num = parseInt(value);
+                      if (!isNaN(num)) {
+                        setShelfLifeMonths(num);
+                      }
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Ensure valid value when focus is lost
+                    const value = parseInt(e.target.value);
+                    if (isNaN(value) || value < 1) {
+                      setShelfLifeMonths(1);
+                    } else if (value > 12) {
+                      setShelfLifeMonths(12);
+                    }
+                  }}
                   className="flex-1"
                 />
                 <Button 
