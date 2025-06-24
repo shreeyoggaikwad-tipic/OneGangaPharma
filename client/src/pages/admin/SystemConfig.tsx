@@ -21,10 +21,12 @@ export default function SystemConfig() {
 
   const { data: config, isLoading } = useQuery<SystemConfig>({
     queryKey: ["/api/admin/config"],
-    onSuccess: (data) => {
-      setShelfLifeMonths(data.minimumShelfLifeMonths);
-    },
   });
+
+  // Update state when config data loads
+  if (config && shelfLifeMonths !== config.minimumShelfLifeMonths) {
+    setShelfLifeMonths(config.minimumShelfLifeMonths);
+  }
 
   const updateShelfLifeMutation = useMutation({
     mutationFn: async (months: number) => {

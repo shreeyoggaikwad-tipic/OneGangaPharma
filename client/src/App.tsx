@@ -134,6 +134,11 @@ function Router() {
             <ExpiredMedicines />
           </ProtectedRoute>
         </Route>
+        <Route path="/admin/system-config">
+          <ProtectedRoute requiredRole="admin">
+            <SystemConfig />
+          </ProtectedRoute>
+        </Route>
         <Route path="/admin/notifications">
           <ProtectedRoute requiredRole="admin">
             <AdminNotifications />

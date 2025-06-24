@@ -278,6 +278,12 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
     * FIFO allocation updated to respect minimum shelf life requirements
     * Enhanced error messaging for insufficient stock scenarios
     * Fixed order creation issues with proper totalPrice calculation for batch allocations
+  - Added configurable shelf life management system for easy policy adjustments
+    * Created admin System Configuration page for managing minimum shelf life requirements
+    * Centralized configuration in server/config.ts with validation and helper functions
+    * API endpoints for reading and updating shelf life policy (1-12 months range)
+    * Real-time policy updates that immediately affect customer-facing inventory
+    * Professional UI with visual policy impact explanations and current system status
 
 ## User Preferences
 
