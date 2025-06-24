@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,16 +17,18 @@ interface SystemConfig {
 function SystemConfig() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [shelfLifeMonths, setShelfLifeMonths] = useState<number>(3);
+  const [shelfLifeMonths, setShelfLifeMonths] = useState<number | ''>('');
 
   const { data: config, isLoading } = useQuery<SystemConfig>({
     queryKey: ["/api/admin/config"],
   });
 
-  // Update state when config data loads
-  if (config && shelfLifeMonths !== config.minimumShelfLifeMonths) {
-    setShelfLifeMonths(config.minimumShelfLifeMonths);
-  }
+  // Update input value when config loads
+  useEffect(() => {
+    if (config && shelfLifeMonths === '') {
+      setShelfLifeMonths(config.minimumShelfLifeMonths);
+    }
+  }, [config, shelfLifeMonths]);
 
   const updateShelfLifeMutation = useMutation({
     mutationFn: async (months: number) => {
@@ -58,10 +60,12 @@ function SystemConfig() {
   });
 
   const handleUpdateShelfLife = () => {
-    // Ensure we have a valid number before updating
-    const finalValue = shelfLifeMonths === 0 ? 1 : shelfLifeMonths;
+    // Convert to number if it's a string
+    const finalValue = typeof shelfLifeMonths === 'string' 
+      ? parseInt(shelfLifeMonths) 
+      : shelfLifeMonths;
     
-    if (finalValue < 1 || finalValue > 12) {
+    if (isNaN(finalValue) || finalValue < 1 || finalValue > 12) {
       toast({
         title: "Invalid Value",
         description: "Shelf life must be between 1 and 12 months",
@@ -116,23 +120,24 @@ function SystemConfig() {
                   onChange={(e) => {
                     const value = e.target.value;
                     if (value === '') {
-                      setShelfLifeMonths(0); // Allow empty state for editing
+                      setShelfLifeMonths(''); // Allow empty state for editing
                     } else {
                       const num = parseInt(value);
-                      if (!isNaN(num)) {
+                      if (!isNaN(num) && num >= 0) {
                         setShelfLifeMonths(num);
                       }
                     }
                   }}
                   onBlur={(e) => {
                     // Ensure valid value when focus is lost
-                    const value = parseInt(e.target.value);
-                    if (isNaN(value) || value < 1) {
-                      setShelfLifeMonths(1);
-                    } else if (value > 12) {
+                    const value = e.target.value;
+                    if (value === '' || parseInt(value) < 1) {
+                      setShelfLifeMonths(config?.minimumShelfLifeMonths || 3);
+                    } else if (parseInt(value) > 12) {
                       setShelfLifeMonths(12);
                     }
                   }}
+                  placeholder="Enter months (1-12)"
                   className="flex-1"
                 />
                 <Button 
@@ -144,7 +149,7 @@ function SystemConfig() {
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">
-                Only medicines with at least {shelfLifeMonths} months remaining will be available for customer purchase.
+                Only medicines with at least {shelfLifeMonths || config?.minimumShelfLifeMonths} months remaining will be available for customer purchase.
                 Shorter expiry items will be excluded from regular sales.
               </p>
             </div>
