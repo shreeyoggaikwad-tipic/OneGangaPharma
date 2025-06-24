@@ -252,7 +252,7 @@ export class DatabaseStorage implements IStorage {
         category: medicineCategories,
         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
           CASE 
-            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
             THEN ${medicineInventory.quantity} 
             ELSE 0 
           END
@@ -315,7 +315,7 @@ export class DatabaseStorage implements IStorage {
         category: medicineCategories,
         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
           CASE 
-            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
             THEN ${medicineInventory.quantity} 
             ELSE 0 
           END
@@ -410,7 +410,7 @@ export class DatabaseStorage implements IStorage {
         updatedAt: medicines.updatedAt,
         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
           CASE 
-            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
             THEN ${medicineInventory.quantity} 
             ELSE 0 
           END
@@ -426,7 +426,7 @@ export class DatabaseStorage implements IStorage {
       .groupBy(medicines.id)
       .having(sql`GREATEST(0, COALESCE(SUM(
         CASE 
-          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
           THEN ${medicineInventory.quantity} 
           ELSE 0 
         END
@@ -437,7 +437,7 @@ export class DatabaseStorage implements IStorage {
       ), 0)) < 20`)
       .orderBy(sql`GREATEST(0, COALESCE(SUM(
         CASE 
-          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
           THEN ${medicineInventory.quantity} 
           ELSE 0 
         END
@@ -1218,7 +1218,7 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(medicineInventory.medicineId, medicineId),
           gte(medicineInventory.quantity, 1),
-          sql`${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}'` // Only batches with minimum shelf life
+          sql`${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' + INTERVAL '${sql.raw(getShelfLifeInterval())}'` // Only batches with minimum shelf life
         )
       )
       .orderBy(asc(medicineInventory.expiryDate));

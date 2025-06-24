@@ -26,6 +26,7 @@ import BulkUpload from "@/pages/admin/BulkUpload";
 import BatchManagement from "@/pages/admin/BatchManagement";
 import BatchManagementEnhanced from "@/pages/admin/BatchManagementEnhanced";
 import ExpiredMedicines from "@/pages/admin/ExpiredMedicines";
+import SystemConfig from "@/pages/admin/SystemConfig";
 import Notifications from "@/pages/Notifications";
 import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
