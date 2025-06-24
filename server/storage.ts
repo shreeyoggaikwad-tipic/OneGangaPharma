@@ -249,7 +249,13 @@ export class DatabaseStorage implements IStorage {
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
         category: medicineCategories,
-        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
+          CASE 
+            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+            THEN ${medicineInventory.quantity} 
+            ELSE 0 
+          END
+        ), 0) - COALESCE((
           SELECT SUM(${cartItems.quantity}) 
           FROM ${cartItems} 
           WHERE ${cartItems.medicineId} = ${medicines.id}
