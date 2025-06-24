@@ -41,18 +41,19 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Admin users only see dashboard, customer users see regular navigation
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === 1 || user?.role === "admin"; // Support both numeric (1) and string ("admin") roles
+  const isSuperAdmin = user?.role === 0; // Super admin role
 
-  // Get cart count - only for customer users
+  // Get cart count - only for customer users (role 2)
   const { data: cartItems = [] } = useQuery({
     queryKey: ["/api/cart"],
-    enabled: isAuthenticated && user?.role !== "admin",
+    enabled: isAuthenticated && !isAdmin && !isSuperAdmin,
   });
 
-  // Get notifications count - only for customer users
+  // Get notifications count - only for customer users (role 2)
   const { data: notifications = [] } = useQuery({
     queryKey: ["/api/notifications"],
-    enabled: isAuthenticated && user?.role !== "admin",
+    enabled: isAuthenticated && !isAdmin && !isSuperAdmin,
   });
 
   const unreadNotifications = notifications.filter((n: any) => !n.isRead);
@@ -68,20 +69,22 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const navigation = [
-    // Customer navigation (commented out for admin users)
-    { name: "Medicines", href: "/medicines", show: !isAdmin },
+    // Customer navigation (only for customers - role 2)
+    { name: "Medicines", href: "/medicines", show: !isAdmin && !isSuperAdmin },
     {
       name: "Orders",
       href: "/orders",
-      show: isAuthenticated && !isAdmin,
+      show: isAuthenticated && !isAdmin && !isSuperAdmin,
     },
     {
       name: "Prescriptions",
       href: "/prescriptions",
-      show: isAuthenticated && !isAdmin,
+      show: isAuthenticated && !isAdmin && !isSuperAdmin,
     },
-    // Admin navigation
-    { name: "Dashboard", href: "/admin/dashboard", show: isAdmin },
+    // Admin navigation (for admins - role 1)
+    { name: "Dashboard", href: "/admin/dashboard", show: isAdmin && !isSuperAdmin },
+    // Super Admin navigation (for super admins - role 0)
+    { name: "Dashboard", href: "/superadmin/dashboard", show: isSuperAdmin },
   ];
 
   const MobileNavigation = () => (
@@ -147,8 +150,8 @@ export default function Layout({ children }: LayoutProps) {
 
           {isAuthenticated && (
             <>
-              {/* Customer-specific navigation - hidden for admin users */}
-              {!isAdmin && (
+              {/* Customer-specific navigation - only for customers */}
+              {!isAdmin && !isSuperAdmin && (
                 <>
                   <Link href="/profile">
                     <Button
@@ -278,8 +281,8 @@ export default function Layout({ children }: LayoutProps) {
 
               {isAuthenticated ? (
                 <>
-                  {/* Customer-specific navigation - hidden for admin users */}
-                  {!isAdmin && (
+                  {/* Customer-specific navigation - only for customers */}
+                  {!isAdmin && !isSuperAdmin && (
                     <>
                       {/* Notifications */}
                       <Link href="/notifications">
@@ -335,8 +338,8 @@ export default function Layout({ children }: LayoutProps) {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {/* Profile link - hidden for admin users */}
-                      {!isAdmin && (
+                      {/* Profile link - only for customers */}
+                      {!isAdmin && !isSuperAdmin && (
                         <DropdownMenuItem asChild>
                           <Link href="/profile">Profile</Link>
                         </DropdownMenuItem>
@@ -368,7 +371,7 @@ export default function Layout({ children }: LayoutProps) {
       <main className="flex-1 pt-16">{children}</main>
 
       {/* Mobile Cart Button - Only for customers */}
-      {isAuthenticated && !isAdmin && (
+      {isAuthenticated && !isAdmin && !isSuperAdmin && (
         <Link href="/cart">
           <Button className="fixed bottom-4 right-4 lg:hidden z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transform hover:scale-110 transition-all duration-200">
             <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
