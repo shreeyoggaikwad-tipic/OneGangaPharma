@@ -1320,6 +1320,104 @@ export class DatabaseStorage implements IStorage {
       .where(eq(medicineInventory.isDisposed, true))
       .orderBy(sql`${medicineInventory.disposedAt} DESC`);
   }
+
+  // Super Admin methods
+  async getSuperAdminStats(): Promise<{
+    totalStores: number;
+    activeStores: number;
+    totalAdmins: number;
+    totalCustomers: number;
+    totalOrders: number;
+    totalSales: number;
+  }> {
+    const [storesResult] = await db
+      .select({ 
+        total: count(),
+        active: sql<number>`COUNT(CASE WHEN ${stores.isActive} = true THEN 1 END)`
+      })
+      .from(stores);
+
+    const [adminsResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.role, 1)); // Role 1 = admin
+
+    const [customersResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.role, 2)); // Role 2 = customer
+
+    const [ordersResult] = await db
+      .select({ count: count() })
+      .from(orders);
+
+    const [salesResult] = await db
+      .select({ totalSales: sum(orders.totalAmount) })
+      .from(orders)
+      .where(eq(orders.paymentStatus, "paid"));
+
+    return {
+      totalStores: storesResult?.total || 0,
+      activeStores: Number(storesResult?.active || 0),
+      totalAdmins: adminsResult?.count || 0,
+      totalCustomers: customersResult?.count || 0,
+      totalOrders: ordersResult?.count || 0,
+      totalSales: Number(salesResult?.totalSales || 0),
+    };
+  }
+
+  async getStores(): Promise<Store[]> {
+    return await db.select().from(stores).orderBy(desc(stores.createdAt));
+  }
+
+  async onboardStore(data: any): Promise<{ store: Store; admin: User }> {
+    // Create store
+    const [store] = await db.insert(stores).values({
+      name: data.storeName,
+      email: data.storeEmail,
+      phone: data.storePhone,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      pincode: data.pincode,
+      licenseNumber: data.licenseNumber,
+      gstNumber: data.gstNumber,
+      isActive: true,
+    }).returning();
+
+    // Create admin user for the store
+    const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
+    const [admin] = await db.insert(users).values({
+      email: data.adminEmail,
+      password: hashedPassword,
+      role: 1, // Admin role
+      storeId: store.id,
+      firstName: data.adminFirstName,
+      lastName: data.adminLastName,
+      phone: data.adminPhone,
+      isActive: true,
+    }).returning();
+
+    return { store, admin };
+  }
+
+  async deactivateStore(storeId: number): Promise<void> {
+    await db
+      .update(stores)
+      .set({ isActive: false })
+      .where(eq(stores.id, storeId));
+    
+    // Also deactivate all users associated with the store
+    await db
+      .update(users)
+      .set({ isActive: false })
+      .where(eq(users.storeId, storeId));
+  }
+
+  async initializeData(): Promise<void> {
+    // This method would be used to initialize any default data
+    // For now, it's empty but can be expanded for seeding
+  }
 }
 
 export const storage = new DatabaseStorage();
