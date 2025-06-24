@@ -138,11 +138,12 @@ export const orders = pgTable("orders", {
   deliveredAt: timestamp("delivered_at"),
 });
 
-// Order items
+// Order items with batch tracking
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull(),
   medicineId: integer("medicine_id").notNull(),
+  batchId: integer("batch_id"), // Reference to medicine_inventory batch
   quantity: integer("quantity").notNull(),
   unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
@@ -205,6 +206,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, { fields: [orderItems.orderId], references: [orders.id] }),
   medicine: one(medicines, { fields: [orderItems.medicineId], references: [medicines.id] }),
+  batch: one(medicineInventory, { fields: [orderItems.batchId], references: [medicineInventory.id] }),
 }));
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({
@@ -244,3 +246,7 @@ export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type MedicineCategory = typeof medicineCategories.$inferSelect;
+
+// Batch management types
+export type Batch = typeof medicineInventory.$inferSelect;
+export type InsertBatch = z.infer<typeof insertMedicineInventorySchema>;

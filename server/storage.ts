@@ -28,6 +28,8 @@ import {
   type Notification,
   type InsertNotification,
   type MedicineCategory,
+  type Batch,
+  type InsertBatch,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, count, sum, sql, gte, lte } from "drizzle-orm";
@@ -110,6 +112,14 @@ export interface IStorage {
   // Analytics
   getSalesAnalytics(timePeriod: string): Promise<any[]>;
   getCategoryAnalytics(): Promise<any[]>;
+
+  // Batch management operations
+  getBatchesByMedicineId(medicineId: number): Promise<Batch[]>;
+  addBatch(batch: InsertBatch): Promise<Batch>;
+  updateBatch(id: number, batch: Partial<InsertBatch>): Promise<Batch>;
+  deleteBatch(id: number): Promise<void>;
+  getExpiringBatches(days: number): Promise<(Batch & { medicine: Medicine })[]>;
+  allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]>;
 
   // Initialize data
   initializeData(): Promise<void>;
