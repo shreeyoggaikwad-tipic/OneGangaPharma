@@ -295,8 +295,15 @@ export default function BatchManagement() {
                           <FormItem>
                             <FormLabel>Expiry Date</FormLabel>
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <Input 
+                                type="date" 
+                                min={format(new Date(), 'yyyy-MM-dd')}
+                                {...field} 
+                              />
                             </FormControl>
+                            <FormDescription>
+                              Expiry date must be today or in the future
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}

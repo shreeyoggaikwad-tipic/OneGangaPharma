@@ -256,6 +256,9 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Integrated batch allocation into order processing for proper pharmaceutical inventory control
   - Updated createOrder method to use batch allocation system instead of simple stock deduction
   - Added expiring batches alert system with 30-day advance warnings for better inventory management
+  - Enhanced expired batch handling: excludes expired batches from stock calculations and order allocation
+  - Added validation to prevent adding/updating batches with past expiry dates
+  - Frontend displays clear expired status with red badges and prevents future date selection before today
 
 ## User Preferences
 
