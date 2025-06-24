@@ -1412,6 +1412,19 @@ export class DatabaseStorage implements IStorage {
     return updatedStore;
   }
 
+  async activateStore(storeId: number): Promise<void> {
+    await db
+      .update(stores)
+      .set({ isActive: true })
+      .where(eq(stores.id, storeId));
+    
+    // Also activate all users associated with the store
+    await db
+      .update(users)
+      .set({ isActive: true })
+      .where(eq(users.storeId, storeId));
+  }
+
   async deactivateStore(storeId: number): Promise<void> {
     await db
       .update(stores)
