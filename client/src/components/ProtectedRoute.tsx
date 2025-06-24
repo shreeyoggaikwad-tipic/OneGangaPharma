@@ -11,6 +11,24 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
 
+  // Helper function to check if user has required role
+  const hasRequiredRole = (userRole: any, required: string) => {
+    if (!required) return true;
+    
+    // Handle numeric roles (new system)
+    if (typeof userRole === 'number') {
+      const roleMap: Record<number, string> = {
+        0: 'super_admin',
+        1: 'admin', 
+        2: 'customer'
+      };
+      return roleMap[userRole] === required;
+    }
+    
+    // Handle string roles (legacy system)
+    return userRole === required;
+  };
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
@@ -24,7 +42,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
       return;
     }
 
-    if (!isLoading && isAuthenticated && requiredRole && user?.role !== requiredRole) {
+    if (!isLoading && isAuthenticated && requiredRole && !hasRequiredRole(user?.role, requiredRole)) {
       toast({
         title: "Access Denied",
         description: `You need ${requiredRole} privileges to access this page.`,
@@ -45,7 +63,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
     );
   }
 
-  if (!isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
+  if (!isAuthenticated || (requiredRole && !hasRequiredRole(user?.role, requiredRole))) {
     return null;
   }
 
