@@ -14,7 +14,7 @@ interface SystemConfig {
   maxItemsPerOrder: number;
 }
 
-export default function SystemConfig() {
+function SystemConfig() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [shelfLifeMonths, setShelfLifeMonths] = useState<number>(3);
@@ -191,3 +191,5 @@ export default function SystemConfig() {
     </div>
   );
 }
+
+export default SystemConfig;
