@@ -9,11 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format } from 'date-fns';
-import { Plus, Package, AlertTriangle, Eye, Edit, Trash2 } from 'lucide-react';
+import { format, addDays } from 'date-fns';
+import { Plus, Package, AlertTriangle, Eye, Edit, Trash2, Search, Download, Filter, Calendar, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const batchSchema = z.object({
@@ -29,6 +30,9 @@ export default function BatchManagement() {
   const [selectedMedicineId, setSelectedMedicineId] = useState<number | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingBatch, setEditingBatch] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('expiryDate');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -156,6 +160,80 @@ export default function BatchManagement() {
     return expiry < today;
   };
 
+  const getBatchStatus = (expiryDate: string) => {
+    if (isExpired(expiryDate)) return 'expired';
+    if (isExpiringSoon(expiryDate)) return 'expiring';
+    return 'active';
+  };
+
+  const filteredBatches = batches
+    .filter((batch: any) => {
+      const matchesSearch = batch.batchNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFilter = filterStatus === 'all' || getBatchStatus(batch.expiryDate) === filterStatus;
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a: any, b: any) => {
+      if (sortBy === 'expiryDate') {
+        return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+      }
+      if (sortBy === 'quantity') {
+        return b.quantity - a.quantity;
+      }
+      if (sortBy === 'batchNumber') {
+        return a.batchNumber.localeCompare(b.batchNumber);
+      }
+      return 0;
+    });
+
+  const getBatchStats = () => {
+    if (!batches.length) return { total: 0, active: 0, expiring: 0, expired: 0, totalValue: 0 };
+    
+    const stats = batches.reduce((acc: any, batch: any) => {
+      const status = getBatchStatus(batch.expiryDate);
+      acc[status]++;
+      acc.total++;
+      
+      // Calculate batch value (assuming we have medicine data)
+      const medicine = medicines.find((m: any) => m.id === batch.medicineId);
+      if (medicine) {
+        const batchValue = batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0');
+        acc.totalValue += batchValue;
+      }
+      
+      return acc;
+    }, { total: 0, active: 0, expiring: 0, expired: 0, totalValue: 0 });
+    
+    return stats;
+  };
+
+  const generateBatchReport = () => {
+    const medicine = medicines.find((m: any) => m.id === selectedMedicineId);
+    if (!medicine || !batches.length) return;
+
+    const csvContent = [
+      ['Batch Number', 'Quantity', 'Expiry Date', 'Status', 'Days to Expiry', 'Estimated Value'],
+      ...batches.map((batch: any) => [
+        batch.batchNumber,
+        batch.quantity,
+        format(new Date(batch.expiryDate), 'yyyy-MM-dd'),
+        getBatchStatus(batch.expiryDate),
+        isExpired(batch.expiryDate) 
+          ? -Math.ceil((new Date().getTime() - new Date(batch.expiryDate).getTime()) / (1000 * 60 * 60 * 24))
+          : Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+        (batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0')).toFixed(2)
+      ])
+    ];
+
+    const csv = csvContent.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `batch-report-${medicine.name.replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -225,29 +303,83 @@ export default function BatchManagement() {
 
       {/* Batch Management */}
       {selectedMedicineId && (
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <CardTitle>Batches</CardTitle>
-                <CardDescription>Manage inventory batches for selected medicine</CardDescription>
-              </div>
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => {
-                    setEditingBatch(null);
-                    form.reset({
-                      medicineId: selectedMedicineId,
-                      batchNumber: '',
-                      quantity: 1,
-                      expiryDate: '',
-                    });
-                  }}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Batch
+        <div className="space-y-6">
+          {/* Batch Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <Package className="h-8 w-8 text-blue-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Total Batches</p>
+                    <p className="text-2xl font-bold text-blue-600">{getBatchStats().total}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <Package className="h-8 w-8 text-green-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Active Batches</p>
+                    <p className="text-2xl font-bold text-green-600">{getBatchStats().active}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-8 w-8 text-orange-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Expiring Soon</p>
+                    <p className="text-2xl font-bold text-orange-600">{getBatchStats().expiring}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-8 w-8 text-red-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Expired</p>
+                    <p className="text-2xl font-bold text-red-600">{getBatchStats().expired}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle>Batch Management</CardTitle>
+                  <CardDescription>Manage inventory batches for selected medicine</CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={generateBatchReport} disabled={!batches.length}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Report
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
+                  <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => {
+                        setEditingBatch(null);
+                        form.reset({
+                          medicineId: selectedMedicineId,
+                          batchNumber: '',
+                          quantity: 1,
+                          expiryDate: '',
+                        });
+                      }}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Batch
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
                   <DialogHeader>
                     <DialogTitle>{editingBatch ? 'Edit Batch' : 'Add New Batch'}</DialogTitle>
                     <DialogDescription>
@@ -322,11 +454,53 @@ export default function BatchManagement() {
               </Dialog>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search batch numbers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Batches</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="expiring">Expiring Soon</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="expiryDate">Expiry Date</SelectItem>
+                  <SelectItem value="quantity">Quantity</SelectItem>
+                  <SelectItem value="batchNumber">Batch Number</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {batchesLoading ? (
               <p>Loading batches...</p>
-            ) : batches.length === 0 ? (
-              <p className="text-muted-foreground">No batches found for this medicine.</p>
+            ) : filteredBatches.length === 0 ? (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-600">
+                  {batches.length === 0 ? 'No batches found for this medicine' : 'No batches match your filters'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {batches.length === 0 ? 'Add the first batch to get started' : 'Try adjusting your search or filter criteria'}
+                </p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
@@ -335,52 +509,114 @@ export default function BatchManagement() {
                       <TableHead>Batch Number</TableHead>
                       <TableHead>Quantity</TableHead>
                       <TableHead>Expiry Date</TableHead>
+                      <TableHead>Days Until Expiry</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Estimated Value</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {batches.map((batch: any) => (
-                      <TableRow key={batch.id}>
-                        <TableCell className="font-medium">{batch.batchNumber}</TableCell>
-                        <TableCell>{batch.quantity}</TableCell>
-                        <TableCell>{format(new Date(batch.expiryDate), 'MMM dd, yyyy')}</TableCell>
-                        <TableCell>
-                          {isExpired(batch.expiryDate) ? (
-                            <Badge variant="destructive" className="bg-red-600">Expired</Badge>
-                          ) : isExpiringSoon(batch.expiryDate) ? (
-                            <Badge variant="destructive">Expiring Soon</Badge>
-                          ) : (
-                            <Badge variant="secondary">Active</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(batch)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => deleteBatchMutation.mutate(batch.id)}
-                              disabled={deleteBatchMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {filteredBatches.map((batch: any) => {
+                      const medicine = medicines.find((m: any) => m.id === batch.medicineId);
+                      const batchValue = medicine ? batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0') : 0;
+                      const daysUntilExpiry = Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                      
+                      return (
+                        <TableRow key={batch.id}>
+                          <TableCell className="font-medium font-mono">{batch.batchNumber}</TableCell>
+                          <TableCell>
+                            <span className="font-medium">{batch.quantity}</span>
+                            <span className="text-sm text-gray-500 ml-1">units</span>
+                          </TableCell>
+                          <TableCell>{format(new Date(batch.expiryDate), 'MMM dd, yyyy')}</TableCell>
+                          <TableCell>
+                            <span className={`font-medium ${
+                              daysUntilExpiry < 0 ? 'text-red-600' : 
+                              daysUntilExpiry <= 30 ? 'text-orange-600' : 
+                              'text-green-600'
+                            }`}>
+                              {daysUntilExpiry < 0 ? `${Math.abs(daysUntilExpiry)} days ago` : `${daysUntilExpiry} days`}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {isExpired(batch.expiryDate) ? (
+                              <Badge variant="destructive" className="bg-red-600">Expired</Badge>
+                            ) : isExpiringSoon(batch.expiryDate) ? (
+                              <Badge variant="destructive">Expiring Soon</Badge>
+                            ) : (
+                              <Badge variant="secondary">Active</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-medium">₹{batchValue.toLocaleString()}</span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEdit(batch)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => deleteBatchMutation.mutate(batch.id)}
+                                disabled={deleteBatchMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
             )}
+
+            {/* Batch Summary */}
+            {filteredBatches.length > 0 && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Showing:</span>
+                    <span className="font-medium ml-1">{filteredBatches.length} batches</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Units:</span>
+                    <span className="font-medium ml-1">
+                      {filteredBatches.reduce((sum: number, batch: any) => sum + batch.quantity, 0)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Value:</span>
+                    <span className="font-medium ml-1">
+                      ₹{filteredBatches.reduce((sum: number, batch: any) => {
+                        const medicine = medicines.find((m: any) => m.id === batch.medicineId);
+                        return sum + (medicine ? batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0') : 0);
+                      }, 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Avg Days to Expiry:</span>
+                    <span className="font-medium ml-1">
+                      {Math.round(
+                        filteredBatches.reduce((sum: number, batch: any) => {
+                          const days = Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                          return sum + Math.max(0, days);
+                        }, 0) / filteredBatches.length
+                      )} days
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
+        </div>
       )}
     </div>
   );
