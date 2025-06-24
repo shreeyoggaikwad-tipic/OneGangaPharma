@@ -24,7 +24,7 @@ const batchSchema = z.object({
 
 type BatchFormData = z.infer<typeof batchSchema>;
 
-export default function BatchManagement() {
+export default function BatchManagementEnhanced() {
   const [selectedMedicineId, setSelectedMedicineId] = useState<number | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingBatch, setEditingBatch] = useState<any | null>(null);
@@ -191,7 +191,6 @@ export default function BatchManagement() {
       acc[status]++;
       acc.total++;
       
-      // Calculate batch value (assuming we have medicine data)
       const medicine = medicines.find((m: any) => m.id === batch.medicineId);
       if (medicine) {
         const batchValue = batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0');
@@ -236,8 +235,8 @@ export default function BatchManagement() {
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Batch Management</h1>
-          <p className="text-muted-foreground">Manage medicine inventory batches and track expiry dates</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Enhanced Batch Management</h1>
+          <p className="text-muted-foreground">Advanced inventory batch control with analytics and reporting</p>
         </div>
       </div>
 
@@ -299,7 +298,7 @@ export default function BatchManagement() {
         </CardContent>
       </Card>
 
-      {/* Batch Management */}
+      {/* Enhanced Batch Management */}
       {selectedMedicineId && (
         <div className="space-y-6">
           {/* Batch Statistics */}
@@ -354,13 +353,13 @@ export default function BatchManagement() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <CardTitle>Batch Management</CardTitle>
-                  <CardDescription>Manage inventory batches for selected medicine</CardDescription>
+                  <CardTitle>Advanced Batch Control</CardTitle>
+                  <CardDescription>Enhanced inventory management with search, filter, and analytics</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={generateBatchReport} disabled={!batches.length}>
                     <Download className="h-4 w-4 mr-2" />
-                    Export Report
+                    Export CSV
                   </Button>
                   <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                     <DialogTrigger asChild>
@@ -452,169 +451,169 @@ export default function BatchManagement() {
                   </Dialog>
                 </div>
               </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Search and Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search batch numbers..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search and Filter Controls */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search batch numbers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Batches</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="expiring">Expiring Soon</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="expiryDate">Expiry Date</SelectItem>
+                    <SelectItem value="quantity">Quantity</SelectItem>
+                    <SelectItem value="batchNumber">Batch Number</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Batches</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="expiring">Expiring Soon</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="expiryDate">Expiry Date</SelectItem>
-                  <SelectItem value="quantity">Quantity</SelectItem>
-                  <SelectItem value="batchNumber">Batch Number</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
-            {batchesLoading ? (
-              <p>Loading batches...</p>
-            ) : filteredBatches.length === 0 ? (
-              <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-600">
-                  {batches.length === 0 ? 'No batches found for this medicine' : 'No batches match your filters'}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {batches.length === 0 ? 'Add the first batch to get started' : 'Try adjusting your search or filter criteria'}
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Batch Number</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Expiry Date</TableHead>
-                      <TableHead>Days Until Expiry</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Estimated Value</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredBatches.map((batch: any) => {
-                      const medicine = medicines.find((m: any) => m.id === batch.medicineId);
-                      const batchValue = medicine ? batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0') : 0;
-                      const daysUntilExpiry = Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                      
-                      return (
-                        <TableRow key={batch.id}>
-                          <TableCell className="font-medium font-mono">{batch.batchNumber}</TableCell>
-                          <TableCell>
-                            <span className="font-medium">{batch.quantity}</span>
-                            <span className="text-sm text-gray-500 ml-1">units</span>
-                          </TableCell>
-                          <TableCell>{format(new Date(batch.expiryDate), 'MMM dd, yyyy')}</TableCell>
-                          <TableCell>
-                            <span className={`font-medium ${
-                              daysUntilExpiry < 0 ? 'text-red-600' : 
-                              daysUntilExpiry <= 30 ? 'text-orange-600' : 
-                              'text-green-600'
-                            }`}>
-                              {daysUntilExpiry < 0 ? `${Math.abs(daysUntilExpiry)} days ago` : `${daysUntilExpiry} days`}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            {isExpired(batch.expiryDate) ? (
-                              <Badge variant="destructive" className="bg-red-600">Expired</Badge>
-                            ) : isExpiringSoon(batch.expiryDate) ? (
-                              <Badge variant="destructive">Expiring Soon</Badge>
-                            ) : (
-                              <Badge variant="secondary">Active</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <span className="font-medium">₹{batchValue.toLocaleString()}</span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEdit(batch)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => deleteBatchMutation.mutate(batch.id)}
-                                disabled={deleteBatchMutation.isPending}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-
-            {/* Batch Summary */}
-            {filteredBatches.length > 0 && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Showing:</span>
-                    <span className="font-medium ml-1">{filteredBatches.length} batches</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Total Units:</span>
-                    <span className="font-medium ml-1">
-                      {filteredBatches.reduce((sum: number, batch: any) => sum + batch.quantity, 0)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Total Value:</span>
-                    <span className="font-medium ml-1">
-                      ₹{filteredBatches.reduce((sum: number, batch: any) => {
+              {batchesLoading ? (
+                <p>Loading batches...</p>
+              ) : filteredBatches.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-lg font-medium text-gray-600">
+                    {batches.length === 0 ? 'No batches found for this medicine' : 'No batches match your filters'}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {batches.length === 0 ? 'Add the first batch to get started' : 'Try adjusting your search or filter criteria'}
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Batch Number</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Expiry Date</TableHead>
+                        <TableHead>Days Until Expiry</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Estimated Value</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBatches.map((batch: any) => {
                         const medicine = medicines.find((m: any) => m.id === batch.medicineId);
-                        return sum + (medicine ? batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0') : 0);
-                      }, 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Avg Days to Expiry:</span>
-                    <span className="font-medium ml-1">
-                      {Math.round(
-                        filteredBatches.reduce((sum: number, batch: any) => {
-                          const days = Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                          return sum + Math.max(0, days);
-                        }, 0) / filteredBatches.length
-                      )} days
-                    </span>
+                        const batchValue = medicine ? batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0') : 0;
+                        const daysUntilExpiry = Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                        
+                        return (
+                          <TableRow key={batch.id}>
+                            <TableCell className="font-medium font-mono">{batch.batchNumber}</TableCell>
+                            <TableCell>
+                              <span className="font-medium">{batch.quantity}</span>
+                              <span className="text-sm text-gray-500 ml-1">units</span>
+                            </TableCell>
+                            <TableCell>{format(new Date(batch.expiryDate), 'MMM dd, yyyy')}</TableCell>
+                            <TableCell>
+                              <span className={`font-medium ${
+                                daysUntilExpiry < 0 ? 'text-red-600' : 
+                                daysUntilExpiry <= 30 ? 'text-orange-600' : 
+                                'text-green-600'
+                              }`}>
+                                {daysUntilExpiry < 0 ? `${Math.abs(daysUntilExpiry)} days ago` : `${daysUntilExpiry} days`}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              {isExpired(batch.expiryDate) ? (
+                                <Badge variant="destructive" className="bg-red-600">Expired</Badge>
+                              ) : isExpiringSoon(batch.expiryDate) ? (
+                                <Badge variant="destructive">Expiring Soon</Badge>
+                              ) : (
+                                <Badge variant="secondary">Active</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <span className="font-medium">₹{batchValue.toLocaleString()}</span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEdit(batch)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => deleteBatchMutation.mutate(batch.id)}
+                                  disabled={deleteBatchMutation.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+
+              {/* Batch Summary */}
+              {filteredBatches.length > 0 && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Showing:</span>
+                      <span className="font-medium ml-1">{filteredBatches.length} batches</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Total Units:</span>
+                      <span className="font-medium ml-1">
+                        {filteredBatches.reduce((sum: number, batch: any) => sum + batch.quantity, 0)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Total Value:</span>
+                      <span className="font-medium ml-1">
+                        ₹{filteredBatches.reduce((sum: number, batch: any) => {
+                          const medicine = medicines.find((m: any) => m.id === batch.medicineId);
+                          return sum + (medicine ? batch.quantity * parseFloat(medicine.discountedPrice || medicine.mrp || '0') : 0);
+                        }, 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Avg Days to Expiry:</span>
+                      <span className="font-medium ml-1">
+                        {Math.round(
+                          filteredBatches.reduce((sum: number, batch: any) => {
+                            const days = Math.ceil((new Date(batch.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                            return sum + Math.max(0, days);
+                          }, 0) / filteredBatches.length
+                        )} days
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

@@ -274,9 +274,9 @@ export default function Dashboard() {
                   <Package className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
                 <p className="font-semibold text-gray-800 mb-1 text-sm sm:text-base">
-                  Batch Management
+                  Enhanced Batch Management
                 </p>
-                <p className="text-xs text-gray-600">Track inventory batches</p>
+                <p className="text-xs text-gray-600">Advanced inventory control</p>
               </CardContent>
             </Card>
           </Link>
