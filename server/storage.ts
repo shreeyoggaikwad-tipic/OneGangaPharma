@@ -129,6 +129,7 @@ export interface IStorage {
   getStores(): Promise<Store[]>;
   onboardStore(data: any): Promise<{ store: Store; admin: User }>;
   updateStore(storeId: number, data: Partial<Store>): Promise<Store>;
+  activateStore(storeId: number): Promise<void>;
   deactivateStore(storeId: number): Promise<void>;
 
   // Batch management operations

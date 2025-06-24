@@ -1336,6 +1336,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/superadmin/stores/:id/activate", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.activateStore(parseInt(req.params.id));
+      res.json({ message: "Store activated successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.put("/api/superadmin/stores/:id/deactivate", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
     try {
       await storage.deactivateStore(parseInt(req.params.id));

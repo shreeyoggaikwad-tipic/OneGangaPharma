@@ -18,7 +18,8 @@ import {
   Building2,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  CheckCircle
 } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -70,6 +71,32 @@ export default function StoreManagement() {
       toast({
         title: "Error",
         description: "Failed to deactivate store.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const activateStoreMutation = useMutation({
+    mutationFn: async (storeId: number) => {
+      const response = await fetch(`/api/superadmin/stores/${storeId}/activate`, {
+        method: "PUT",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to activate store");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Store Activated",
+        description: "The store has been activated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/superadmin/stores"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to activate store.",
         variant: "destructive",
       });
     },
@@ -426,7 +453,7 @@ export default function StoreManagement() {
                     </DialogContent>
                   </Dialog>
                   
-                  {store.isActive && (
+                  {store.isActive ? (
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -435,6 +462,17 @@ export default function StoreManagement() {
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Deactivate
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => activateStoreMutation.mutate(store.id)}
+                      disabled={activateStoreMutation.isPending}
+                      className="text-green-600 hover:text-green-700 border-green-200 hover:border-green-300"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Activate
                     </Button>
                   )}
                 </div>
