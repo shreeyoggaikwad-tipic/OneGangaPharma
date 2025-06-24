@@ -1215,7 +1215,7 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(medicineInventory.medicineId, medicineId),
           gte(medicineInventory.quantity, 1),
-          gte(medicineInventory.expiryDate, today) // Only non-expired batches
+          sql`${medicineInventory.expiryDate} >= ${sql`CURRENT_DATE + INTERVAL '3 months'`}` // Only batches with 3+ months shelf life
         )
       )
       .orderBy(asc(medicineInventory.expiryDate));
