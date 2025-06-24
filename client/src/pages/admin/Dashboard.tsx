@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { BarChart3, Package, ShoppingCart, Users, DollarSign, TrendingUp, AlertTriangle, FileText, Clock, Trash2, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
