@@ -306,7 +306,13 @@ export class DatabaseStorage implements IStorage {
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
         category: medicineCategories,
-        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
+          CASE 
+            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+            THEN ${medicineInventory.quantity} 
+            ELSE 0 
+          END
+        ), 0) - COALESCE((
           SELECT SUM(${cartItems.quantity}) 
           FROM ${cartItems} 
           WHERE ${cartItems.medicineId} = ${medicines.id}
@@ -395,7 +401,13 @@ export class DatabaseStorage implements IStorage {
         isActive: medicines.isActive,
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
-        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
+          CASE 
+            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+            THEN ${medicineInventory.quantity} 
+            ELSE 0 
+          END
+        ), 0) - COALESCE((
           SELECT SUM(${cartItems.quantity}) 
           FROM ${cartItems} 
           WHERE ${cartItems.medicineId} = ${medicines.id}
@@ -405,12 +417,24 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
       .where(eq(medicines.isActive, true))
       .groupBy(medicines.id)
-      .having(sql`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+      .having(sql`GREATEST(0, COALESCE(SUM(
+        CASE 
+          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+          THEN ${medicineInventory.quantity} 
+          ELSE 0 
+        END
+      ), 0) - COALESCE((
         SELECT SUM(${cartItems.quantity}) 
         FROM ${cartItems} 
         WHERE ${cartItems.medicineId} = ${medicines.id}
       ), 0)) < 20`)
-      .orderBy(sql`GREATEST(0, COALESCE(SUM(${medicineInventory.quantity}), 0) - COALESCE((
+      .orderBy(sql`GREATEST(0, COALESCE(SUM(
+        CASE 
+          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE 
+          THEN ${medicineInventory.quantity} 
+          ELSE 0 
+        END
+      ), 0) - COALESCE((
         SELECT SUM(${cartItems.quantity}) 
         FROM ${cartItems} 
         WHERE ${cartItems.medicineId} = ${medicines.id}
