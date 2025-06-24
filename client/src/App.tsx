@@ -167,6 +167,16 @@ function Router() {
             <StoreManagement />
           </ProtectedRoute>
         </Route>
+        <Route path="/superadmin/analytics">
+          <ProtectedRoute requiredRole="super_admin">
+            <PlatformAnalytics />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/superadmin/users">
+          <ProtectedRoute requiredRole="super_admin">
+            <UserManagement />
+          </ProtectedRoute>
+        </Route>
         <Route path="/admin/notifications">
           <ProtectedRoute requiredRole="admin">
             <AdminNotifications />

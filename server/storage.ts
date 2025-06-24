@@ -126,6 +126,21 @@ export interface IStorage {
     totalOrders: number;
     totalSales: number;
   }>;
+  getPlatformAnalytics(): Promise<{
+    totalStores: number;
+    activeStores: number;
+    totalUsers: number;
+    totalOrders: number;
+    totalSales: number;
+    totalMedicines: number;
+    recentActivity: {
+      newStores: number;
+      newUsers: number;
+      ordersToday: number;
+      salesToday: number;
+    };
+  }>;
+  getAllUsers(): Promise<any[]>;
   getStores(): Promise<Store[]>;
   onboardStore(data: any): Promise<{ store: Store; admin: User }>;
   updateStore(storeId: number, data: Partial<Store>): Promise<Store>;

@@ -1308,6 +1308,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/superadmin/platform-analytics", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const analytics = await storage.getPlatformAnalytics();
+      res.json(analytics);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/superadmin/users", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/superadmin/stores", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
     try {
       const stores = await storage.getStores();
