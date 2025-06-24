@@ -49,8 +49,9 @@ function Router() {
   // Determine home component based on user role
   const getHomeComponent = () => {
     if (!isAuthenticated) return Landing;
-    if (user?.role === "admin") return Dashboard;
-    return Home;
+    if (user?.role === 0) return SuperAdminDashboard; // Super admin
+    if (user?.role === 1 || user?.role === "admin") return Dashboard; // Admin
+    return Home; // Customer
   };
 
   return (
