@@ -63,10 +63,7 @@ export default function StoreOnboarding() {
 
   const onboardStoreMutation = useMutation({
     mutationFn: async (data: StoreFormData) => {
-      return apiRequest("/api/superadmin/stores/onboard", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return apiRequest("POST", "/api/superadmin/stores/onboard", data);
     },
     onSuccess: () => {
       toast({
