@@ -137,7 +137,7 @@ export default function Landing() {
       {/* Features */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Sharda Med?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose OneGanga Pharma ?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">

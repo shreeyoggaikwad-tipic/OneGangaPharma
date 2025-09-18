@@ -61,13 +61,70 @@ import {
   Mail,
 } from "lucide-react";
 
+// const profileSchema = z.object({
+//   firstName: z.string().min(2, "First name must be at least 2 characters"),
+//   lastName: z.string().min(2, "Last name must be at least 2 characters"),
+//   phone: z.string().min(10, "Phone number must be at least 10 digits"),
+//   gender: z.enum(["male", "female", "other"]).optional(),
+//   dateOfBirth: z.string().optional(),
+// });
+// const profileSchema = z.object({
+//   firstName: z.string().min(2, "First name must be at least 2 characters"),
+//   lastName: z.string().min(2, "Last name must be at least 2 characters"),
+//   phone: z.string().min(10, "Phone number must be at least 10 digits"),
+//   gender: z.enum(["male", "female", "other"]).optional(),
+//   dateOfBirth: z.preprocess((val) => {
+//     if (typeof val === "string" && val.trim() !== "") {
+//       return new Date(val);
+//     }
+//     return undefined; // or val if you want to allow null/undefined
+//   }, z.date().optional()),
+// });
+
+
+// const profileSchema = z.object({
+//   firstName: z.string().min(2, "First name must be at least 2 characters"),
+//   lastName: z.string().min(2, "Last name must be at least 2 characters"),
+//   phone: z.string().min(10, "Phone number must be at least 10 digits"),
+//   gender: z.enum(["male", "female", "other"]).optional(),
+//   dateOfBirth: z.preprocess((val) => {
+//     if (typeof val === "string" && val.trim() !== "") {
+//       return new Date(val);
+//     }
+//     return undefined;
+//   }, z.date().optional()),
+// });
+
+// const input = {
+//   firstName: "mmmm",
+//   lastName: "mmmm",
+//   phone: "07666287015",
+//   dateOfBirth: "2025-08-28T00:00:00.000Z",
+// };
+
+// const parsed = profileSchema.parse(input);
+// console.log(parsed);
+// // Output: {
+// //   firstName: "mmmm",
+// //   lastName: "mmmm",
+// //   phone: "07666287015",
+// //   dateOfBirth: 2025-08-28T00:00:00.000Z (Date object)
+// // }
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   gender: z.enum(["male", "female", "other"]).optional(),
-  dateOfBirth: z.string().optional(),
+  dateOfBirth: z.preprocess((val) => {
+    if (typeof val === "string" && val.trim() !== "") {
+      const date = new Date(val);
+      return isNaN(date.getTime()) ? undefined : date;
+    }
+    return undefined;
+  }, z.date().optional()),
 });
+
+
 
 const addressSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),

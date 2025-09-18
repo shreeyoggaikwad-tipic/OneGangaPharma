@@ -70,7 +70,7 @@ export function PaymentAnalytics({ children }: PaymentAnalyticsProps) {
   const sendWhatsAppReminder = (order: PaymentAnalyticsData) => {
     const message = `Dear ${order.customerName},
 
-This is a gentle reminder from Sharda Med regarding your order #${order.orderNumber} worth ₹${safeAmountToNumber(order.totalAmount).toFixed(2)}.
+This is a gentle reminder from OneGanga Pharma  regarding your order #${order.orderNumber} worth ₹${safeAmountToNumber(order.totalAmount).toFixed(2)}.
 
 Your payment is still pending. Please complete the payment at your earliest convenience.
 
@@ -79,10 +79,10 @@ Payment Options:
 - UPI: shardamed@upi
 - Call us: +91-800-SHARDA-MED
 
-Thank you for choosing Sharda Med!
+Thank you for choosing OneGanga Pharma !
 
 Best regards,
-Sharda Med Team`;
+OneGanga Pharma  Team`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/91${order.customerPhone.replace(/[^0-9]/g, '')}?text=${encodedMessage}`;

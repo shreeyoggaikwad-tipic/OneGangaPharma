@@ -24,7 +24,7 @@ const translations = {
     'auth.password': 'Password',
     'auth.firstName': 'First Name',
     'auth.lastName': 'Last Name',
-    'auth.welcome': 'Welcome to Sharda Med',
+    'auth.welcome': 'Welcome to OneGanga Pharma ',
     'auth.signInMessage': 'Sign in to access your medical dashboard',
     'auth.signUpMessage': 'Create your account to get started',
     'auth.forgotPassword': 'Forgot Password?',
@@ -531,11 +531,11 @@ const translations = {
     'success.allNotificationsCleared': 'All notifications cleared successfully',
     
     // App
-    'app.title': 'Sharda Med',
+    'app.title': 'OneGanga Pharma ',
     'app.subtitle': 'Your Trusted Online Pharmacy',
     'app.description': 'Order medicines online with prescription support. Fast delivery, genuine products, and trusted service.',
     'app.tagline': 'Health at your fingertips',
-    'app.copyright': '© 2024 Sharda Med. All rights reserved.',
+    'app.copyright': '© 2024 OneGanga Pharma . All rights reserved.',
     'app.privacyPolicy': 'Privacy Policy',
     'app.termsOfService': 'Terms of Service',
     'app.contactUs': 'Contact Us',

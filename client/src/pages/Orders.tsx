@@ -31,6 +31,7 @@ import {
   Receipt,
 } from "lucide-react";
 import Invoice from "@/components/Invoice";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -44,9 +45,20 @@ export default function Orders() {
   useScrollToTopOnMount();
 
   // Get orders
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["/api/orders"],
-  });
+  // const { data: orders = [], isLoading } = useQuery({
+  //   queryKey: ["/api/orders"],
+  // });
+// const storeId = 1; // you can get this dynamically (from context, user session, or state)
+const { user } = useAuth(); // assuming you store logged-in user with storeId
+const storeId = user?.storeId;
+const { data: orders = [], isLoading } = useQuery({
+  queryKey: ["/api/orders", storeId],
+  queryFn: async () => {
+    const res = await fetch(`/api/orders?storeId=${storeId}`);
+    if (!res.ok) throw new Error("Failed to fetch orders");
+    return res.json();
+  },
+});
 
   // Categorize orders
   const { activeOrders, deliveredOrders } = useMemo(() => {

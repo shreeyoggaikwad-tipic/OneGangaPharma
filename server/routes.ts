@@ -2,8 +2,9 @@ import type { Express, Request, Response } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import MySQLStore from "express-mysql-session";
 import { storage } from "./storage";
+
 import { 
   insertUserSchema, 
   insertAddressSchema, 
@@ -17,7 +18,8 @@ import {
   orders,
   orderItems,
   users,
-  addresses
+  addresses,
+  stores
 } from "@shared/schema";
 import { db } from "./db";
 import { config, updateMinimumShelfLife } from "./config";
@@ -27,16 +29,37 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import yauzl from "yauzl";
+import bcrypt from "bcrypt";
+// fetch('/api/auth/user', {
+//   method: 'GET',
+//   credentials: 'include',
+// });
 
 // Session configuration
 function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
+  const MySQLStoreClass = MySQLStore(session);
+  
+  // Parse MySQL connection string
+  const dbUrl = new URL(process.env.DATABASE_URL!);
+  const sessionStore = new MySQLStoreClass({
+    host: dbUrl.hostname,
+    port: parseInt(dbUrl.port) || 3306,
+    user: dbUrl.username,
+    password: dbUrl.password,
+    database: dbUrl.pathname.slice(1),
+    clearExpired: true,
+    checkExpirationInterval: 900000,
+    expiration: sessionTtl,
+    createDatabaseTable: false,
+    schema: {
+      tableName: 'sessions',
+      columnNames: {
+        session_id: 'sid',
+        expires: 'expire',
+        data: 'sess'
+      }
+    }
   });
   
   return session({
@@ -54,6 +77,7 @@ function getSession() {
 
 // Authentication middleware
 const isAuthenticated = async (req: any, res: Response, next: any) => {
+  console.log('Session in auth check:', req.session);
   if (!req.session?.userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -66,6 +90,12 @@ const isAuthenticated = async (req: any, res: Response, next: any) => {
   req.user = user;
   next();
 };
+// const isAuthenticated = (req: any, res: Response, next: any) => {
+//   if (!req.session || !req.session.userId) {
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
+//   next(); // only call next() once
+// };
 
 // Admin middleware
 const isAdmin = (req: any, res: Response, next: any) => {
@@ -83,7 +113,8 @@ const isSuperAdmin = (req: any, res: Response, next: any) => {
 };
 
 // File upload configuration with cross-platform support
-const uploadDir = path.resolve(process.cwd(), "uploads");
+// const uploadDir = path.resolve(process.cwd(), "uploads");
+const uploadDir = path.join(process.cwd(), 'uploads');
 const medicineImagesDir = path.join(uploadDir, "medicine-images");
 const prescriptionDir = path.join(uploadDir, "prescriptions");
 const tempDir = path.join(uploadDir, "temp");
@@ -261,6 +292,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
+     
+      
+
+      if(user.role ===2){
+        return res.status(401).json({ message: "Invalid User Type" });
+      }
 
       const isValidPassword = await storage.verifyPassword(password, user.password);
       if (!isValidPassword) {
@@ -277,25 +314,169 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    // Auth routes
+  app.post("/api/auth/customer/login", async (req: Request, res: Response) => {
     try {
-      const userData = insertUserSchema.parse(req.body);
+      const { email, password ,slug} = req.body;
       
-      const existingUser = await storage.getUserByEmail(userData.email);
-      if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
+      if (!email || !password ||!slug) {
+        return res.status(400).json({ message: "Email and password or slug  required" });
       }
 
-      const user = await storage.createUser(userData);
+      const validUser = await storage.getValidCompanyUser(slug,email);
+      
+      if (!validUser) {
+        return res.status(401).json({ message: "Not allowed for Selected Store" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+     
+
+      if(user.role ===1 || user.role === 0 ){
+        return res.status(401).json({ message: "Invalid User Type" });
+      }
+console.log(user.password,"kkk");
+      const isValidPassword = await storage.verifyPassword(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+
       (req.session as any).userId = user.id;
       
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Registration failed" });
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
     }
   });
+
+//   app.post("/api/auth/register", async (req: Request, res: Response) => {
+//     try {
+//       const userData = insertUserSchema.parse(req.body);
+      
+//       const existingUser = await storage.getUserByEmail(userData.email);
+//       if (existingUser) {
+//         return res.status(400).json({ message: "User already exists" });
+//       }
+
+//       const user = await storage.createUser(userData);
+//       (req.session as any).userId = user.id;
+      
+//       const { password: _, ...userWithoutPassword } = user;
+//       res.json(userWithoutPassword);
+//     } catch (error) {
+//       console.error("Registration error:", error);
+//       res.status(500).json({ message: "Registration failed" });
+//     }
+//   });
+//   app.get("/api/auth/user", isAuthenticated, async (req: any, res: Response) => {
+//   const user = await db.query.users.findFirst({
+//     where: (u, { eq }) => eq(u.id, req.session.userId),
+//   });
+
+//   if (!user) {
+//     return res.status(404).json({ message: "User not found" });
+//   }
+
+//   const { password: _, ...userWithoutPassword } = user;
+//   res.json(userWithoutPassword);
+// });
+
+app.post("/api/auth/register", async (req: Request, res: Response) => {
+  try {
+    // const { name, email, password } = req.body;
+const { firstName,lastName, email, password } = req.body;
+    if (!firstName || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password required" });
+    }
+
+    // Check if user already exists
+    const existingUser = await storage.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({ message: "User with this email already exists" });
+    }
+
+    // Hash the passwordt
+    // const hashedPassword = await sorage.hashPassword(password);
+const hashedPassword = await bcrypt.hash(password, 10);
+    // Create user
+    const user = await storage.createUser({
+     firstName,
+      lastName,
+      email,
+      password,
+      role: 2, // assuming 2 is customer role
+      });
+
+    // Set session
+    (req.session as any).userId = user.id;
+
+    const { password: _, ...userWithoutPassword } = user;
+    res.status(201).json(userWithoutPassword);
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Registration failed" });
+  }
+});
+
+app.post("/api/auth/customer/register", async (req: Request, res: Response) => {
+  try {
+    const { firstName,lastName, email, password, slug } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName|| !email || !password || !slug) {
+      return res.status(400).json({ message: "Name, email, password, and slug are required" });
+    }
+
+    // Check if company/store exists for the slug
+    // const validUser = await storage.getValidCompanyUser(slug, email);
+    // if (!validUser) {
+    //   return res.status(401).json({ message: "Not allowed for Selected Store" });
+    // }
+    const store = await storage.getSroreIdBySlug(slug);
+    
+  
+    // if (!validUser) {
+    //   return res.status(401).json({ message: "Not allowed for Selected Store" });
+    // }
+
+
+    // Check if user already exists
+    const existingUser = await storage.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({ message: "User with this email already exists" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user in database
+    const newUser = await storage.createUser({
+      firstName,
+      lastName,
+      email,
+      password,
+      role: 2, // assuming 2 is customer role
+      storeId: store[0].id,
+    });
+
+    // Set session
+    (req.session as any).userId = newUser.id;
+
+    const { password: _, ...userWithoutPassword } = newUser;
+    res.status(201).json(userWithoutPassword);
+
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Registration failed" });
+  }
+});
 
   app.post("/api/auth/logout", (req: Request, res: Response) => {
     req.session?.destroy(() => {
@@ -314,23 +495,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(userWithoutPassword);
   });
 
+
+ app.get("/api/getStoreSlugs", async (req, res) => {
+  try {
+    const result = await db.select({ slug: stores.slug }).from(stores);
+    const slugs = result.map(store => store.slug); // ["store-1", "store-2"]
+    res.json(slugs);
+  } catch (error) {
+    console.error("Error fetching store slugs:", error);
+    res.status(500).json({ error: "Failed to fetch store slugs" });
+  }
+});
+  // app.put("/api/profile", isAuthenticated, async (req: any, res: Response) => {
+  //   try {
+  //     const updateData = insertUserSchema.partial().parse(req.body);
+  //     const updatedUser = await storage.updateUser(req.user.id, updateData);
+      
+  //     // If phone number was updated, sync it across all user addresses
+  //     if (updateData.phone) {
+  //       await storage.syncUserPhoneToAddresses(req.user.id, updateData.phone);
+  //     }
+      
+  //     const { password: _, ...userWithoutPassword } = updatedUser;
+  //     res.json(userWithoutPassword);
+  //   } catch (error) {
+  //     console.error("Profile update error:", error);
+  //     res.status(500).json({ message: "Profile update failed" });
+  //   }
+  // });
   app.put("/api/profile", isAuthenticated, async (req: any, res: Response) => {
-    try {
-      const updateData = insertUserSchema.partial().parse(req.body);
-      const updatedUser = await storage.updateUser(req.user.id, updateData);
-      
-      // If phone number was updated, sync it across all user addresses
-      if (updateData.phone) {
-        await storage.syncUserPhoneToAddresses(req.user.id, updateData.phone);
-      }
-      
-      const { password: _, ...userWithoutPassword } = updatedUser;
-      res.json(userWithoutPassword);
-    } catch (error) {
-      console.error("Profile update error:", error);
-      res.status(500).json({ message: "Profile update failed" });
+  try {
+    // Convert dateOfBirth string to Date object before parsing
+    if (req.body.dateOfBirth && typeof req.body.dateOfBirth === "string") {
+      req.body.dateOfBirth = new Date(req.body.dateOfBirth);
     }
-  });
+    const updateData = insertUserSchema.partial().parse(req.body);
+
+    const updatedUser = await storage.updateUser(req.user.id, updateData);
+
+    if (updateData.phone) {
+      await storage.syncUserPhoneToAddresses(req.user.id, updateData.phone);
+    }
+
+    const { password: _, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error("Profile update error:", error);
+    res.status(500).json({ message: "Profile update failed" });
+  }
+});
+
 
   // Get user by ID (for fresh user data in invoices)
   app.get("/api/user/:id", isAuthenticated, async (req: Request, res: Response) => {
@@ -399,23 +613,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Medicine routes
-  app.get("/api/medicines", async (req: Request, res: Response) => {
-    try {
-      const { search } = req.query;
-      let medicines;
+  // app.get("/api/medicines", async (req: Request, res: Response) => {
+  //   try {
+  //     const { search } = req.query;
+  //     let medicines;
       
-      if (search && typeof search === "string") {
-        medicines = await storage.searchMedicines(search);
-      } else {
-        medicines = await storage.getMedicines();
-      }
+  //     if (search && typeof search === "string") {
+  //       medicines = await storage.searchMedicines(search);
+  //     } else {
+  //       medicines = await storage.getMedicines();
+  //     }
       
-      res.json(medicines);
-    } catch (error) {
-      console.error("Get medicines error:", error);
-      res.status(500).json({ message: "Failed to get medicines" });
+  //     res.json(medicines);
+  //   } catch (error) {
+  //     console.error("Get medicines error:", error);
+  //     res.status(500).json({ message: "Failed to get medicines" });
+  //   }
+  // });
+// app.get("/api/medicines", async (req: Request, res: Response) => {
+//   try {
+//     const { search, storeId } = req.query;
+// console.log(storeId,"qqqqqqqqqqqqqqqqqqqqq");
+
+//     if (!storeId) {
+//       return res.status(400).json({ message: "storeId is required" });
+//     }
+
+//     let medicines;
+//     if (search && typeof search === "string") {
+//       medicines = await storage.searchMedicines(search, Number(storeId));
+//     } else {
+//       medicines = await storage.getMedicines(Number(storeId));
+//     }
+
+//     res.json(medicines);
+//   } catch (error) {
+//     console.error("Get medicines error:", error);
+//     res.status(500).json({ message: "Failed to get medicines" });
+//   }
+// });
+app.get("/api/medicines", async (req: Request, res: Response) => {
+  try {
+    const search = req.query.search as string | undefined;
+    const storeId = req.query.storeId ? Number(req.query.storeId) : undefined;
+
+    console.log("req.query:", req.query);
+    console.log("Parsed storeId:", storeId);
+
+    if (!storeId) {
+      return res.status(400).json({ message: "storeId is required" });
     }
-  });
+
+    let medicines;
+    if (search && typeof search === "string") {
+      medicines = await storage.searchMedicines(search, storeId);
+    } else {
+      medicines = await storage.getMedicines(storeId);
+    }
+
+    res.json(medicines);
+  } catch (error) {
+    console.error("Get medicines error:", error);
+    res.status(500).json({ message: "Failed to get medicines" });
+  }
+});
+
 
   app.get("/api/medicines/:id", async (req: Request, res: Response) => {
     try {
@@ -428,43 +690,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get medicine error:", error);
       res.status(500).json({ message: "Failed to get medicine" });
-    }
-  });
-
-  app.get("/api/medicine-categories", async (req: Request, res: Response) => {
-    try {
-      const categories = await storage.getMedicineCategories();
-      res.json(categories);
-    } catch (error) {
-      console.error("Get categories error:", error);
-      res.status(500).json({ message: "Failed to get categories" });
-    }
-  });
-
-  app.post("/api/admin/medicine-categories", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      const { name, description, isScheduleH } = req.body;
       
-      if (!name || name.trim().length < 2) {
-        return res.status(400).json({ message: "Category name is required and must be at least 2 characters" });
-      }
-
-      const category = await storage.createMedicineCategory(
-        name.trim(),
-        description?.trim(),
-        Boolean(isScheduleH)
-      );
-      
-      res.status(201).json(category);
-    } catch (error: any) {
-      console.error("Create category error:", error);
-      if (error.code === '23505') { // Unique constraint violation
-        res.status(400).json({ message: "Category name already exists" });
-      } else {
-        res.status(500).json({ message: "Failed to create category" });
-      }
     }
   });
+
+  // app.get("/api/medicine-categories", async (req: Request, res: Response) => {
+  //   try {
+  //     const categories = await storage.getMedicineCategories();
+  //     res.json(categories);
+  //   } catch (error) {
+  //     console.error("Get categories error:", error);
+  //     res.status(500).json({ message: "Failed to get categories" });
+  //   }
+  // });
+
+  // app.post("/api/admin/medicine-categories", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  //   try {
+  //     const { name, description, isScheduleH } = req.body;
+      
+  //     if (!name || name.trim().length < 2) {
+  //       return res.status(400).json({ message: "Category name is required and must be at least 2 characters" });
+  //     }
+
+  //     const category = await storage.createMedicineCategory(
+  //       name.trim(),
+  //       description?.trim(),
+  //       Boolean(isScheduleH)
+  //     );
+      
+  //     res.status(201).json(category);
+  //   } catch (error: any) {
+  //     console.error("Create category error:", error);
+  //     if (error.code === '23505') { // Unique constraint violation
+  //       res.status(400).json({ message: "Category name already exists" });
+  //     } else {
+  //       res.status(500).json({ message: "Failed to create category" });
+  //     }
+  //   }
+  // });
+  app.get("/api/medicine-categories", isAuthenticated, async (req: Request, res: Response) => {
+  try {
+    const user = req.user as any; // comes from auth middleware
+    if (!user?.storeId) {
+      return res.status(400).json({ message: "User is not associated with any store" });
+    }
+
+    const categories = await storage.getMedicineCategories(user.storeId);
+    res.json(categories);
+  } catch (error) {
+    console.error("Get categories error:", error);
+    res.status(500).json({ message: "Failed to get categories" });
+  }
+});
+
+// ✅ POST categories for current user's store
+app.post("/api/admin/medicine-categories", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  try {
+    const { name, description, isScheduleH } = req.body;
+    const user = req.user as any;
+
+    if (!user?.storeId) {
+      return res.status(400).json({ message: "User is not associated with any store" });
+    }
+
+    if (!name || name.trim().length < 2) {
+      return res.status(400).json({ message: "Category name is required and must be at least 2 characters" });
+    }
+
+    const category = await storage.createMedicineCategory(
+      name.trim(),
+      description?.trim(),
+      Boolean(isScheduleH),
+      user.storeId
+    );
+
+    res.status(201).json(category);
+  } catch (error: any) {
+    console.error("Create category error:", error);
+    if (error.code === '23505') {
+      res.status(400).json({ message: "Category name already exists in this store" });
+    } else {
+      res.status(500).json({ message: "Failed to create category" });
+    }
+  }
+});
 
   // Medicine photo upload route
   app.post("/api/admin/medicines/:id/photos", isAuthenticated, isAdmin, 
@@ -616,39 +925,165 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // Admin medicine management routes
-  app.post("/api/admin/medicines", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      const medicineData = insertMedicineSchema.parse(req.body);
-      const medicine = await storage.createMedicine(medicineData);
-      res.json(medicine);
-    } catch (error) {
-      console.error("Create medicine error:", error);
-      res.status(500).json({ message: "Failed to create medicine" });
-    }
-  });
+// app.post("/api/admin/medicines", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+//   try {
+//     console.log("=== MEDICINE CREATION START ===");
+//     console.log("Request body:", JSON.stringify(req.body, null, 2));
+    
+//     // Create medicine data directly without Zod validation for storeId
+//     const medicineData = {
+//       name: req.body.name,
+//       description: req.body.description,
+//       dosage: req.body.dosage,
+//       mrp: req.body.mrp,
+//       discount: req.body.discount || "0.00",
+//       discountedPrice: req.body.discountedPrice || req.body.mrp,
+//       categoryId: req.body.categoryId,
+//       manufacturer: req.body.manufacturer,
+//       requiresPrescription: req.body.requiresPrescription || false,
+//       frontImageUrl: req.body.frontImageUrl,
+//       backImageUrl: req.body.backImageUrl,
+//       isActive: req.body.isActive !== false,
+//       storeId:req.body.store_id , // Force set to 1
+//     };
+    
+//     console.log("Final medicine data:", JSON.stringify(medicineData, null, 2));
+    
+//     const medicine = await storage.createMedicine(medicineData);
+//     console.log("Medicine created successfully:", medicine);
+//     res.json(medicine);
+//   } catch (error) {
+//     console.error("Create medicine error:", error);
+//     res.status(500).json({ message: "Failed to create medicine" });
+//   }
+// });
+// app.post("/api/admin/medicines", isAuthenticated, isAdmin, async (req, res) => {
+//   try {
+//     const storeId = req.user.storeId; // from JWT/session
 
-  app.put("/api/admin/medicines/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const updateData = insertMedicineSchema.partial().parse(req.body);
-      const medicine = await storage.updateMedicine(id, updateData);
-      res.json(medicine);
-    } catch (error) {
-      console.error("Update medicine error:", error);
-      res.status(500).json({ message: "Failed to update medicine" });
-    }
-  });
+//     if (!storeId) {
+//       return res.status(400).json({ message: "Store ID is missing for this admin" });
+//     }
 
-  app.delete("/api/admin/medicines/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deleteMedicine(id);
-      res.json({ message: "Medicine deleted" });
-    } catch (error) {
-      console.error("Delete medicine error:", error);
-      res.status(500).json({ message: "Failed to delete medicine" });
-    }
-  });
+//     const medicineData = {
+//       ...req.body,
+//       storeId
+//     };
+
+//     const medicine = await storage.createMedicine(medicineData);
+//     res.json(medicine);
+//   } catch (error) {
+//     console.error("Create medicine error:", error);
+//     res.status(500).json({ message: "Failed to create medicine" });
+//   }
+// });
+
+//   app.put("/api/admin/medicines/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+//     try {
+//       const id = parseInt(req.params.id);
+//       const updateData = insertMedicineSchema.partial().parse(req.body);
+//       const medicine = await storage.updateMedicine(id, updateData);
+//       res.json(medicine);
+//     } catch (error) {
+//       console.error("Update medicine error:", error);
+//       res.status(500).json({ message: "Failed to update medicine" });
+//     }
+//   });
+
+//   app.delete("/api/admin/medicines/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+//     try {
+//       const id = parseInt(req.params.id);
+//       await storage.deleteMedicine(id);
+//       res.json({ message: "Medicine deleted" });
+//     } catch (error) {
+//       console.error("Delete medicine error:", error);
+//       res.status(500).json({ message: "Failed to delete medicine" });
+//     }
+//   });
+
+app.post("/api/admin/medicines", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const storeId = req.user.storeId;
+    if (!storeId) return res.status(400).json({ message: "Store ID missing" });
+
+    const medicineData = {
+      ...req.body,
+      storeId
+    };
+ console.log(storeId,"sid");
+ 
+    const medicine = await storage.createMedicine(medicineData);
+    res.json(medicine);
+  } catch (error) {
+    console.error("Create medicine error:", error);
+    res.status(500).json({ message: "Failed to create medicine" });
+  }
+});
+
+app.put("/api/admin/medicines/:id", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const storeId = req.user.storeId;
+    const id = parseInt(req.params.id);
+    const updateData = insertMedicineSchema.partial().parse(req.body);
+
+    const medicine = await storage.updateMedicine(id, updateData, storeId);
+    res.json(medicine);
+  } catch (error) {
+    console.error("Update medicine error:", error);
+    res.status(500).json({ message: "Failed to update medicine" });
+  }
+});
+
+app.delete("/api/admin/medicines/:id", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const storeId = req.user.storeId;
+    const id = parseInt(req.params.id);
+    await storage.deleteMedicine(id, storeId);
+    res.json({ message: "Medicine deleted" });
+  } catch (error) {
+    console.error("Delete medicine error:", error);
+    res.status(500).json({ message: "Failed to delete medicine" });
+  }
+});
+
+app.get("/api/admin/inventory/:medicineId", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const storeId = req.user.storeId;
+    const medicineId = parseInt(req.params.medicineId);
+    const inventory = await storage.getMedicineInventory(medicineId, storeId);
+    res.json(inventory);
+  } catch (error) {
+    console.error("Get inventory error:", error);
+    res.status(500).json({ message: "Failed to get inventory" });
+  }
+});
+
+app.post("/api/admin/inventory", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const storeId = req.user.storeId;
+    const inventoryData = insertMedicineInventorySchema.parse(req.body);
+    const inventory = await storage.createMedicineInventory(inventoryData, storeId);
+    res.json(inventory);
+  } catch (error) {
+    console.error("Create inventory error:", error);
+    res.status(500).json({ message: "Failed to create inventory" });
+  }
+});
+
+app.put("/api/admin/inventory/:id", isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const storeId = req.user.storeId;
+    const id = parseInt(req.params.id);
+    const updateData = insertMedicineInventorySchema.partial().parse(req.body);
+    const inventory = await storage.updateMedicineInventory(id, updateData, storeId);
+    res.json(inventory);
+  } catch (error) {
+    console.error("Update inventory error:", error);
+    res.status(500).json({ message: "Failed to update inventory" });
+  }
+});
+
+
 
   app.get("/api/admin/low-stock", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
@@ -751,15 +1186,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Order routes
+  // app.get("/api/orders", isAuthenticated, async (req: any, res: Response) => {
+  //   try {
+  //     const orders = await storage.getOrdersByUserId(req.user.id);
+  //     res.json(orders);
+  //   } catch (error) {
+  //     console.error("Get orders error:", error);
+  //     res.status(500).json({ message: "Failed to get orders" });
+  //   }
+  // });
   app.get("/api/orders", isAuthenticated, async (req: any, res: Response) => {
-    try {
-      const orders = await storage.getOrdersByUserId(req.user.id);
-      res.json(orders);
-    } catch (error) {
-      console.error("Get orders error:", error);
-      res.status(500).json({ message: "Failed to get orders" });
+  try {
+    const { storeId } = req.query; // storeId will come from query params
+
+    if (!storeId) {
+      return res.status(400).json({ message: "storeId is required" });
     }
-  });
+
+    // Now fetch orders only for that user & that store
+    const orders = await storage.getOrdersByUserIdAndStore(req.user.id, Number(storeId));
+
+    res.json(orders);
+  } catch (error) {
+    console.error("Get orders error:", error);
+    res.status(500).json({ message: "Failed to get orders" });
+  }
+});
+
 
   app.get("/api/orders/:id", isAuthenticated, async (req: any, res: Response) => {
     try {
@@ -841,6 +1294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const orderData = {
         userId: req.user.id,
+        storeId: req.user.storeId,   // <---- add this
         totalAmount: totalAmount.toString(),
         billingAddressId: billingAddressId || null,
         shippingAddressId: shippingAddressId || null,
@@ -912,19 +1366,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin order management
-  app.get("/api/admin/orders", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      const orders = await storage.getAllOrders();
-      // Debug: Log user data for first order
-      if (orders.length > 0) {
-        console.log("Admin orders - First order user data:", orders[0].user);
-      }
-      res.json(orders);
-    } catch (error) {
-      console.error("Get all orders error:", error);
-      res.status(500).json({ message: "Failed to get orders" });
+  // app.get("/api/admin/orders", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  //   try {
+  //     const orders = await storage.getAllOrders();
+  //     // Debug: Log user data for first order
+  //     if (orders.length > 0) {
+  //       console.log("Admin orders - First order user data:", orders[0].user);
+  //     }
+  //     res.json(orders);
+  //   } catch (error) {
+  //     console.error("Get all orders error:", error);
+  //     res.status(500).json({ message: "Failed to get orders" });
+  //   }
+  // });
+app.get("/api/admin/orders", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  try {
+    const storeId = Number(req.query.storeId);
+    if (!storeId) {
+      return res.status(400).json({ message: "storeId is required" });
     }
-  });
+
+    const orders = await storage.getAllOrders(storeId);
+
+    res.json(orders);
+  } catch (error) {
+    console.error("Get all orders error:", error);
+    res.status(500).json({ message: "Failed to get orders" });
+  }
+});
 
   app.put("/api/admin/orders/:id/status", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
@@ -952,44 +1421,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+ 
+  // app.put("/api/admin/orders/:id/payment-status", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
+  //   try {
+  //     const id = parseInt(req.params.id);
+  //     const { paymentStatus } = req.body;
+      
+  //     if (!["paid", "pending", "failed"].includes(paymentStatus)) {
+  //       return res.status(400).json({ message: "Invalid payment status" });
+  //     }
+      
+  //     // Get current order to check existing payment status
+  //     const currentOrder = await storage.getOrderById(id);
+  //     if (!currentOrder) {
+  //       return res.status(404).json({ message: "Order not found" });
+  //     }
+      
+  //     // Prevent changing from "paid" to any other status (irreversible)
+  //     if (currentOrder.paymentStatus === "paid" && paymentStatus !== "paid") {
+  //       return res.status(400).json({ 
+  //         message: "Payment status cannot be changed from 'paid' to another status. Paid status is irreversible for security." 
+  //       });
+  //     }
+      
+  //     const order = await storage.updateOrderPaymentStatus(id, paymentStatus);
+      
+  //     // Create notification for customer
+  //     await storage.createNotification({
+  //       userId: order.userId,
+  //       type: "payment_update",
+  //       title: "Payment Status Updated",
+  //       message: `Payment for Order ${order.orderNumber} has been marked as ${paymentStatus}.`,
+  //     });
+      
+  //     res.json(order);
+  //   } catch (error) {
+  //     console.error("Update payment status error:", error);
+  //     res.status(500).json({ message: "Failed to update payment status" });
+  //   }
+  // });
   app.put("/api/admin/orders/:id/payment-status", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const { paymentStatus } = req.body;
-      
-      if (!["paid", "pending", "failed"].includes(paymentStatus)) {
-        return res.status(400).json({ message: "Invalid payment status" });
-      }
-      
-      // Get current order to check existing payment status
-      const currentOrder = await storage.getOrderById(id);
-      if (!currentOrder) {
-        return res.status(404).json({ message: "Order not found" });
-      }
-      
-      // Prevent changing from "paid" to any other status (irreversible)
-      if (currentOrder.paymentStatus === "paid" && paymentStatus !== "paid") {
-        return res.status(400).json({ 
-          message: "Payment status cannot be changed from 'paid' to another status. Paid status is irreversible for security." 
-        });
-      }
-      
-      const order = await storage.updateOrderPaymentStatus(id, paymentStatus);
-      
-      // Create notification for customer
-      await storage.createNotification({
-        userId: order.userId,
-        type: "payment_update",
-        title: "Payment Status Updated",
-        message: `Payment for Order ${order.orderNumber} has been marked as ${paymentStatus}.`,
-      });
-      
-      res.json(order);
-    } catch (error) {
-      console.error("Update payment status error:", error);
-      res.status(500).json({ message: "Failed to update payment status" });
+  try {
+    const id = parseInt(req.params.id);
+    const { paymentStatus } = req.body;
+
+    // Validate payment status
+    if (!["paid", "pending", "failed"].includes(paymentStatus)) {
+      return res.status(400).json({ message: "Invalid payment status" });
     }
-  });
+
+    // Get current order
+    const currentOrder = await storage.getOrderById(id);
+    if (!currentOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Prevent changing from paid -> other status
+    if (currentOrder.paymentStatus === "paid" && paymentStatus !== "paid") {
+      return res.status(400).json({
+        message: "Payment status cannot be changed from 'paid' to another status."
+      });
+    }
+
+    // ✅ Update DB
+    await storage.updateOrderPaymentStatus(id, paymentStatus);
+
+    res.json({ message: "Payment status updated successfully" });
+  } catch (error: any) {
+    console.error("Error updating payment status:", error); // log actual error
+    res.status(500).json({ message: error.message || "Internal server error" });
+  }
+});
+
 
   // Prescription routes
   app.get("/api/prescriptions", isAuthenticated, async (req: any, res: Response) => {
@@ -1329,20 +1832,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/superadmin/stores", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
     try {
       const stores = await storage.getStores();
+      console.log(stores);
+      
       res.json(stores);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
-
-  app.post("/api/superadmin/stores/onboard", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+  app.get("/api/stores", isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const result = await storage.onboardStore(req.body);
-      res.json(result);
+      const stores = await storage.getStores2();
+      console.log(stores);
+      
+      res.json(stores);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });
+//ok without qr
+  // app.post("/api/superadmin/stores/onboard", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
+  //   try {
+  //     const result = await storage.onboardStore(req.body);
+  //     res.json(result);
+  //   } catch (error: any) {
+  //     res.status(500).json({ message: error.message });
+  //   }
+  // });
+
+  //for qr
+app.post(
+  "/api/superadmin/stores/onboard",
+  isAuthenticated,
+  isSuperAdmin,
+  async (req: Request, res: Response) => {
+    try {
+      const result = await storage.onboardStore(req.body);
+      res.json({
+        message: "Store onboarded successfully",
+        store: result.store,
+        admin: result.admin,
+        qrCodeUrl: result.store.qrCodeUrl, // ✅ Return QR code
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
 
   app.put("/api/superadmin/stores/:id", isAuthenticated, isSuperAdmin, async (req: Request, res: Response) => {
     try {
@@ -1422,7 +1957,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/uploads/prescriptions/:filename', isAuthenticated, async (req: any, res: Response) => {
+  // app.get('/uploads/prescriptions/:filename', isAuthenticated, async (req: any, res: Response) => {
+    app.get('/uploads/:filename', isAuthenticated, async (req: any, res: Response) => {
     try {
       const { filename } = req.params;
       const filePath = path.join(process.cwd(), 'uploads', filename);
@@ -1456,7 +1992,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve other uploaded files (non-sensitive)
-  app.use('/uploads', express.static('uploads'));
+   app.use('/uploads/prescriptions/', express.static('uploads'));
+  //  app.use('/uploads/', express.static('uploads'));
+
 
   const httpServer = createServer(app);
   return httpServer;

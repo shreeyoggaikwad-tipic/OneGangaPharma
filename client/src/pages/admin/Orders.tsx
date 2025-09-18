@@ -39,6 +39,7 @@ import {
   RefreshCw,
   FileText,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminOrders() {
   const { toast } = useToast();
@@ -58,11 +59,28 @@ export default function AdminOrders() {
   });
 
   // Get all orders - force fresh data on every load
-  const { data: orders = [], isLoading } = useQuery<any[]>({
-    queryKey: ["/api/admin/orders"],
-    staleTime: 0, // Always refetch
-    gcTime: 0, // Don't cache (renamed from cacheTime in v5)
-  });
+  // const { data: orders = [], isLoading } = useQuery<any[]>({
+  //   queryKey: ["/api/admin/orders"],
+  //   staleTime: 0, // Always refetch
+  //   gcTime: 0, // Don't cache (renamed from cacheTime in v5)
+  // });
+  // Example: get storeId dynamically (from session, context, or props)
+const { user } = useAuth(); // assuming you store logged-in user with storeId
+const storeId = user?.storeId; // adjust this to your app
+
+const { data: orders = [], isLoading } = useQuery<any[]>({
+  queryKey: ["/api/admin/orders", storeId],
+  queryFn: async () => {
+    if (!storeId) return [];
+    const res = await fetch(`/api/admin/orders?storeId=${storeId}`);
+    if (!res.ok) throw new Error("Failed to fetch orders");
+    return res.json();
+  },
+  enabled: !!storeId,  // only run when storeId exists
+  staleTime: 0,        // Always refetch
+  gcTime: 0,           // Don’t cache
+});
+
 
   // Update order status mutation
   const updateOrderStatusMutation = useMutation({

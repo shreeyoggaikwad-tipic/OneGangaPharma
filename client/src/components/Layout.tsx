@@ -234,7 +234,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Pill className="text-white h-6 w-6" />
               </div>
               <span className="text-xl font-bold medical-primary">
-                Sharda Med
+                OneGanga Pharma 
               </span>
             </Link>
 
@@ -396,7 +396,7 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="w-10 h-10 medical-bg-primary rounded-lg flex items-center justify-center mr-3">
                   <Pill className="text-white h-6 w-6" />
                 </div>
-                <span className="text-xl font-bold">Sharda Med</span>
+                <span className="text-xl font-bold">OneGanga Pharma </span>
               </div>
               <p className="text-gray-100 text-sm">Your trusted online pharmacy for quality medicines and healthcare products.</p>
             </div>
@@ -465,7 +465,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           <div className="border-t border-gray-600 mt-8 pt-8 text-center text-gray-100 text-sm">
             <p>
-              &copy; 2024 Sharda Med. All rights reserved. Licensed
+              &copy; 2024 OneGanga Pharma . All rights reserved. Licensed
               pharmacy.
             </p>
           </div>

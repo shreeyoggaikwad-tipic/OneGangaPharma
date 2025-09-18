@@ -22,7 +22,7 @@ export const config = {
 
 // Helper function to get shelf life interval for SQL queries
 export function getShelfLifeInterval(): string {
-  return `${config.minimumShelfLifeMonths} months`;
+  return `${config.minimumShelfLifeMonths} `;
 }
 
 // Helper function to update shelf life configuration

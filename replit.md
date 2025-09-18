@@ -1,8 +1,8 @@
-# Sharda Med - Online Pharmacy Management System
+# OneGanga Pharma  - Online Pharmacy Management System
 
 ## Overview
 
-Sharda Med is a comprehensive online pharmacy management system built with modern web technologies. The application serves both customers who want to order medicines online and administrators who manage the pharmacy operations. It features a complete e-commerce workflow with prescription support, inventory management, and order processing.
+OneGanga Pharma  is a comprehensive online pharmacy management system built with modern web technologies. The application serves both customers who want to order medicines online and administrators who manage the pharmacy operations. It features a complete e-commerce workflow with prescription support, inventory management, and order processing.
 
 ## System Architecture
 
@@ -306,7 +306,7 @@ Sharda Med is a comprehensive online pharmacy management system built with moder
   - Fixed router logic to properly redirect super admin users (role 0) to SuperAdminDashboard
   - Fixed ProtectedRoute component to handle numeric role values (0=super_admin, 1=admin, 2=customer)
   - Completed multi-tenant system with proper role-based routing and authentication
-  - Updated default store with proper Sharda Medical Store information and detached super admin from store association
+  - Updated default store with proper OneGanga Pharma ical Store information and detached super admin from store association
   - Created Platform Analytics and User Management pages for super admin dashboard
   - Fixed role-based navigation in Layout component to properly hide customer routes from admin/super admin users
   - Ensured proper role isolation: customers (role 2) see customer features, admins (role 1) see admin features, super admins (role 0) see platform management

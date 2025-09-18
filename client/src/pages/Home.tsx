@@ -46,6 +46,7 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+const storeId = user?.storeId;
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const searchBarRef = useRef<HTMLDivElement>(null);
@@ -73,11 +74,36 @@ export default function Home() {
     queryKey: ["/api/medicine-categories"],
   });
 
-  const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: searchQuery
-      ? ["/api/medicines", { search: searchQuery }]
-      : ["/api/medicines"],
-  });
+  // const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
+  //   queryKey: searchQuery
+  //     ? ["/api/medicines", { search: searchQuery }]
+  //     : ["/api/medicines"],
+  // });
+
+
+const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
+  queryKey: searchQuery
+    ? ["/api/medicines", { search: searchQuery, storeId }]
+    : ["/api/medicines", { storeId }],
+  queryFn: async ({ queryKey }) => {
+    const [_key, { search, storeId }] = queryKey as [string, { search?: string; storeId: number }];
+
+    const params = new URLSearchParams();
+    if (search?.trim()) {
+      params.append("search", search.trim());
+    }
+    if (storeId) {
+      params.append("storeId", storeId.toString()); // ✅ always send storeId
+    }
+
+    const response = await fetch(`/api/medicines?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch medicines");
+    }
+    return response.json();
+  },
+  enabled: !!storeId, // ✅ only run if storeId exists
+});
 
   // Add to cart mutation
   const addToCartMutation = useMutation({

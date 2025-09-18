@@ -20,17 +20,36 @@ export default function Medicines() {
   const queryClient = useQueryClient();
 
   // Fetch medicines
-  const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: ["/api/medicines", searchQuery],
-    queryFn: async () => {
-      const url = searchQuery 
-        ? `/api/medicines?search=${encodeURIComponent(searchQuery)}`
-        : "/api/medicines";
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch medicines");
-      return response.json();
-    },
-  });
+  // const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
+  //   queryKey: ["/api/medicines", searchQuery],
+  //   queryFn: async () => {
+  //     const url = searchQuery 
+  //       ? `/api/medicines?search=${encodeURIComponent(searchQuery)}`
+  //       : "/api/medicines";
+  //     const response = await fetch(url);
+  //     if (!response.ok) throw new Error("Failed to fetch medicines");
+  //     return response.json();
+  //   },
+  // });
+const { user } = useAuth();
+const storeId = user?.storeId;
+
+const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
+  queryKey: ["/api/medicines", searchQuery, storeId], // 👈 include storeId
+  queryFn: async () => {
+    if (!storeId) return []; // no store → return empty immediately
+
+    let url = `/api/medicines?storeId=${storeId}`;
+    if (searchQuery?.trim()) {
+      url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch medicines");
+    return response.json();
+  },
+  enabled: !!storeId, // ✅ only fetch if storeId exists
+});
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -112,19 +131,19 @@ export default function Medicines() {
   };
 
   const getStockStatus = (stock: number) => {
-    if (stock === 0) return { 
-      label: "Out of Stock", 
-      variant: "destructive" as const,
-      color: "text-red-600",
-      bgColor: "bg-red-50"
+    if (stock == 0) return { 
+       label: "Out of Stock", 
+       variant: "secondary" as const,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50"
     };
-    if (stock <= 10) return { 
+    if (stock <= 10 && stock >= 1) return { 
       label: "Very Low Stock", 
       variant: "outline" as const,
       color: "text-orange-600", 
       bgColor: "bg-orange-50"
     };
-    if (stock <= 20) return { 
+    if (stock <= 20 && stock >= 1) return { 
       label: "Low Stock", 
       variant: "secondary" as const,
       color: "text-yellow-600",
@@ -315,10 +334,10 @@ export default function Medicines() {
                     <Button
                       className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium disabled:from-gray-300 disabled:to-gray-400 disabled:transform-none disabled:shadow-none"
                       onClick={() => handleAddToCart(medicine.id)}
-                      disabled={medicine.totalStock === 0 || addToCartMutation.isPending}
+                      disabled={medicine.totalStock == 0 || addToCartMutation.isPending}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      {medicine.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
+                      {medicine.totalStock == 0 ? "Out of Stock" : "Add to Cart"}
                     </Button>
                   </div>
                 </CardContent>

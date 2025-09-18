@@ -124,7 +124,7 @@ export default function Invoice({ order, trigger }: InvoiceProps) {
   const generateQRCode = async () => {
     try {
       // Simple and reliable QR code with essential information
-      const qrData = `SHARDA MED INVOICE
+      const qrData = `OneGanga Pharma  INVOICE
 Invoice: INV-${order.orderNumber}
 Order: ${order.orderNumber}
 Total: ₹${totals.finalTotal.toFixed(2)}
@@ -226,7 +226,7 @@ Support: +91-800-SHARDA-MED`;
   };
 
   const handleWhatsAppShare = () => {
-    const message = `*Sharda Med - Invoice*
+    const message = `*OneGanga Pharma  - Invoice*
     
 Order #: ${order.orderNumber}
 Date: ${formatDate(order.createdAt)}
@@ -237,7 +237,7 @@ ${(order.items || order.orderItems || []).map((item: any) =>
   `• ${item.medicine.name} (${item.quantity}x) - ₹${(parseFloat(item.medicine.discountedPrice) * item.quantity).toFixed(2)}`
 ).join('\n')}
 
-Thank you for shopping with Sharda Med!
+Thank you for shopping with OneGanga Pharma !
 For support: Call +91-XXXXXXXXXX`;
 
     const encodedMessage = encodeURIComponent(message);
@@ -385,7 +385,7 @@ For support: Call +91-XXXXXXXXXX`;
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start mb-6 sm:mb-8 gap-4">
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">Sharda Med</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">OneGanga Pharma </h1>
                 <p className="text-gray-600 text-xs sm:text-sm">Your Trusted Online Pharmacy</p>
                 <div className="mt-3 sm:mt-4 space-y-1 text-xs sm:text-sm text-gray-600">
                   <div className="flex items-start gap-2">
@@ -766,7 +766,7 @@ For support: Call +91-XXXXXXXXXX`;
               </div>
               
               <div className="text-center mt-4 sm:mt-6 text-xs text-gray-500">
-                Thank you for choosing Sharda Med - Your Health, Our Priority
+                Thank you for choosing OneGanga Pharma  - Your Health, Our Priority
               </div>
             </div>
             </div>

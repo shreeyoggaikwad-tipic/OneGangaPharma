@@ -1,4 +1,4 @@
-🧪 Project Overview: Sharda Med App (Inspired by Tata 1mg)
+🧪 Project Overview: OneGanga Pharma  App (Inspired by Tata 1mg)
 Develop a complete, production-ready Progressive Web App (PWA) for a single medical shop. This app must cover the frontend (React), backend, and database, with full authentication, admin dashboard, medicine management, and customer-facing features. The app must be fully functional — nothing should be left for future.
 
 ✅ Critical Requirements

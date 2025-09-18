@@ -73,6 +73,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const medicineSchema = z.object({
   name: z.string().min(2, "Medicine name is required"),
@@ -101,7 +102,8 @@ type MedicineForm = z.infer<typeof medicineSchema>;
 type InventoryForm = z.infer<typeof inventorySchema>;
 type CategoryForm = z.infer<typeof categorySchema>;
 
-export default function MedicineManagement() {
+export default function 
+MedicineManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -119,21 +121,50 @@ export default function MedicineManagement() {
   const [backImagePreview, setBackImagePreview] = useState<string | null>(null);
 
   // Get medicines
-  const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
-    queryKey: ["/api/medicines", searchQuery],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (searchQuery.trim()) {
-        params.append('search', searchQuery.trim());
-      }
-      const url = `/api/medicines${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch medicines');
-      }
-      return response.json();
-    },
-  });
+  // const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
+  //   queryKey: ["/api/medicines", searchQuery],
+  //   queryFn: async () => {
+  //     const params = new URLSearchParams();
+  //     if (searchQuery.trim()) {
+  //       params.append('search', searchQuery.trim());
+  //     }
+  //     const url = `/api/medicines${params.toString() ? `?${params.toString()}` : ''}`;
+  //     const response = await fetch(url);
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch medicines');
+  //     }
+  //     return response.json();
+  //   },
+  // });
+
+
+  // const storeId = 2; // you can get this dynamically from context, props, or state
+// const storeId = useStore((state) => state.activeStoreId); // Zustand example
+// const user = JSON.parse(localStorage.getItem("user") || "{}");
+// const storeId = user?.storeId ?? 2; // fallback to 2 if missing
+const { user } = useAuth();
+const storeId = user?.storeId;
+const { data: medicines = [], isLoading: medicinesLoading } = useQuery({
+  queryKey: ["/api/medicines", { search: searchQuery, storeId }],
+  queryFn: async ({ queryKey }) => {
+    const [_key, { search, storeId }] = queryKey as [string, { search: string; storeId: number }];
+
+    const params = new URLSearchParams();
+    if (search?.trim()) {
+      params.append("search", search.trim());
+    }
+    params.append("storeId", storeId.toString()); // ✅ always send storeId
+
+    const url = `/api/medicines?${params.toString()}`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Failed to fetch medicines");
+    }
+    return response.json();
+  },
+});
+
 
   // Get categories
   const { data: categories = [] } = useQuery({

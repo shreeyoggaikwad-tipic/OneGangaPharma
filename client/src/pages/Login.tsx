@@ -77,7 +77,7 @@ export default function Login() {
     onSuccess: () => {
       toast({
         title: "Registration Successful",
-        description: "Welcome to Sharda Med!",
+        description: "Welcome to OneGanga Pharma !",
       });
       window.location.href = "/";
     },
@@ -116,7 +116,7 @@ export default function Login() {
           <div className="w-16 h-16 medical-bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Pill className="text-white h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-bold medical-primary">Sharda Med</h1>
+          <h1 className="text-3xl font-bold medical-primary">OneGanga Pharma </h1>
           <p className="text-muted-foreground mt-2">Your trusted online pharmacy</p>
         </div>
 

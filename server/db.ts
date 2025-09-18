@@ -1,15 +1,54 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
-import * as schema from "@shared/schema";
+// import dotenv from 'dotenv';
+// dotenv.config();
 
-neonConfig.webSocketConstructor = ws;
+// import mysql from 'mysql2/promise';
+// import { drizzle } from 'drizzle-orm/mysql2';
+// import * as schema from '@shared/schema';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+// const dbUrl = process.env.DATABASE_URL;
+
+// if (!dbUrl) {
+//   throw new Error("DATABASE_URL is not defined in .env");
+// }
+
+// const url = new URL(dbUrl);
+
+// const connectionConfig = {
+//   host: url.hostname,
+//   port: parseInt(url.port || '3306'),
+//   user: url.username,
+//   password: url.password,
+//   database: url.pathname.slice(1), // removes the leading slash
+//   multipleStatements: true,
+// };
+
+// export const connection = mysql.createConnection(connectionConfig);
+// export const db = drizzle(connection, { schema, mode: 'default' });
+import dotenv from 'dotenv';
+dotenv.config();
+
+import mysql from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
+import * as schema from '@shared/schema';
+
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error("DATABASE_URL is not defined in .env");
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+const url = new URL(dbUrl);
+
+const connectionConfig = {
+  host: url.hostname,
+  port: parseInt(url.port || '3306'),
+  user: url.username,
+  password: url.password,
+  database: url.pathname.slice(1),
+  multipleStatements: true,
+};
+
+// ✅ Await the connection properly
+const connection = await mysql.createConnection(connectionConfig);
+
+export const db = drizzle(connection, { schema, mode: 'default' });

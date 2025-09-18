@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { format } from 'date-fns';
 import { Plus, Package, AlertTriangle, Edit, Trash2, Search, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const batchSchema = z.object({
   medicineId: z.number(),
@@ -35,9 +36,30 @@ export default function BatchManagement() {
   const queryClient = useQueryClient();
 
   // Fetch medicines for selection
-  const { data: medicines = [] } = useQuery({
-    queryKey: ['/api/medicines'],
-  });
+  // const { data: medicines = [] } = useQuery({
+  //   queryKey: ['/api/medicines'],
+  // });
+const { user } = useAuth();
+const storeId = user?.storeId;
+
+const { data: medicines = [] } = useQuery({
+  queryKey: ['/api/medicines', { storeId }],  // 👈 include storeId in key
+  queryFn: async ({ queryKey }) => {
+    const [_key, { storeId }] = queryKey as [string, { storeId: number }];
+
+    const params = new URLSearchParams();
+    if (storeId) {
+      params.append("storeId", storeId.toString()); // ✅ add storeId
+    }
+
+    const response = await fetch(`/api/medicines?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch medicines");
+    }
+    return response.json();
+  },
+  enabled: !!storeId, // ✅ only run when storeId is available
+});
 
   // Fetch batches for selected medicine
   const { data: batches = [], isLoading: batchesLoading } = useQuery({
