@@ -438,6 +438,22 @@ export const cartItems = mysqlTable("cart_items", {
   addedAt: timestamp("added_at").defaultNow(),
 });
 
+
+//working
+export const createorder = mysqlTable("createorder", {
+  id: int("id").autoincrement().primaryKey(),
+  customerName: varchar("customer_name", { length: 255 }).notNull(),
+  age: int("age"),
+  district: varchar("district", { length: 255 }),
+  place: varchar("place", { length: 255 }),
+  pincode: varchar("pincode", { length: 20 }),
+  mobileNo: varchar("mobile_no", { length: 20 }),
+  medicines: json("medicines").notNull(), // store array of medicines as JSON
+  status: varchar("status", { length: 50 }).default("confirmed"), // pending, confirmed, delivered
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
 // Orders
 export const orders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),

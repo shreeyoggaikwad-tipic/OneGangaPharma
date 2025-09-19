@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   MapPin,
@@ -14,28 +14,40 @@ type Customer = {
   age: number;
   address: string;
   pincode: string;
+  mobile: number;
+  place: string;
 };
 
 const previousCustomers: Customer[] = [
-  { name: "Abhijeet patil", age: 32, address: "MG Road, Pune", pincode: "411001" },
-  { name: "aditya thorat", age: 28, address: "Andheri East, Mumbai", pincode: "400069" },
-  { name: "Amit Patil", age: 45, address: "Shivaji Nagar, Nagpur", pincode: "440001" },
-];
-
-const medicines = [
-  { label: "Super 30 (100)", price: 100 },
-  { label: "Super 30 (500)", price: 500 },
-  { label: "Super 30 (1000)", price: 1000 },
+  { name: "Shreeyog Gaikwad", age: 22, address: "Pimpri Pune", pincode: "411018", mobile: 9527264942, place:"Pune" },
 ];
 
 const CreateOrderForm: React.FC = () => {
+  const [medi,setMedi] = useState([]);
   const [customerName, setCustomerName] = useState("");
   const [filteredNames, setFilteredNames] = useState<Customer[]>([]);
   const [age, setAge] = useState<number | "">("");
   const [address, setAddress] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [medicine, setMedicine] = useState(medicines[0].label);
+  const [place, setPlace] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [mobile, setMobileNumber] = useState<number | "">("");
+
+  // Order medicines (dynamic list for current order)
+  const [orderMedicines, setOrderMedicines] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchMedicine = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/medicines?storeId=1");
+        const response = await res.json();
+        setMedi(response);
+      } catch (error) {
+        console.error("Error fetching medicines:", error);
+      }
+    };
+    
+    fetchMedicine();
+  }, []);
 
   const handleNameChange = (value: string) => {
     setCustomerName(value);
@@ -56,16 +68,80 @@ const CreateOrderForm: React.FC = () => {
     setCustomerName(customer.name);
     setAge(customer.age);
     setAddress(customer.address);
-    setPincode(customer.pincode);
+    setPlace(customer.place);
+    setMobileNumber(customer.mobile);
     setFilteredNames([]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setConfirmed(true);
+  const handleMedicineChange = (index: number, value: string) => {
+    const updated = [...orderMedicines];
+    const selected = medi.find((m) => m.name === value);
+    if (selected) {
+      updated[index] = {
+        ...updated[index],
+        id: selected.id,
+        name: selected.name,
+        mrp: selected.mrp,
+      };
+    }
+    setOrderMedicines(updated);
   };
 
-  const selectedMedicine = medicines.find((m) => m.label === medicine);
+  const addMedicine = () => {
+    // Add empty medicine item with no default selection
+    setOrderMedicines([
+      ...orderMedicines,
+      {
+        medicineId: null,
+        name: "", 
+        quantity: 1,
+        mrp: 0,
+        totalPrice: 0,
+      },
+    ]);
+  };
+
+  const handleQuantityChange = (index: number, value: number) => {
+    const updated = [...orderMedicines];
+    updated[index].quantity = value;
+    updated[index].totalPrice = updated[index].mrp * value;
+    setOrderMedicines(updated);
+  };
+
+  const removeMedicine = (index: number) => {
+    const updated = [...orderMedicines];
+    updated.splice(index, 1);
+    setOrderMedicines(updated);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log(customerName,address,place, mobile, orderMedicines);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/createorders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: customerName,
+          district: address,
+          place: place,
+          mobile_no: mobile,
+          medicines: orderMedicines,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setConfirmed(true);
+      } else {
+        alert("Failed to create order");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error creating order");
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
@@ -142,42 +218,90 @@ const CreateOrderForm: React.FC = () => {
               </label>
               <input
                 type="text"
-                // value={pincode}
-                onChange={(e) => setPincode(e.target.value)}
+                value={place}
+                onChange={(e) => setPlace(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 placeholder="Enter place"
               />
             </div>
           </div>
-           <div>
-              <label className="flex items-center text-gray-700 mb-1">
-                <Smartphone className="w-4 h-4 mr-1 text-gray-500" />Mobile No
-              </label>
-              <input
-                type="text"
-                // value={pincode}
-                onChange={(e) => setPincode(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                placeholder="Enter Mobile Number"
-              />
-            </div>
-
-          {/* Medicine Dropdown */}
           <div>
             <label className="flex items-center text-gray-700 mb-1">
-              <Package className="w-4 h-4 mr-1 text-gray-500" /> Medicine
+              <Smartphone className="w-4 h-4 mr-1 text-gray-500" />Mobile No
             </label>
-            <select
-              value={medicine}
-              onChange={(e) => setMedicine(e.target.value)}
+            <input
+              type="number"
+              value={mobile}
+              onChange={(e) => setMobileNumber(Number(e.target.value))}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="Enter Mobile Number"
+            />
+          </div>
+
+          {/* Medicines Section */}
+          <div>
+            <label className="flex items-center text-gray-700 mb-1">
+              <Package className="w-4 h-4 mr-1 text-gray-500" /> Medicines
+            </label>
+
+            {orderMedicines.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3 mb-3 border p-3 rounded-lg">
+                {/* Medicine Dropdown with Placeholder */}
+                <select
+                  value={item.name}
+                  onChange={(e) => handleMedicineChange(idx, e.target.value)}
+                  className="flex-1 border rounded-lg px-2 py-1 text-sm"
+                >
+                  {/* Placeholder option */}
+                  <option value="" disabled>
+                    Select a medicine
+                  </option>
+                  
+                  {/* Medicine options */}
+                  {medi.map((m: any) => (
+                    <option key={m.id} value={m.name}>
+                      {m.name} → ₹{m.mrp}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Quantity Input */}
+                <input
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  onChange={(e) => handleQuantityChange(idx, Number(e.target.value))}
+                  className="w-20 border rounded-lg px-2 py-1"
+                  placeholder="Qty"
+                />
+
+                {/* Unit Price */}
+                <span className="text-gray-700">₹{item.mrp || 0}</span>
+
+                {/* Total */}
+                <span className="font-semibold text-teal-600">
+                  ₹{!item.mrp ? 0 : item.quantity * item.mrp}
+                </span>
+
+                {/* Remove Button */}
+                <button
+                  type="button"
+                  onClick={() => removeMedicine(idx)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            {/* Add Medicine Button */}
+            <button
+              type="button"
+              onClick={addMedicine}
+              className="mt-2 bg-teal-600 text-white px-3 py-1 rounded-lg hover:bg-teal-700"
             >
-              {medicines.map((m, idx) => (
-                <option key={idx} value={m.label}>
-                  {m.label} → ₹{m.price}
-                </option>
-              ))}
-            </select>
+              + Add Medicine
+            </button>
           </div>
 
           {/* Submit Button */}
@@ -193,8 +317,7 @@ const CreateOrderForm: React.FC = () => {
         {confirmed && (
           <div className="mt-4 flex items-center text-green-600 font-medium">
             <CheckCircle className="w-5 h-5 mr-2" />
-            Your order is confirmed for <b className="ml-1">{customerName}</b>.{" "}
-            Medicine: <b>{medicine}</b>, Price: ₹{selectedMedicine?.price}
+            Your order is confirmed for <b className="ml-1">{customerName}</b>.
           </div>
         )}
       </div>

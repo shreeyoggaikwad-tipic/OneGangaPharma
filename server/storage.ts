@@ -1,3 +1,4 @@
+
 // import {
 //   stores,
 //   users,
@@ -33,91 +34,99 @@
 //   type MedicineCategory,
 //   type Batch,
 //   type InsertBatch,
+//   createorder,
 // } from "@shared/schema";
 // import { db } from "./db";
 // import { config, getShelfLifeInterval } from "./config";
 // import { eq, and, desc, asc, count, sum, sql, gte, lte } from "drizzle-orm";
 // import bcrypt from "bcrypt";
+// import path from "path";
+// import { alias } from "drizzle-orm/mysql-core";
+// // const { createorder } = require('../shared/schema');
+// const billingAddr = alias(addresses, "billing_addr");
+// const shippingAddr = alias(addresses, "shipping_addr");
+// import QRCode from "qrcode";
+// import fs from "fs";
+// import { QrCode } from "lucide-react";
 
+// import { fileURLToPath } from "url";
+// const InsertOrder = {
+//   customer_name: String,
+//   age: Number,
+//   district: String,
+//   place: String,
+//   pincode: String,
+//   mobile_no: String,
+//   medicines: Object, // JSON-compatible object (array in this case)
+//   status: String,
+//   created_at: Date,
+//   updated_at: Date
+// };
+
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 // export interface IStorage {
-//   // User operations
+//  storeOrder(order: {
+//     customer_name: string;
+//     medicines: unknown;
+//     district?: string;
+//     place?: string;
+//     pincode?: string;
+//     mobile_no?: string;
+//     status?: string;
+//   }): Promise<CreateOrderType | undefined>;
 //   getUser(id: number): Promise<User | undefined>;
 //   getUserByEmail(email: string): Promise<User | undefined>;
+//   getValidCompanyUser(slug: string,email: string): Promise<boolean>;
 //   createUser(user: InsertUser): Promise<User>;
+//   getSroreIdBySlug(slug: string): Promise<Store>;
+//   getAllStores(): Promise<Store>;
 //   updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
 //   verifyPassword(password: string, hashedPassword: string): Promise<boolean>;
-
-//   // Address operations
 //   getAddressesByUserId(userId: number): Promise<Address[]>;
 //   createAddress(address: InsertAddress): Promise<Address>;
 //   updateAddress(id: number, address: Partial<InsertAddress>): Promise<Address>;
 //   deleteAddress(id: number): Promise<void>;
 //   syncUserPhoneToAddresses(userId: number, phone: string): Promise<void>;
-
-//   // Medicine operations
 //   getMedicines(): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]>;
 //   getMedicineById(id: number): Promise<Medicine | undefined>;
 //   searchMedicines(query: string): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]>;
 //   createMedicine(medicine: InsertMedicine): Promise<Medicine>;
 //   updateMedicine(id: number, medicine: Partial<InsertMedicine>): Promise<Medicine>;
 //   deleteMedicine(id: number): Promise<void>;
-
-//   // Medicine categories
 //   getMedicineCategories(): Promise<MedicineCategory[]>;
 //   createMedicineCategory(name: string, description?: string, isScheduleH?: boolean): Promise<MedicineCategory>;
-
-//   // Medicine inventory operations
 //   getMedicineInventory(medicineId: number): Promise<MedicineInventory[]>;
 //   createMedicineInventory(inventory: InsertMedicineInventory): Promise<MedicineInventory>;
 //   updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInventory>): Promise<MedicineInventory>;
 //   getLowStockMedicines(): Promise<(Medicine & { totalStock: number })[]>;
-
-//   // Prescription operations
 //   getPrescriptionsByUserId(userId: number): Promise<Prescription[]>;
 //   getPendingPrescriptions(): Promise<(Prescription & { user: User })[]>;
 //   getAllPrescriptions(): Promise<(Prescription & { user: User })[]>;
 //   createPrescription(prescription: InsertPrescription): Promise<Prescription>;
 //   updatePrescriptionStatus(id: number, status: string, reviewedBy: number, notes?: string): Promise<Prescription>;
-
-//   // Cart operations
 //   getCartItems(userId: number): Promise<(CartItem & { medicine: Medicine })[]>;
 //   addToCart(cartItem: InsertCartItem): Promise<CartItem>;
 //   updateCartItem(id: number, quantity: number): Promise<CartItem>;
 //   removeFromCart(id: number): Promise<void>;
 //   clearCart(userId: number): Promise<void>;
-
-//   // Order operations
-//   getOrdersByUserId(userId: number): Promise<(Order & { items: (OrderItem & { medicine: Medicine })[] })[]>;
+//   getOrdersByUserId(userId: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; shippingAddress?: Address; billingAddress?: Address })[]>;
 //   getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; prescription?: Prescription })[]>;
 //   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
 //   updateOrderStatus(id: number, status: string): Promise<Order>;
-//   getOrderById(id: number): Promise<(Order & { 
-//     user: User; 
-//     items: (OrderItem & { medicine: Medicine })[];
-//     billingAddress: Address;
-//     shippingAddress: Address;
-//     prescription?: Prescription;
-//   }) | undefined>;
-
-//   // Notification operations
+//   getOrderById(id: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; billingAddress: Address; shippingAddress: Address; prescription?: Prescription }) | undefined>;
 //   getNotificationsByUserId(userId: number): Promise<Notification[]>;
 //   createNotification(notification: InsertNotification): Promise<Notification>;
 //   markNotificationAsRead(id: number): Promise<void>;
 //   deleteNotification(id: number): Promise<void>;
-
-//   // Dashboard stats
 //   getDashboardStats(): Promise<{
 //     totalSales: number;
 //     ordersToday: number;
 //     lowStockCount: number;
 //     pendingPrescriptions: number;
 //   }>;
-
-//   // Analytics
 //   getSalesAnalytics(timePeriod: string): Promise<any[]>;
 //   getCategoryAnalytics(): Promise<any[]>;
-
-//   // Super Admin operations
 //   getSuperAdminStats(): Promise<{
 //     totalStores: number;
 //     activeStores: number;
@@ -146,8 +155,6 @@
 //   updateStore(storeId: number, data: Partial<Store>): Promise<Store>;
 //   activateStore(storeId: number): Promise<void>;
 //   deactivateStore(storeId: number): Promise<void>;
-
-//   // Batch management operations
 //   getBatchesByMedicineId(medicineId: number): Promise<Batch[]>;
 //   addBatch(batch: InsertBatch): Promise<Batch>;
 //   updateBatch(id: number, batch: Partial<InsertBatch>): Promise<Batch>;
@@ -157,18 +164,15 @@
 //   markBatchAsDisposed(batchId: number, reason: string): Promise<void>;
 //   getBatchDisposalHistory(): Promise<any[]>;
 //   allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]>;
-
-//   // Initialize data
 //   initializeData(): Promise<void>;
 // }
 
 // export class DatabaseStorage implements IStorage {
-//   // Helper function to calculate discounted price
+//   storeOrder: any;
 //   private calculateDiscountedPrice(mrp: number, discount: number): number {
 //     return Number((mrp - (mrp * discount / 100)).toFixed(2));
 //   }
 
-//   // Helper function to get available stock (total inventory - items in carts)
 //   private async getAvailableStock(medicineId: number): Promise<number> {
 //     const [result] = await db
 //       .select({
@@ -177,25 +181,21 @@
 //           SELECT SUM(${cartItems.quantity}) 
 //           FROM ${cartItems} 
 //           WHERE ${cartItems.medicineId} = ${medicineId}
-//         ), 0)`
+//         ), 0)`,
 //       })
 //       .from(medicineInventory)
 //       .where(eq(medicineInventory.medicineId, medicineId));
-    
+
 //     return Math.max(0, (result?.totalInventory || 0) - (result?.cartReserved || 0));
 //   }
 
-//   // Helper function to prepare medicine data with price calculation
 //   private prepareMedicineData(medicine: Partial<InsertMedicine>): Partial<InsertMedicine> {
 //     const prepared = { ...medicine };
-    
-//     // Auto-calculate discounted price if MRP or discount is provided
 //     if (prepared.mrp !== undefined || prepared.discount !== undefined) {
 //       const mrp = Number(prepared.mrp || 0);
 //       const discount = Number(prepared.discount || 0);
 //       prepared.discountedPrice = this.calculateDiscountedPrice(mrp, discount).toString();
 //     }
-    
 //     return prepared;
 //   }
 
@@ -204,52 +204,87 @@
 //     return user;
 //   }
 
+//   async getValidCompanyUser(slug: string, email: string): Promise<boolean> {
+//   // Fetch store by slug
+//   const [store] = await db.select().from(stores).where(eq(stores.slug, slug));
+//   // If store doesn't exist, it's not valid
+
+//   if (!store) return false;
+//   // Fetch user by email
+//   const [user] = await db.select().from(users).where(eq(users.email, email));
+  
+//   // If user doesn't exist, it's not valid
+//     console.log("user",user);
+//   if (!user) return false;
+//   // Compare store_id from user with id from store
+//   return user.storeId === store.id;
+// }
+
+
 //   async getUserByEmail(email: string): Promise<User | undefined> {
 //     const [user] = await db.select().from(users).where(eq(users.email, email));
 //     return user;
 //   }
+  
+//   async createUser(userData: InsertUser): Promise<User> {
+//   // Hash password before storing
+//   const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-//   async createUser(user: InsertUser): Promise<User> {
-//     const hashedPassword = await bcrypt.hash(user.password, 10);
-//     const [newUser] = await db
-//       .insert(users)
-//       .values({ ...user, password: hashedPassword })
-//       .returning();
-//     return newUser;
-//   }
+//   // Insert the user
+//   const result = await db.insert(users).values({
+//     ...userData,
+//     password: hashedPassword
+//   });
+
+//   // MySQL insert returns insertId
+//   const insertedId = result[0].insertId;
+
+//   // Fetch the inserted user
+//   const [user] = await db
+//     .select()
+//     .from(users)
+//     .where(eq(users.id, insertedId));
+
+//   return user;
+// }
+
+ 
+
+//    async getAllStores(): Promise<string[]> {
+//   const result = await db.select({ slug: stores.slug }).from(stores);
+//   return result.map(store => store.slug); // ["store-1", "store-2"]
+// }
 
 //   async updateUser(id: number, user: Partial<InsertUser>): Promise<User> {
 //     const updateData = { ...user };
 //     if (updateData.password) {
 //       updateData.password = await bcrypt.hash(updateData.password, 10);
 //     }
-//     const [updatedUser] = await db
-//       .update(users)
-//       .set({ ...updateData, updatedAt: new Date() })
-//       .where(eq(users.id, id))
-//       .returning();
+//     await db.update(users).set({ ...updateData, updatedAt: new Date() }).where(eq(users.id, id));
+//     const [updatedUser] = await db.select().from(users).where(eq(users.id, id));
 //     return updatedUser;
 //   }
 
 //   async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
 //     return bcrypt.compare(password, hashedPassword);
 //   }
-
+  
+//   async getSroreIdBySlug(slug: string): Promise<Store>{
+//      return db.select().from(stores).where(eq(stores.slug, slug)).limit(1);;
+//   }
 //   async getAddressesByUserId(userId: number): Promise<Address[]> {
 //     return db.select().from(addresses).where(eq(addresses.userId, userId));
 //   }
 
 //   async createAddress(address: InsertAddress): Promise<Address> {
-//     const [newAddress] = await db.insert(addresses).values(address).returning();
+//     await db.insert(addresses).values(address);
+//     const [newAddress] = await db.select().from(addresses).where(and(eq(addresses.userId, address.userId), eq(addresses.addressLine1, address.addressLine1)));
 //     return newAddress;
 //   }
 
 //   async updateAddress(id: number, address: Partial<InsertAddress>): Promise<Address> {
-//     const [updatedAddress] = await db
-//       .update(addresses)
-//       .set(address)
-//       .where(eq(addresses.id, id))
-//       .returning();
+//     await db.update(addresses).set(address).where(eq(addresses.id, id));
+//     const [updatedAddress] = await db.select().from(addresses).where(eq(addresses.id, id));
 //     return updatedAddress;
 //   }
 
@@ -258,75 +293,10 @@
 //   }
 
 //   async syncUserPhoneToAddresses(userId: number, phone: string): Promise<void> {
-//     await db
-//       .update(addresses)
-//       .set({ phone })
-//       .where(eq(addresses.userId, userId));
+//     await db.update(addresses).set({ phone }).where(eq(addresses.userId, userId));
 //   }
 
-//   async getMedicines(): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
-//     return db
-//       .select({
-//         id: medicines.id,
-//         name: medicines.name,
-//         description: medicines.description,
-//         dosage: medicines.dosage,
-//         mrp: medicines.mrp,
-//         discount: medicines.discount,
-//         discountedPrice: medicines.discountedPrice,
-//         categoryId: medicines.categoryId,
-//         manufacturer: medicines.manufacturer,
-//         requiresPrescription: medicines.requiresPrescription,
-//         frontImageUrl: medicines.frontImageUrl,
-//         backImageUrl: medicines.backImageUrl,
-//         isActive: medicines.isActive,
-//         createdAt: medicines.createdAt,
-//         updatedAt: medicines.updatedAt,
-//         category: medicineCategories,
-//         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
-//           CASE 
-//             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
-//             THEN ${medicineInventory.quantity} 
-//             ELSE 0 
-//           END
-//         ), 0) - COALESCE((
-//           SELECT SUM(${cartItems.quantity}) 
-//           FROM ${cartItems} 
-//           WHERE ${cartItems.medicineId} = ${medicines.id}
-//         ), 0))`,
-//       })
-//       .from(medicines)
-//       .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
-//       .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
-//       .where(eq(medicines.isActive, true))
-//       .groupBy(medicines.id, medicineCategories.id)
-//       .orderBy(asc(medicines.name)) as any;
-//   }
-
-//   async getMedicineById(id: number): Promise<Medicine | undefined> {
-//     const [medicine] = await db
-//       .select({
-//         id: medicines.id,
-//         name: medicines.name,
-//         description: medicines.description,
-//         dosage: medicines.dosage,
-//         mrp: medicines.mrp,
-//         discount: medicines.discount,
-//         discountedPrice: medicines.discountedPrice,
-//         categoryId: medicines.categoryId,
-//         manufacturer: medicines.manufacturer,
-//         requiresPrescription: medicines.requiresPrescription,
-//         frontImageUrl: medicines.frontImageUrl,
-//         backImageUrl: medicines.backImageUrl,
-//         isActive: medicines.isActive,
-//         createdAt: medicines.createdAt,
-//         updatedAt: medicines.updatedAt,
-//       })
-//       .from(medicines)
-//       .where(eq(medicines.id, id));
-//     return medicine;
-//   }
-
+  
 //   async searchMedicines(query: string): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
 //     return db
 //       .select({
@@ -348,7 +318,7 @@
 //         category: medicineCategories,
 //         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
 //           CASE 
-//             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
+//             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
 //             THEN ${medicineInventory.quantity} 
 //             ELSE 0 
 //           END
@@ -364,66 +334,315 @@
 //       .where(
 //         and(
 //           eq(medicines.isActive, true),
-//           sql`LOWER(${medicines.name}) LIKE LOWER(${'%' + query + '%'})`
+//           sql`LOWER(${medicines.name}) LIKE LOWER(${`%${query}%`})`
 //         )
 //       )
 //       .groupBy(medicines.id, medicineCategories.id)
 //       .orderBy(asc(medicines.name)) as any;
 //   }
 
-//   async createMedicine(medicine: InsertMedicine): Promise<Medicine> {
-//     const preparedMedicine = this.prepareMedicineData(medicine);
-//     const [newMedicine] = await db.insert(medicines).values(preparedMedicine as InsertMedicine).returning();
-//     return newMedicine;
-//   }
+// async getMedicines(
+//   storeId: number
+    
+// ): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
+//   return db
+//     .select({
+//       id: medicines.id,
+//       storeId: medicines.storeId,
+//       name: medicines.name,
+//       description: medicines.description,
+//       dosage: medicines.dosage,
+//       mrp: medicines.mrp,
+//       discount: medicines.discount,
+//       discountedPrice: medicines.discountedPrice,
+//       categoryId: medicines.categoryId,
+//       manufacturer: medicines.manufacturer,
+//       requiresPrescription: medicines.requiresPrescription,
+//       frontImageUrl: medicines.frontImageUrl,
+//       backImageUrl: medicines.backImageUrl,
+//       isActive: medicines.isActive,
+//       createdAt: medicines.createdAt,
+//       updatedAt: medicines.updatedAt,
+//       category: medicineCategories,
+//       totalStock: sql<number>`
+//         GREATEST(
+//           0,
+//           COALESCE(
+//             SUM(
+//               CASE
+//                 WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(
+//                   getShelfLifeInterval()
+//                 )} MONTH
+//                 THEN ${medicineInventory.quantity}
+//                 ELSE 0
+//               END
+//             ),
+//             0
+//           ) - COALESCE(
+//             (SELECT SUM(${cartItems.quantity})
+//              FROM ${cartItems}
+//              WHERE ${cartItems.medicineId} = ${medicines.id}),
+//             0
+//           )
+//         )
+//       `,
+//     })
+//     .from(medicines)
+//     .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
+//     .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
+//     .where(and(eq(medicines.isActive, true), eq(medicines.storeId, storeId))) // ✅ filter by store
+//     .groupBy(medicines.id, medicineCategories.id)
+//     .orderBy(asc(medicines.name)) as any;
+    
+// }
 
-//   async updateMedicine(id: number, medicine: Partial<InsertMedicine>): Promise<Medicine> {
-//     const preparedMedicine = this.prepareMedicineData(medicine);
-//     const [updatedMedicine] = await db
-//       .update(medicines)
-//       .set({ ...preparedMedicine, updatedAt: new Date() })
-//       .where(eq(medicines.id, id))
-//       .returning();
-//     return updatedMedicine;
-//   }
 
-//   async deleteMedicine(id: number): Promise<void> {
-//     await db.update(medicines).set({ isActive: false }).where(eq(medicines.id, id));
-//   }
 
-//   async getMedicineCategories(): Promise<MedicineCategory[]> {
-//     return db.select().from(medicineCategories).orderBy(asc(medicineCategories.name));
-//   }
 
-//   async createMedicineCategory(name: string, description?: string, isScheduleH?: boolean): Promise<MedicineCategory> {
-//     const [category] = await db
-//       .insert(medicineCategories)
-//       .values({ name, description, isScheduleH: isScheduleH || false })
-//       .returning();
-//     return category;
-//   }
+// async getMedicineById(id: number): Promise<Medicine | undefined> {
+//   const [medicine] = await db
+//     .select({
+//       id: medicines.id,
+//       name: medicines.name,
+//       description: medicines.description,
+//       dosage: medicines.dosage,
+//       mrp: medicines.mrp,
+//       discount: medicines.discount,
+//       discountedPrice: medicines.discountedPrice,
+//       categoryId: medicines.categoryId,
+//       manufacturer: medicines.manufacturer,
+//       requiresPrescription: medicines.requiresPrescription,
+//       frontImageUrl: medicines.frontImageUrl,
+//       backImageUrl: medicines.backImageUrl,
+//       isActive: medicines.isActive,
+//       createdAt: medicines.createdAt,
+//       updatedAt: medicines.updatedAt,
+//     })
+//     .from(medicines)
+//     .where(eq(medicines.id, id));
+//   return medicine;
+// }
 
-//   async getMedicineInventory(medicineId: number): Promise<MedicineInventory[]> {
-//     return db
-//       .select()
-//       .from(medicineInventory)
-//       .where(eq(medicineInventory.medicineId, medicineId))
-//       .orderBy(asc(medicineInventory.expiryDate));
-//   }
+// async searchMedicines(query: string): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
+//   return db
+//     .select({
+//       id: medicines.id,
+//       name: medicines.name,
+//       description: medicines.description,
+//       dosage: medicines.dosage,
+//       mrp: medicines.mrp,
+//       discount: medicines.discount,
+//       discountedPrice: medicines.discountedPrice,
+//       categoryId: medicines.categoryId,
+//       manufacturer: medicines.manufacturer,
+//       requiresPrescription: medicines.requiresPrescription,
+//       frontImageUrl: medicines.frontImageUrl,
+//       backImageUrl: medicines.backImageUrl,
+//       isActive: medicines.isActive,
+//       createdAt: medicines.createdAt,
+//       updatedAt: medicines.updatedAt,
+//       category: medicineCategories,
+//       totalStock: sql<number>`GREATEST(
+//         0,
+//         COALESCE(
+//           SUM(
+//             CASE 
+//               WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+//               THEN ${medicineInventory.quantity} 
+//               ELSE 0 
+//             END
+//           ),
+//           0
+//         ) - COALESCE(
+//           (
+//             SELECT SUM(${cartItems.quantity}) 
+//             FROM ${cartItems} 
+//             WHERE ${cartItems.medicineId} = ${medicines.id}
+//           ),
+//           0
+//         )
+//       )`,
+//     })
+//     .from(medicines)
+//     .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
+//     .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
+//     .where(
+//       and(
+//         eq(medicines.isActive, true),
+//         sql`${medicines.name} LIKE ${`%${query}%`}` // Removed LOWER() for MySQL case-insensitive search
+//       )
+//     )
+//     .groupBy(medicines.id, medicineCategories.id)
+//     .orderBy(asc(medicines.name)) as any;
+// }
 
-//   async createMedicineInventory(inventory: InsertMedicineInventory): Promise<MedicineInventory> {
-//     const [newInventory] = await db.insert(medicineInventory).values(inventory).returning();
-//     return newInventory;
-//   }
 
-//   async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInventory>): Promise<MedicineInventory> {
-//     const [updatedInventory] = await db
-//       .update(medicineInventory)
-//       .set({ ...inventory, updatedAt: new Date() })
-//       .where(eq(medicineInventory.id, id))
-//       .returning();
-//     return updatedInventory;
-//   }
+
+//   async getMedicineCategories(storeId: number): Promise<MedicineCategory[]> {
+//   return db
+//     .select()
+//     .from(medicineCategories)
+//     .where(eq(medicineCategories.storeId, storeId))
+//     .orderBy(asc(medicineCategories.name));
+// }
+// async getAllOrders2() {
+//   return db
+//     .select({
+//       order: {
+//         id: orders.id,
+//         orderNumber: orders.orderNumber,
+//         status: orders.status,
+//         total: orders.total,
+//         createdAt: orders.createdAt,
+//       },
+//       user: {
+//         id: users.id,
+//         firstName: users.firstName,
+//         lastName: users.lastName,
+//         email: users.email,
+//       },
+//     })
+//     .from(orders)
+//     .leftJoin(users, eq(users.id, orders.userId));
+// }
+
+// async createMedicineCategory(
+//   name: string,
+//   description: string | undefined,
+//   isScheduleH: boolean | undefined,
+//   storeId: number
+// ): Promise<MedicineCategory> {
+//   await db.insert(medicineCategories).values({
+//     name,
+//     description,
+//     isScheduleH: isScheduleH || false,
+//     storeId
+//   });
+
+//   const [category] = await db
+//     .select()
+//     .from(medicineCategories)
+//     .where(eq(medicineCategories.name, name))
+//     .where(eq(medicineCategories.storeId, storeId));
+
+//   return category;
+// }
+
+  
+// async getOrdersByUserIdAndStore(userId: number, storeId: number) {
+//   return db
+//     .select()
+//     .from(orders)
+//     .where(
+//       and(
+//         eq(orders.userId, userId),
+//         eq(orders.storeId, storeId) // assuming you already store storeId in orders table
+//       )
+//     );
+// }
+
+// async getOrdersByStoreId(storeId: number) {
+//   return db
+//     .select({
+//       id: orders.id,
+//       orderNumber: orders.orderNumber,
+//       status: orders.status,
+//       total: orders.total,
+//       createdAt: orders.createdAt,
+//       // 👇 nested user
+//       user: {
+//         id: users.id,
+//         firstName: users.firstName,
+//         lastName: users.lastName,
+//         email: users.email,
+//       },
+//     })
+//     .from(orders)
+//     .leftJoin(users, eq(users.id, orders.userId))
+//     .where(eq(orders.storeId, storeId));
+// }
+
+
+// async createMedicine(medicine: InsertMedicine): Promise<Medicine> {
+//   const preparedMedicine = this.prepareMedicineData(medicine);
+
+//   await db.insert(medicines).values(preparedMedicine);
+
+//   const [newMedicine] = await db
+//     .select()
+//     .from(medicines)
+//     .where(
+//       and(
+//         eq(medicines.name, medicine.name),
+//         eq(medicines.storeId, medicine.storeId) // ✅ only this store
+//       )
+//     );
+
+//   return newMedicine;
+// }
+// async updateMedicine(id: number, medicine: Partial<InsertMedicine>, storeId: number): Promise<Medicine> {
+//   const preparedMedicine = this.prepareMedicineData(medicine);
+
+//   await db
+//     .update(medicines)
+//     .set({ ...preparedMedicine, updatedAt: new Date() })
+//     .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId))); // ✅ secure
+
+//   const [updatedMedicine] = await db
+//     .select()
+//     .from(medicines)
+//     .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId)));
+
+//   return updatedMedicine;
+// }
+// async deleteMedicine(id: number, storeId: number): Promise<void> {
+//   await db
+//     .update(medicines)
+//     .set({ isActive: false })
+//     .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId))); // ✅ secure
+// }
+// async getMedicineInventory(medicineId: number, storeId: number): Promise<MedicineInventory[]> {
+//   return db
+//     .select()
+//     .from(medicineInventory)
+//     .where(and(eq(medicineInventory.medicineId, medicineId), eq(medicineInventory.storeId, storeId))) // ✅ secure
+//     .orderBy(asc(medicineInventory.expiryDate));
+// }
+// async createMedicineInventory(inventory: InsertMedicineInventory, storeId: number): Promise<MedicineInventory> {
+//   await db.insert(medicineInventory).values({
+//     ...inventory,
+//     storeId // ✅ link inventory to store
+//   });
+
+//   const [newInventory] = await db
+//     .select()
+//     .from(medicineInventory)
+//     .where(
+//       and(
+//         eq(medicineInventory.medicineId, inventory.medicineId),
+//         eq(medicineInventory.batchNumber, inventory.batchNumber),
+//         eq(medicineInventory.storeId, storeId) // ✅ scoped
+//       )
+//     );
+
+//   return newInventory;
+// }
+// async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInventory>, storeId: number): Promise<MedicineInventory> {
+//   await db
+//     .update(medicineInventory)
+//     .set({ ...inventory, updatedAt: new Date() })
+//     .where(and(eq(medicineInventory.id, id), eq(medicineInventory.storeId, storeId))); // ✅ secure
+
+//   const [updatedInventory] = await db
+//     .select()
+//     .from(medicineInventory)
+//     .where(and(eq(medicineInventory.id, id), eq(medicineInventory.storeId, storeId)));
+
+//   return updatedInventory;
+// }
+
+
+
 
 //   async getLowStockMedicines(): Promise<(Medicine & { totalStock: number })[]> {
 //     return db
@@ -443,7 +662,8 @@
 //         updatedAt: medicines.updatedAt,
 //         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
 //           CASE 
-//             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
+//             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+            
 //             THEN ${medicineInventory.quantity} 
 //             ELSE 0 
 //           END
@@ -457,30 +677,55 @@
 //       .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
 //       .where(eq(medicines.isActive, true))
 //       .groupBy(medicines.id)
+//       // .having(sql`GREATEST(0, COALESCE(SUM(
+//       //   CASE 
+//       //     WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
+//       //     THEN ${medicineInventory.quantity} 
+//       //     ELSE 0 
+//       //   END
+//       // ), 0) - COALESCE((
+//       //   SELECT SUM(${cartItems.quantity}) 
+//       //   FROM ${cartItems} 
+//       //   WHERE ${cartItems.medicineId} = ${medicines.id}
+//       // ), 0)) < 20`)
 //       .having(sql`GREATEST(0, COALESCE(SUM(
-//         CASE 
-//           WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
-//           THEN ${medicineInventory.quantity} 
-//           ELSE 0 
-//         END
-//       ), 0) - COALESCE((
-//         SELECT SUM(${cartItems.quantity}) 
-//         FROM ${cartItems} 
-//         WHERE ${cartItems.medicineId} = ${medicines.id}
-//       ), 0)) < 20`)
+//   CASE 
+//     WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+//     THEN ${medicineInventory.quantity} 
+//     ELSE 0 
+//   END
+// ), 0) - COALESCE((
+//   SELECT SUM(${cartItems.quantity}) 
+//   FROM ${cartItems} 
+//   WHERE ${cartItems.medicineId} = ${medicines.id}
+// ), 0)) < 20`)
+//       // .orderBy(sql`GREATEST(0, COALESCE(SUM(
+//       //   CASE 
+//       //     WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
+//       //     THEN ${medicineInventory.quantity} 
+//       //     ELSE 0 
+//       //   END
+//       // ), 0) - COALESCE((
+//       //   SELECT SUM(${cartItems.quantity}) 
+//       //   FROM ${cartItems} 
+//       //   WHERE ${cartItems.medicineId} = ${medicines.id}
+//       // ), 0))`) as any;
 //       .orderBy(sql`GREATEST(0, COALESCE(SUM(
-//         CASE 
-//           WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
-//           THEN ${medicineInventory.quantity} 
-//           ELSE 0 
-//         END
-//       ), 0) - COALESCE((
-//         SELECT SUM(${cartItems.quantity}) 
-//         FROM ${cartItems} 
-//         WHERE ${cartItems.medicineId} = ${medicines.id}
-//       ), 0))`) as any;
+//   CASE 
+//     WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+//     THEN ${medicineInventory.quantity} 
+//     ELSE 0 
+//   END
+// ), 0) - COALESCE((
+//   SELECT SUM(${cartItems.quantity}) 
+//   FROM ${cartItems} 
+//   WHERE ${cartItems.medicineId} = ${medicines.id}
+// ), 0))`)
 //   }
 
+
+
+  
 //   async getPrescriptionsByUserId(userId: number): Promise<Prescription[]> {
 //     return db
 //       .select()
@@ -529,21 +774,14 @@
 //   }
 
 //   async createPrescription(prescription: InsertPrescription): Promise<Prescription> {
-//     const [newPrescription] = await db.insert(prescriptions).values(prescription).returning();
+//     await db.insert(prescriptions).values(prescription);
+//     const [newPrescription] = await db.select().from(prescriptions).where(and(eq(prescriptions.userId, prescription.userId), eq(prescriptions.filePath, prescription.filePath)));
 //     return newPrescription;
 //   }
 
 //   async updatePrescriptionStatus(id: number, status: string, reviewedBy: number, notes?: string): Promise<Prescription> {
-//     const [updatedPrescription] = await db
-//       .update(prescriptions)
-//       .set({
-//         status,
-//         reviewedBy,
-//         reviewedAt: new Date(),
-//         reviewNotes: notes,
-//       })
-//       .where(eq(prescriptions.id, id))
-//       .returning();
+//     await db.update(prescriptions).set({ status, reviewedBy, reviewedAt: new Date(), reviewNotes: notes }).where(eq(prescriptions.id, id));
+//     const [updatedPrescription] = await db.select().from(prescriptions).where(eq(prescriptions.id, id));
 //     return updatedPrescription;
 //   }
 
@@ -563,71 +801,43 @@
 //   }
 
 //   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
-//     // Check available stock before adding to cart
 //     const availableStock = await this.getAvailableStock(cartItem.medicineId);
-    
-//     // Check if item already exists in cart
 //     const [existingItem] = await db
 //       .select()
 //       .from(cartItems)
-//       .where(
-//         and(
-//           eq(cartItems.userId, cartItem.userId),
-//           eq(cartItems.medicineId, cartItem.medicineId)
-//         )
-//       );
+//       .where(and(eq(cartItems.userId, cartItem.userId), eq(cartItems.medicineId, cartItem.medicineId)));
 
 //     if (existingItem) {
-//       // Check if new total quantity exceeds available stock
 //       const newQuantity = existingItem.quantity + cartItem.quantity;
 //       if (newQuantity > availableStock + existingItem.quantity) {
 //         throw new Error(`Insufficient stock. Only ${availableStock + existingItem.quantity} available.`);
 //       }
-      
-//       // Update quantity
-//       const [updatedItem] = await db
-//         .update(cartItems)
-//         .set({ quantity: newQuantity })
-//         .where(eq(cartItems.id, existingItem.id))
-//         .returning();
+//       await db.update(cartItems).set({ quantity: newQuantity }).where(eq(cartItems.id, existingItem.id));
+//       const [updatedItem] = await db.select().from(cartItems).where(eq(cartItems.id, existingItem.id));
 //       return updatedItem;
 //     } else {
-//       // Check if requested quantity exceeds available stock
 //       if (cartItem.quantity > availableStock) {
 //         throw new Error(`Insufficient stock. Only ${availableStock} available.`);
 //       }
-      
-//       // Add new item
-//       const [newItem] = await db.insert(cartItems).values(cartItem).returning();
+//       await db.insert(cartItems).values(cartItem);
+//       const [newItem] = await db.select().from(cartItems).where(and(eq(cartItems.userId, cartItem.userId), eq(cartItems.medicineId, cartItem.medicineId)));
 //       return newItem;
 //     }
 //   }
 
 //   async updateCartItem(id: number, quantity: number): Promise<CartItem> {
-//     // Get the cart item to check medicine ID
-//     const [cartItem] = await db
-//       .select()
-//       .from(cartItems)
-//       .where(eq(cartItems.id, id));
-    
+//     const [cartItem] = await db.select().from(cartItems).where(eq(cartItems.id, id));
 //     if (!cartItem) {
-//       throw new Error('Cart item not found');
+//       throw new Error("Cart item not found");
 //     }
-
-//     // Check available stock
 //     const availableStock = await this.getAvailableStock(cartItem.medicineId);
 //     const currentCartQuantity = cartItem.quantity;
 //     const stockAvailableForThisItem = availableStock + currentCartQuantity;
-    
 //     if (quantity > stockAvailableForThisItem) {
 //       throw new Error(`Insufficient stock. Only ${stockAvailableForThisItem} available.`);
 //     }
-
-//     const [updatedItem] = await db
-//       .update(cartItems)
-//       .set({ quantity })
-//       .where(eq(cartItems.id, id))
-//       .returning();
+//     await db.update(cartItems).set({ quantity }).where(eq(cartItems.id, id));
+//     const [updatedItem] = await db.select().from(cartItems).where(eq(cartItems.id, id));
 //     return updatedItem;
 //   }
 
@@ -639,213 +849,224 @@
 //     await db.delete(cartItems).where(eq(cartItems.userId, userId));
 //   }
 
-//   async getOrdersByUserId(userId: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; shippingAddress?: Address; billingAddress?: Address })[]> {
-//     const ordersData = await db
-//       .select({
-//         order: orders,
-//         user: users,
-//         item: orderItems,
-//         medicine: medicines,
-//         shippingAddress: {
-//           id: sql`shipping_addr.id`,
-//           userId: sql`shipping_addr.user_id`,
-//           type: sql`shipping_addr.type`,
-//           fullName: sql`shipping_addr.full_name`,
-//           addressLine1: sql`shipping_addr.address_line_1`,
-//           addressLine2: sql`shipping_addr.address_line_2`,
-//           city: sql`shipping_addr.city`,
-//           state: sql`shipping_addr.state`,
-//           postalCode: sql`shipping_addr.postal_code`,
-//           phone: sql`shipping_addr.phone`,
-//           isDefault: sql`shipping_addr.is_default`,
-//           createdAt: sql`shipping_addr.created_at`,
-//         },
-//         billingAddress: {
-//           id: sql`billing_addr.id`,
-//           userId: sql`billing_addr.user_id`,
-//           type: sql`billing_addr.type`,
-//           fullName: sql`billing_addr.full_name`,
-//           addressLine1: sql`billing_addr.address_line_1`,
-//           addressLine2: sql`billing_addr.address_line_2`,
-//           city: sql`billing_addr.city`,
-//           state: sql`billing_addr.state`,
-//           postalCode: sql`billing_addr.postal_code`,
-//           phone: sql`billing_addr.phone`,
-//           isDefault: sql`billing_addr.is_default`,
-//           createdAt: sql`billing_addr.created_at`,
-//         },
-//       })
-//       .from(orders)
-//       .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
-//       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-//       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-//       .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
-//       .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
-//       .where(eq(orders.userId, userId))
-//       .orderBy(desc(orders.placedAt));
+  
+// async getOrdersByUserId(userId: number): Promise<(Order & { 
+//   user: User; 
+//   items: (OrderItem & { medicine: Medicine })[]; 
+//   shippingAddress?: Address; 
+//   billingAddress?: Address 
+// })[]> {
+//   const ordersData = await db
+//     .select({
+//       order: orders,
+//       user: users,
+//       item: orderItems,
+//       medicine: medicines,
+//       shippingAddress: {
+//         id: sql`shipping_addr.id`,
+//         userId: sql`shipping_addr.user_id`,
+//         type: sql`shipping_addr.type`,
+//         fullName: sql`shipping_addr.full_name`,
+//         addressLine1: sql`shipping_addr.address_line_1`,
+//         addressLine2: sql`shipping_addr.address_line_2`,
+//         city: sql`shipping_addr.city`,
+//         state: sql`shipping_addr.state`,
+//         postalCode: sql`shipping_addr.postal_code`,
+//         phone: sql`shipping_addr.phone`,
+//         isDefault: sql`shipping_addr.is_default`,
+//         createdAt: sql`shipping_addr.created_at`,
+//       },
+//       billingAddress: {
+//         id: sql`billing_addr.id`,
+//         userId: sql`billing_addr.user_id`,
+//         type: sql`billing_addr.type`,
+//         fullName: sql`billing_addr.full_name`,
+//         addressLine1: sql`billing_addr.address_line_1`,
+//         addressLine2: sql`billing_addr.address_line_2`,
+//         city: sql`billing_addr.city`,
+//         state: sql`billing_addr.state`,
+//         postalCode: sql`billing_addr.postal_code`,
+//         phone: sql`billing_addr.phone`,
+//         isDefault: sql`billing_addr.is_default`,
+//         createdAt: sql`billing_addr.created_at`,
+//       },
+//     })
+//     .from(orders)
+//     .innerJoin(users, eq(orders.userId, users.id)) 
+//     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+//     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+//     .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
+//     .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
+//     .where(eq(orders.userId, userId))
+//     .orderBy(desc(orders.placedAt));
 
-//     // Group by order
-//     const orderMap = new Map();
-//     ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
-//       if (!orderMap.has(order.id)) {
-//         orderMap.set(order.id, { 
-//           ...order, 
-//           user, 
-//           items: [], 
-//           shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
-//           billingAddress: billingAddress?.id ? billingAddress : undefined
-//         });
-//       }
-//       if (item && medicine) {
-//         orderMap.get(order.id).items.push({ ...item, medicine });
-//       }
-//     });
+//   const orderMap = new Map();
+//   ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
+//     if (!orderMap.has(order.id)) {
+//       orderMap.set(order.id, { 
+//         ...order, 
+//         user, 
+//         items: [], 
+//         shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
+//         billingAddress: billingAddress?.id ? billingAddress : undefined,
+//       });
+//     }
+//     if (item && medicine) {
+//       orderMap.get(order.id).items.push({ ...item, medicine });
+//     }
+//   });
 
-//     return Array.from(orderMap.values());
-//   }
+//   return Array.from(orderMap.values());
+// }
 
-//   async getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; prescription?: Prescription })[]> {
-//     const ordersData = await db
-//       .select({
-//         order: orders,
-//         user: users,
-//         item: orderItems,
-//         medicine: medicines,
-//         prescription: prescriptions,
-//       })
-//       .from(orders)
-//       .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
-//       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-//       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-//       .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-//       .orderBy(desc(orders.placedAt));
 
-//     // Group by order
-//     const orderMap = new Map();
-//     ordersData.forEach(({ order, user, item, medicine, prescription }) => {
-//       if (!orderMap.has(order.id)) {
-//         orderMap.set(order.id, { ...order, user, items: [], prescription: prescription || undefined });
-//       }
-//       if (item && medicine) {
-//         orderMap.get(order.id).items.push({ ...item, medicine });
-//       }
-//     });
 
-//     return Array.from(orderMap.values());
-//   }
+// async getAllOrders(storeId: number): Promise<(Order & { 
+//   user: User; 
+//   items: (OrderItem & { medicine: Medicine })[]; 
+//   prescription?: Prescription 
+// })[]> {
+//   const ordersData = await db
+//     .select({
+//       order: orders,
+//       user: users,
+//       item: orderItems,
+//       medicine: medicines,
+//       prescription: prescriptions,
+//     })
+//     .from(orders)
+//     .innerJoin(users, eq(orders.userId, users.id)) 
+//     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+//     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+//     .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
+//     .where(eq(orders.storeId, storeId))   // ✅ filter store wise
+//     .orderBy(desc(orders.placedAt));
 
-//   async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-//     // Generate shorter order number (SMD + 8 digits)
-//     const timestamp = Date.now().toString();
-//     const orderNumber = `SMD${timestamp.slice(-8)}`;
-    
-//     const [newOrder] = await db
-//       .insert(orders)
-//       .values({ ...order, orderNumber })
-//       .returning();
+//   const orderMap = new Map();
+//   ordersData.forEach(({ order, user, item, medicine, prescription }) => {
+//     if (!orderMap.has(order.id)) {
+//       orderMap.set(order.id, {
+//         ...order,
+//         user,
+//         items: [],
+//         prescription: prescription?.id ? prescription : undefined,
+//       });
+//     }
+//     if (item && medicine) {
+//       orderMap.get(order.id).items.push({ ...item, medicine });
+//     }
+//   });
 
-//     // Process each item with batch allocation
-//     const orderItemsWithBatches = [];
-    
-//     for (const item of items) {
-//       // Allocate batches for this item using FIFO
-//       const batchAllocations = await this.allocateBatchesForOrder(item.medicineId, item.quantity);
-      
-//       // Deduct inventory from allocated batches and create order items
-//       for (const allocation of batchAllocations) {
-//         await db
-//           .update(medicineInventory)
-//           .set({ 
-//             quantity: sql`${medicineInventory.quantity} - ${allocation.quantity}` 
-//           })
-//           .where(eq(medicineInventory.id, allocation.batchId));
-        
-//         // Create order item entry for each batch allocation
-//         const totalPrice = allocation.quantity * parseFloat(item.unitPrice.toString());
-//         orderItemsWithBatches.push({
-//           orderId: newOrder.id,
-//           medicineId: item.medicineId,
-//           quantity: allocation.quantity,
-//           unitPrice: item.unitPrice,
-//           totalPrice: totalPrice.toString(),
-//           batchId: allocation.batchId,
-//         });
-//       }
+//   return Array.from(orderMap.values());
+// }
+
+ 
+// async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
+//   const timestamp = Date.now().toString();
+//   const orderNumber = `SMD${timestamp.slice(-8)}`;
+
+//   let storeId: number | null = order.storeId ?? null;
+
+//   const orderItemsWithBatches = [];
+
+//   for (const item of items) {
+//     const batchAllocations = await this.allocateBatchesForOrder(item.medicineId, item.quantity);
+
+//     // derive storeId from the first allocated batch if not already set
+//     if (!storeId && batchAllocations.length > 0) {
+//       const [batchInfo] = await db
+//         .select({ storeId: medicineInventory.storeId })
+//         .from(medicineInventory)
+//         .where(eq(medicineInventory.id, batchAllocations[0].batchId));
+//       storeId = batchInfo?.storeId ?? null;
 //     }
 
-//     // Add order items with batch information
-//     await db.insert(orderItems).values(orderItemsWithBatches);
+//     for (const allocation of batchAllocations) {
+//       await db
+//         .update(medicineInventory)
+//         .set({ quantity: sql`${medicineInventory.quantity} - ${allocation.quantity}` })
+//         .where(eq(medicineInventory.id, allocation.batchId));
 
-//     return newOrder;
+//       const totalPrice = allocation.quantity * parseFloat(item.unitPrice.toString());
+
+//       orderItemsWithBatches.push({
+//         orderId: 0, // placeholder, will set after order insert
+//         medicineId: item.medicineId,
+//         quantity: allocation.quantity,
+//         unitPrice: item.unitPrice,
+//         totalPrice: totalPrice.toString(),
+//         batchId: allocation.batchId,
+//       });
+//     }
 //   }
 
+//   // Insert order with storeId
+//   await db.insert(orders).values({ ...order, orderNumber, storeId });
+//   const [newOrder] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
 
+//   // Update orderId in items and insert
+//   for (const item of orderItemsWithBatches) {
+//     item.orderId = newOrder.id;
+//   }
+//   await db.insert(orderItems).values(orderItemsWithBatches);
+
+//   return newOrder;
+// }
 
 //   async updateOrderStatus(id: number, status: string): Promise<Order> {
 //     const updateData: any = { status };
 //     if (status === "delivered") {
 //       updateData.deliveredAt = new Date();
 //     }
-
-//     const [updatedOrder] = await db
-//       .update(orders)
-//       .set(updateData)
-//       .where(eq(orders.id, id))
-//       .returning();
+//     await db.update(orders).set(updateData).where(eq(orders.id, id));
+//     const [updatedOrder] = await db.select().from(orders).where(eq(orders.id, id));
 //     return updatedOrder;
 //   }
 
-//   async updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<Order> {
-//     const [updatedOrder] = await db
-//       .update(orders)
-//       .set({ paymentStatus })
-//       .where(eq(orders.id, id))
-//       .returning();
-//     return updatedOrder;
-//   }
+ 
+// async getOrderById(id: number): Promise<(Order & {
+//   user: User;
+//   items: (OrderItem & { medicine: Medicine })[];
+//   billingAddress: Address;
+//   shippingAddress: Address;
+//   prescription?: Prescription;
+// }) | undefined> {
+//   const orderData = await db
+//     .select({
+//       order: orders,
+//       user: users,
+//       item: orderItems,
+//       medicine: medicines,
+//       billingAddress: billingAddr,   // ✅ use alias
+//       shippingAddress: shippingAddr, // ✅ use alias
+//       prescription: prescriptions,
+//     })
+//     .from(orders)
+//     .innerJoin(users, eq(orders.userId, users.id))
+//     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+//     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+//     .leftJoin(billingAddr, eq(billingAddr.id, orders.billingAddressId))
+//     .leftJoin(shippingAddr, eq(shippingAddr.id, orders.shippingAddressId))
+//     .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
+//     .where(eq(orders.id, id));
 
-//   async getOrderById(id: number): Promise<(Order & { 
-//     user: User; 
-//     items: (OrderItem & { medicine: Medicine })[];
-//     billingAddress: Address;
-//     shippingAddress: Address;
-//     prescription?: Prescription;
-//   }) | undefined> {
-//     const orderData = await db
-//       .select({
-//         order: orders,
-//         user: users,
-//         item: orderItems,
-//         medicine: medicines,
-//         billingAddress: sql`billing_addr`,
-//         shippingAddress: sql`shipping_addr`,
-//         prescription: prescriptions,
-//       })
-//       .from(orders)
-//       .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
-//       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-//       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-//       .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
-//       .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
-//       .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-//       .where(eq(orders.id, id));
+//   if (orderData.length === 0) return undefined;
 
-//     if (orderData.length === 0) return undefined;
+//   const { order, user, billingAddress, shippingAddress, prescription } = orderData[0];
 
-//     const { order, user, billingAddress, shippingAddress, prescription } = orderData[0];
-//     const items = orderData
-//       .filter(({ item, medicine }) => item && medicine)
-//       .map(({ item, medicine }) => ({ ...item, medicine }));
+//   const items = orderData
+//     .filter(({ item, medicine }) => item && medicine)
+//     .map(({ item, medicine }) => ({ ...item, medicine }));
 
-//     return {
-//       ...order,
-//       user,
-//       items,
-//       billingAddress: billingAddress as Address,
-//       shippingAddress: shippingAddress as Address,
-//       prescription: prescription || undefined,
-//     } as any;
-//   }
+//   return {
+//     ...order,
+//     user,
+//     items,
+//     billingAddress: billingAddress as Address,
+//     shippingAddress: shippingAddress as Address,
+//     prescription: prescription || undefined,
+//   } as any;
+// }
 
 //   async getNotificationsByUserId(userId: number): Promise<Notification[]> {
 //     return db
@@ -856,7 +1077,8 @@
 //   }
 
 //   async createNotification(notification: InsertNotification): Promise<Notification> {
-//     const [newNotification] = await db.insert(notifications).values(notification).returning();
+//     await db.insert(notifications).values(notification);
+//     const [newNotification] = await db.select().from(notifications).where(and(eq(notifications.userId, notification.userId), eq(notifications.message, notification.message)));
 //     return newNotification;
 //   }
 
@@ -877,16 +1099,8 @@
 //     const today = new Date();
 //     today.setHours(0, 0, 0, 0);
 
-//     const [salesResult] = await db
-//       .select({ totalSales: sum(orders.totalAmount) })
-//       .from(orders)
-//       .where(eq(orders.paymentStatus, "paid"));
-
-//     const [ordersTodayResult] = await db
-//       .select({ count: count() })
-//       .from(orders)
-//       .where(sql`DATE(${orders.placedAt}) = DATE(${today})`);
-
+//     const [salesResult] = await db.select({ totalSales: sum(orders.totalAmount) }).from(orders).where(eq(orders.paymentStatus, "paid"));
+//     const [ordersTodayResult] = await db.select({ count: count() }).from(orders).where(sql`DATE(${orders.placedAt}) = DATE(${today})`);
 //     const [lowStockResult] = await db
 //       .select({ count: count() })
 //       .from(medicines)
@@ -894,11 +1108,7 @@
 //       .where(eq(medicines.isActive, true))
 //       .groupBy(medicines.id)
 //       .having(sql`COALESCE(SUM(${medicineInventory.quantity}), 0) < 20`);
-
-//     const [pendingPrescriptionsResult] = await db
-//       .select({ count: count() })
-//       .from(prescriptions)
-//       .where(eq(prescriptions.status, "pending"));
+//     const [pendingPrescriptionsResult] = await db.select({ count: count() }).from(prescriptions).where(eq(prescriptions.status, "pending"));
 
 //     return {
 //       totalSales: Number(salesResult?.totalSales || 0),
@@ -909,12 +1119,10 @@
 //   }
 
 //   async getSalesAnalytics(timePeriod: string): Promise<any[]> {
-//     // Get all orders for analytics
 //     const allOrders = await db.select().from(orders);
-    
 //     const today = new Date();
 //     const data = [];
-    
+
 //     switch (timePeriod) {
 //       case "weekly":
 //         for (let i = 6; i >= 0; i--) {
@@ -924,37 +1132,31 @@
 //           dayStart.setHours(0, 0, 0, 0);
 //           const dayEnd = new Date(date);
 //           dayEnd.setHours(23, 59, 59, 999);
-          
 //           const dayOrders = allOrders.filter(order => {
 //             if (!order.placedAt) return false;
 //             const orderDate = new Date(order.placedAt);
 //             return orderDate >= dayStart && orderDate <= dayEnd;
 //           });
-          
 //           const paidOrders = dayOrders.filter(order => order.paymentStatus === "paid");
 //           const totalSales = paidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
-          
 //           data.push({
-//             date: date.toISOString().split('T')[0],
+//             date: date.toISOString().split("T")[0],
 //             sales: totalSales,
 //             orders: dayOrders.length,
-//             label: date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' })
+//             label: date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" }),
 //           });
 //         }
 //         break;
-      
 //       default:
 //         const paidOrders = allOrders.filter(order => order.paymentStatus === "paid");
 //         const totalSales = paidOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
-        
 //         data.push({
-//           date: today.toISOString().split('T')[0],
+//           date: today.toISOString().split("T")[0],
 //           sales: totalSales,
 //           orders: allOrders.length,
-//           label: "Total"
+//           label: "Total",
 //         });
 //     }
-    
 //     return data;
 //   }
 
@@ -962,7 +1164,7 @@
 //     const categoryStats = await db
 //       .select({
 //         name: medicineCategories.name,
-//         count: count(medicines.id)
+//         count: count(medicines.id),
 //       })
 //       .from(medicineCategories)
 //       .leftJoin(medicines, eq(medicineCategories.id, medicines.categoryId))
@@ -970,196 +1172,15 @@
 //       .groupBy(medicineCategories.id, medicineCategories.name);
 
 //     const colors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D"];
-    
 //     return categoryStats.map((category, index) => ({
 //       name: category.name,
 //       value: category.count,
-//       color: colors[index % colors.length]
+//       color: colors[index % colors.length],
 //     }));
 //   }
 
-//   async initializeData(): Promise<void> {
-//     // Check if data already exists
-//     const existingUsers = await db.select().from(users).limit(1);
-//     if (existingUsers.length > 0) return;
-
-//     // Create admin user
-//     const adminUser = await this.createUser({
-//       email: "admin@test.com",
-//       password: "admin123",
-//       role: "admin",
-//       firstName: "Admin",
-//       lastName: "User",
-//       phone: "9876543210",
-//     });
-
-//     // Create customer user
-//     const customerUser = await this.createUser({
-//       email: "customer@test.com",
-//       password: "password123",
-//       role: "customer",
-//       firstName: "John",
-//       lastName: "Doe",
-//       phone: "9876543211",
-//       gender: "male",
-//       dateOfBirth: "1990-01-01",
-//     });
-
-//     // Create medicine categories
-//     const generalCategory = await this.createMedicineCategory("General", "General medicines", false);
-//     const scheduleHCategory = await this.createMedicineCategory("Schedule H", "Prescription required medicines", true);
-//     const ayurvedicCategory = await this.createMedicineCategory("Ayurvedic", "Traditional Indian medicines", false);
-
-//     // Create sample medicines with new pricing structure
-//     const medicines = [
-//       {
-//         name: "Paracetamol 500mg",
-//         description: "Pain relief and fever reducer",
-//         dosage: "500mg",
-//         mrp: "60.00",
-//         discount: "25.00", // 25% discount
-//         categoryId: scheduleHCategory.id,
-//         manufacturer: "Cipla Ltd",
-//         requiresPrescription: true,
-//       },
-//       {
-//         name: "Vitamin D3 Tablets",
-//         description: "Essential vitamin supplement",
-//         dosage: "60000 IU",
-//         mrp: "150.00",
-//         discount: "16.67", // 16.67% discount
-//         categoryId: generalCategory.id,
-//         manufacturer: "Sun Pharma",
-//         requiresPrescription: false,
-//       },
-//       {
-//         name: "Cough Syrup",
-//         description: "Cough relief formula",
-//         dosage: "100ml",
-//         mrp: "100.00",
-//         discount: "11.00", // 11% discount
-//         categoryId: generalCategory.id,
-//         manufacturer: "Dabur",
-//         requiresPrescription: false,
-//       },
-//       {
-//         name: "Antibiotic Tablets",
-//         description: "Bacterial infection treatment",
-//         dosage: "250mg",
-//         mrp: "220.00",
-//         discount: "15.68", // 15.68% discount
-//         categoryId: scheduleHCategory.id,
-//         manufacturer: "Dr. Reddy's",
-//         requiresPrescription: true,
-//       },
-//       {
-//         name: "Ashwagandha Capsules",
-//         description: "Stress relief and immunity booster",
-//         dosage: "300mg",
-//         mrp: "350.00",
-//         discount: "14.57", // 14.57% discount
-//         categoryId: ayurvedicCategory.id,
-//         manufacturer: "Himalaya",
-//         requiresPrescription: false,
-//       },
-//     ];
-
-//     for (const medicine of medicines) {
-//       const newMedicine = await this.createMedicine(medicine);
-      
-//       // Add inventory
-//       await this.createMedicineInventory({
-//         medicineId: newMedicine.id,
-//         batchNumber: `BATCH${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-//         expiryDate: "2025-12-31",
-//         quantity: Math.floor(Math.random() * 100) + 50,
-//       });
-//     }
-
-//     // Create sample address for customer
-//     await this.createAddress({
-//       userId: customerUser.id,
-//       type: "billing",
-//       fullName: "John Doe",
-//       phone: "9876543211",
-//       addressLine1: "123 Main Street",
-//       addressLine2: "Apartment 4B",
-//       city: "Mumbai",
-//       state: "Maharashtra",
-//       postalCode: "400001",
-//       isDefault: true,
-//     });
-
-//     await this.createAddress({
-//       userId: customerUser.id,
-//       type: "shipping",
-//       fullName: "John Doe",
-//       phone: "9876543211",
-//       addressLine1: "123 Main Street",
-//       addressLine2: "Apartment 4B",
-//       city: "Mumbai",
-//       state: "Maharashtra",
-//       postalCode: "400001",
-//       isDefault: true,
-//     });
-//   }
-
-//   async getPaymentAnalytics(dateFilter: string = 'today'): Promise<any[]> {
-//     try {
-//       let dateCondition = sql`1=1`;
-//       const now = new Date();
-      
-//       switch (dateFilter) {
-//         case 'today':
-//           const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-//           const endOfDay = new Date(now.setHours(23, 59, 59, 999));
-//           dateCondition = sql`${orders.createdAt} >= ${startOfDay} AND ${orders.createdAt} <= ${endOfDay}`;
-//           break;
-//         case 'week':
-//           const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-//           startOfWeek.setHours(0, 0, 0, 0);
-//           dateCondition = sql`${orders.createdAt} >= ${startOfWeek}`;
-//           break;
-//         case 'month':
-//           const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-//           dateCondition = sql`${orders.createdAt} >= ${startOfMonth}`;
-//           break;
-//         case 'all':
-//         default:
-//           dateCondition = sql`1=1`;
-//           break;
-//       }
-
-//       const paymentAnalytics = await db
-//         .select({
-//           id: orders.id,
-//           orderNumber: orders.orderNumber,
-//           customerName: sql<string>`COALESCE(${addresses.fullName}, CONCAT(${users.firstName}, ' ', ${users.lastName}))`.as('customerName'),
-//           customerPhone: users.phone, // Always use current user phone, not historical address phone
-//           totalAmount: orders.totalAmount,
-//           paymentMethod: orders.paymentMethod,
-//           paymentStatus: orders.paymentStatus,
-//           orderDate: orders.createdAt,
-//           items: sql<number>`COUNT(${orderItems.id})`.as('items'),
-//         })
-//         .from(orders)
-//         .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
-//         .leftJoin(addresses, eq(orders.shippingAddressId, addresses.id))
-//         .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-//         .where(dateCondition)
-//         .groupBy(orders.id, addresses.fullName, addresses.phone, users.firstName, users.lastName, users.phone)
-//         .orderBy(sql`${orders.createdAt} DESC`);
-
-//       return paymentAnalytics;
-//     } catch (error) {
-//       console.error("Error in getPaymentAnalytics:", error);
-//       throw error;
-//     }
-//   }
-
-//   // Batch management operations
 //   async getBatchesByMedicineId(medicineId: number): Promise<Batch[]> {
-//     return await db
+//     return db
 //       .select({
 //         id: medicineInventory.id,
 //         medicineId: medicineInventory.medicineId,
@@ -1178,36 +1199,28 @@
 //   }
 
 //   async addBatch(batch: InsertBatch): Promise<Batch> {
-//     // Validate expiry date is not in the past
 //     const today = new Date();
-//     today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+//     today.setHours(0, 0, 0, 0);
 //     const expiryDate = new Date(batch.expiryDate);
-    
 //     if (expiryDate < today) {
-//       throw new Error('Cannot add batch with expiry date in the past');
+//       throw new Error("Cannot add batch with expiry date in the past");
 //     }
-    
-//     const [newBatch] = await db.insert(medicineInventory).values(batch).returning();
+//     await db.insert(medicineInventory).values(batch);
+//     const [newBatch] = await db.select().from(medicineInventory).where(and(eq(medicineInventory.medicineId, batch.medicineId), eq(medicineInventory.batchNumber, batch.batchNumber)));
 //     return newBatch;
 //   }
 
 //   async updateBatch(id: number, batch: Partial<InsertBatch>): Promise<Batch> {
-//     // Validate expiry date if being updated
 //     if (batch.expiryDate) {
 //       const today = new Date();
 //       today.setHours(0, 0, 0, 0);
 //       const expiryDate = new Date(batch.expiryDate);
-      
 //       if (expiryDate < today) {
-//         throw new Error('Cannot update batch with expiry date in the past');
+//         throw new Error("Cannot update batch with expiry date in the past");
 //       }
 //     }
-    
-//     const [updatedBatch] = await db
-//       .update(medicineInventory)
-//       .set(batch)
-//       .where(eq(medicineInventory.id, id))
-//       .returning();
+//     await db.update(medicineInventory).set(batch).where(eq(medicineInventory.id, id));
+//     const [updatedBatch] = await db.select().from(medicineInventory).where(eq(medicineInventory.id, id));
 //     return updatedBatch;
 //   }
 
@@ -1218,8 +1231,7 @@
 //   async getExpiringBatches(days: number): Promise<(Batch & { medicine: Medicine })[]> {
 //     const expiryThreshold = new Date();
 //     expiryThreshold.setDate(expiryThreshold.getDate() + days);
-
-//     return await db
+//     return db
 //       .select({
 //         id: medicineInventory.id,
 //         medicineId: medicineInventory.medicineId,
@@ -1232,56 +1244,13 @@
 //       })
 //       .from(medicineInventory)
 //       .innerJoin(medicines, eq(medicineInventory.medicineId, medicines.id))
-//       .where(
-//         and(
-//           lte(medicineInventory.expiryDate, expiryThreshold),
-//           gte(medicineInventory.quantity, 1)
-//         )
-//       )
+//       .where(and(lte(medicineInventory.expiryDate, expiryThreshold), gte(medicineInventory.quantity, 1)))
 //       .orderBy(asc(medicineInventory.expiryDate));
-//   }
-
-//   async allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]> {
-//     // Get available batches ordered by expiry date (FIFO), excluding expired batches
-//     const today = new Date();
-//     const availableBatches = await db
-//       .select()
-//       .from(medicineInventory)
-//       .where(
-//         and(
-//           eq(medicineInventory.medicineId, medicineId),
-//           gte(medicineInventory.quantity, 1),
-//           sql`${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' + INTERVAL '${sql.raw(getShelfLifeInterval())}'` // Only batches with minimum shelf life
-//         )
-//       )
-//       .orderBy(asc(medicineInventory.expiryDate));
-
-//     const allocations: { batchId: number; quantity: number }[] = [];
-//     let remainingQuantity = quantity;
-
-//     for (const batch of availableBatches) {
-//       if (remainingQuantity <= 0) break;
-
-//       const allocateFromBatch = Math.min(batch.quantity, remainingQuantity);
-//       allocations.push({
-//         batchId: batch.id,
-//         quantity: allocateFromBatch,
-//       });
-
-//       remainingQuantity -= allocateFromBatch;
-//     }
-
-//     if (remainingQuantity > 0) {
-//       throw new Error(`Insufficient stock with ${config.minimumShelfLifeMonths}+ months shelf life: ${remainingQuantity} units short for medicine ID ${medicineId}. Available stock: ${quantity - remainingQuantity} units.`);
-//     }
-
-//     return allocations;
 //   }
 
 //   async getExpiredBatches(): Promise<(Batch & { medicine: Medicine })[]> {
 //     const today = new Date();
-    
-//     return await db
+//     return db
 //       .select({
 //         id: medicineInventory.id,
 //         medicineId: medicineInventory.medicineId,
@@ -1298,30 +1267,19 @@
 //       })
 //       .from(medicineInventory)
 //       .innerJoin(medicines, eq(medicineInventory.medicineId, medicines.id))
-//       .where(
-//         and(
-//           sql`${medicineInventory.expiryDate} < ${today}`,
-//           eq(medicineInventory.isDisposed, false),
-//           gte(medicineInventory.quantity, 1)
-//         )
-//       )
+//       .where(and(sql`${medicineInventory.expiryDate} < ${today}`, eq(medicineInventory.isDisposed, false), gte(medicineInventory.quantity, 1)))
 //       .orderBy(asc(medicineInventory.expiryDate));
 //   }
 
 //   async markBatchAsDisposed(batchId: number, reason: string): Promise<void> {
 //     await db
 //       .update(medicineInventory)
-//       .set({
-//         isDisposed: true,
-//         disposalReason: reason,
-//         disposedAt: new Date(),
-//         quantity: 0, // Set quantity to 0 when disposed
-//       })
+//       .set({ isDisposed: true, disposalReason: reason, disposedAt: new Date(), quantity: 0 })
 //       .where(eq(medicineInventory.id, batchId));
 //   }
 
 //   async getBatchDisposalHistory(): Promise<any[]> {
-//     return await db
+//     return db
 //       .select({
 //         id: medicineInventory.id,
 //         medicineId: medicineInventory.medicineId,
@@ -1335,10 +1293,41 @@
 //       .from(medicineInventory)
 //       .innerJoin(medicines, eq(medicineInventory.medicineId, medicines.id))
 //       .where(eq(medicineInventory.isDisposed, true))
-//       .orderBy(sql`${medicineInventory.disposedAt} DESC`);
+//       .orderBy(desc(medicineInventory.disposedAt));
 //   }
 
-//   // Super Admin methods
+//   async allocateBatchesForOrder(medicineId: number, quantity: number): Promise<{ batchId: number; quantity: number }[]> {
+//     const today = new Date();
+//     const availableBatches = await db
+//       .select()
+//       .from(medicineInventory)
+//       .where(
+//         and(
+//           eq(medicineInventory.medicineId, medicineId),
+//           gte(medicineInventory.quantity, 1),
+//           sql`${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH`
+
+//         )
+//       )
+//       .orderBy(asc(medicineInventory.expiryDate));
+
+//     const allocations: { batchId: number; quantity: number }[] = [];
+//     let remainingQuantity = quantity;
+
+//     for (const batch of availableBatches) {
+//       if (remainingQuantity <= 0) break;
+//       const allocateFromBatch = Math.min(batch.quantity, remainingQuantity);
+//       allocations.push({ batchId: batch.id, quantity: allocateFromBatch });
+//       remainingQuantity -= allocateFromBatch;
+//     }
+
+//     if (remainingQuantity > 0) {
+//       throw new Error(`Insufficient stock with ${config.minimumShelfLifeMonths}+ months shelf life: ${remainingQuantity} units short for medicine ID ${medicineId}. Available stock: ${quantity - remainingQuantity} units.`);
+//     }
+
+//     return allocations;
+//   }
+
 //   async getSuperAdminStats(): Promise<{
 //     totalStores: number;
 //     activeStores: number;
@@ -1348,30 +1337,12 @@
 //     totalSales: number;
 //   }> {
 //     const [storesResult] = await db
-//       .select({ 
-//         total: count(),
-//         active: sql<number>`COUNT(CASE WHEN ${stores.isActive} = true THEN 1 END)`
-//       })
+//       .select({ total: count(), active: sql<number>`COUNT(CASE WHEN ${stores.isActive} = true THEN 1 END)` })
 //       .from(stores);
-
-//     const [adminsResult] = await db
-//       .select({ count: count() })
-//       .from(users)
-//       .where(eq(users.role, 1)); // Role 1 = admin
-
-//     const [customersResult] = await db
-//       .select({ count: count() })
-//       .from(users)
-//       .where(eq(users.role, 2)); // Role 2 = customer
-
-//     const [ordersResult] = await db
-//       .select({ count: count() })
-//       .from(orders);
-
-//     const [salesResult] = await db
-//       .select({ totalSales: sum(orders.totalAmount) })
-//       .from(orders)
-//       .where(eq(orders.paymentStatus, "paid"));
+//     const [adminsResult] = await db.select({ count: count() }).from(users).where(eq(users.role, 1));
+//     const [customersResult] = await db.select({ count: count() }).from(users).where(eq(users.role, 2));
+//     const [ordersResult] = await db.select({ count: count() }).from(orders);
+//     const [salesResult] = await db.select({ totalSales: sum(orders.totalAmount) }).from(orders).where(eq(orders.paymentStatus, "paid"));
 
 //     return {
 //       totalStores: storesResult?.total || 0,
@@ -1399,7 +1370,6 @@
 //   }> {
 //     const today = new Date();
 //     today.setHours(0, 0, 0, 0);
-
 //     const [
 //       totalStores,
 //       activeStores,
@@ -1410,7 +1380,7 @@
 //       newStoresToday,
 //       newUsersToday,
 //       ordersTodayCount,
-//       salesToday
+//       salesToday,
 //     ] = await Promise.all([
 //       db.select({ count: count() }).from(stores),
 //       db.select({ count: count() }).from(stores).where(eq(stores.isActive, true)),
@@ -1421,8 +1391,7 @@
 //       db.select({ count: count() }).from(stores).where(gte(stores.createdAt, today)),
 //       db.select({ count: count() }).from(users).where(gte(users.createdAt, today)),
 //       db.select({ count: count() }).from(orders).where(gte(orders.createdAt, today)),
-//       db.select({ sum: sum(orders.totalAmount) }).from(orders)
-//         .where(and(eq(orders.paymentStatus, "paid"), gte(orders.createdAt, today)))
+//       db.select({ sum: sum(orders.totalAmount) }).from(orders).where(and(eq(orders.paymentStatus, "paid"), gte(orders.createdAt, today))),
 //     ]);
 
 //     return {
@@ -1437,12 +1406,12 @@
 //         newUsers: newUsersToday[0].count,
 //         ordersToday: ordersTodayCount[0].count,
 //         salesToday: Number(salesToday[0].sum) || 0,
-//       }
+//       },
 //     };
 //   }
 
 //   async getAllUsers(): Promise<any[]> {
-//     const usersWithStores = await db
+//     return db
 //       .select({
 //         id: users.id,
 //         email: users.email,
@@ -1458,90 +1427,169 @@
 //       .from(users)
 //       .leftJoin(stores, eq(users.storeId, stores.id))
 //       .orderBy(desc(users.createdAt));
-
-//     return usersWithStores;
 //   }
 
 //   async getStores(): Promise<Store[]> {
-//     return await db.select().from(stores).orderBy(desc(stores.createdAt));
+//     return db.select().from(stores).orderBy(desc(stores.createdAt));
+//   }
+//   async getStores2(): Promise<Store[]> {
+//     return db.select().from(stores).orderBy(desc(stores.createdAt));
 //   }
 
-//   async onboardStore(data: any): Promise<{ store: Store; admin: User }> {
-//     // Create store
-//     const [store] = await db.insert(stores).values({
-//       name: data.storeName,
-//       email: data.storeEmail,
-//       phone: data.storePhone,
-//       address: data.address,
-//       city: data.city,
-//       state: data.state,
-//       pincode: data.pincode,
-//       licenseNumber: data.licenseNumber,
-//       gstNumber: data.gstNumber,
-//       isActive: true,
-//     });
 
-//     // Create admin user for the store
-//     const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
-//     const [admin] = await db.insert(users).values({
-//       email: data.adminEmail,
-//       password: hashedPassword,
-//       role: 1, // Admin role
-//       storeId: store.id,
-//       firstName: data.adminFirstName,
-//       lastName: data.adminLastName,
-//       phone: data.adminPhone,
-//       isActive: true,
-//     }).returning();
-
-//     return { store, admin };
+//  async updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<void> {
+//     await db
+//       .update(orders)
+//       .set({ paymentStatus })   // Drizzle maps TS -> `payment_status` column
+//       .where(eq(orders.id, id))
+//       .execute();               // ✅ required for MySQL
 //   }
 
+// async onboardStore(data: any): Promise<{ store: any; admin: any }> {
+//   // Create slug from storeName
+//   const slug = data.storeName
+//     .toLowerCase()
+//     .trim()
+//     .replace(/[^a-z0-9]+/g, "-")
+//     .replace(/^-+|-+$/g, "");
+
+//   // ✅ Generate QR Code URL (link to store page or slug)
+// const qrData = `http://localhost:5000/${slug}/customer/login`;
+// const qrCodeUrl = await QRCode.toDataURL(qrData);
+
+//   // Insert store
+//   const [storeResult] = await db.insert(stores).values({
+//     name: data.storeName,
+//     slug,
+//     email: data.storeEmail,
+//     phone: data.storePhone,
+//     address: data.address,
+//     city: data.city,
+//     state: data.state,
+//     pincode: data.pincode,
+//     licenseNumber: data.licenseNumber || null,
+//     gstNumber: data.gstNumber || null,
+//     logoUrl: data.logoUrl || null,
+//     qrCodeUrl, // ✅ Save QR code in DB
+//     isActive: 1,
+//     createdAt: new Date(),
+//     updatedAt: new Date(),
+//   });
+
+//   // Fetch inserted store
+//   const [store] = await db
+//     .select()
+//     .from(stores)
+//     .where(eq(stores.email, data.storeEmail))
+//     .limit(1);
+
+//   if (!store) {
+//     throw new Error("Store creation failed");
+//   }
+
+//   // Hash admin password
+//   const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
+
+//   // Insert admin user linked to this store
+//   await db.insert(users).values({
+//     email: data.adminEmail,
+//     password: hashedPassword,
+//     role: 1, // Super admin = 1
+//     storeId: store.id,
+//     firstName: data.adminFirstName,
+//     lastName: data.adminLastName,
+//     phone: data.adminPhone,
+//     isActive: 1,
+//     createdAt: new Date(),
+//     updatedAt: new Date(),
+//   });
+
+//   // Fetch inserted admin
+//   const [admin] = await db
+//     .select()
+//     .from(users)
+//     .where(eq(users.email, data.adminEmail))
+//     .limit(1);
+
+//   if (!admin) {
+//     throw new Error("Admin creation failed");
+//   }
+
+//   return { store, admin };
+// }
 //   async updateStore(storeId: number, data: Partial<Store>): Promise<Store> {
-//     const [updatedStore] = await db
-//       .update(stores)
-//       .set(data)
-//       .where(eq(stores.id, storeId))
-//       .returning();
+//     await db.update(stores).set(data).where(eq(stores.id, storeId));
+//     const [updatedStore] = await db.select().from(stores).where(eq(stores.id, storeId));
 //     return updatedStore;
 //   }
 
 //   async activateStore(storeId: number): Promise<void> {
-//     await db
-//       .update(stores)
-//       .set({ isActive: true })
-//       .where(eq(stores.id, storeId));
-    
-//     // Also activate all users associated with the store
-//     await db
-//       .update(users)
-//       .set({ isActive: true })
-//       .where(eq(users.storeId, storeId));
+//     await db.update(stores).set({ isActive: true }).where(eq(stores.id, storeId));
+//     await db.update(users).set({ isActive: true }).where(eq(users.storeId, storeId));
 //   }
 
 //   async deactivateStore(storeId: number): Promise<void> {
-//     await db
-//       .update(stores)
-//       .set({ isActive: false })
-//       .where(eq(stores.id, storeId));
-    
-//     // Also deactivate all users associated with the store
-//     await db
-//       .update(users)
-//       .set({ isActive: false })
-//       .where(eq(users.storeId, storeId));
+//     await db.update(stores).set({ isActive: false }).where(eq(stores.id, storeId));
+//     await db.update(users).set({ isActive: false }).where(eq(users.storeId, storeId));
 //   }
 
 //   async initializeData(): Promise<void> {
-//     // This method would be used to initialize any default data
-//     // For now, it's empty but can be expanded for seeding
+//     const existingUsers = await db.select().from(users).limit(1);
+//     if (existingUsers.length > 0) return;
+
+
+
+
+//  async function storeOrder(order: {
+//   customer_name: string;
+//   medicines: unknown;
+//   district?: string;
+//   place?: string;
+//   pincode?: string;
+//   mobile_no?: string;
+//   status?: string;
+// }) {
+//   // Validate required fields
+//   if (!order.customer_name || !order.medicines) {
+//     throw new Error('Customer name and medicines are required');
+//   }
+
+//   // Insert the order into the database
+//   await db.insert(createorder).values({
+//     customer_name: order.customer_name,
+//     district: order.district || null,
+//     place: order.place || null,
+//     pincode: order.pincode || null,
+//     mobile_no: order.mobile_no || null,
+//     medicines: order.medicines, // Drizzle ORM handles JSON serialization
+//     status: order.status || 'confirmed',
+//     // created_at and updated_at are handled by schema defaults
+//   });
+
+//   // Retrieve the newly created order
+//   const [newOrder] = await db
+//     .select()
+//     .from(createorder)
+//     .where(
+//       and(
+//         eq(createorder.customer_name, order.customer_name),
+//         eq(createorder.medicines, order.medicines)
+//       )
+//     );
+
+//   if (!newOrder) {
+//     throw new Error('Failed to retrieve newly created order');
+//   }
+
+//   return newOrder;
+// }
+
+
+    
 //   }
 // }
 
 // export const storage = new DatabaseStorage();
-
-
-
 import {
   stores,
   users,
@@ -1577,6 +1625,7 @@ import {
   type MedicineCategory,
   type Batch,
   type InsertBatch,
+  createorder,
 } from "@shared/schema";
 import { db } from "./db";
 import { config, getShelfLifeInterval } from "./config";
@@ -1584,7 +1633,7 @@ import { eq, and, desc, asc, count, sum, sql, gte, lte } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import path from "path";
 import { alias } from "drizzle-orm/mysql-core";
-
+// const { createorder } = require('../shared/schema');
 const billingAddr = alias(addresses, "billing_addr");
 const shippingAddr = alias(addresses, "shipping_addr");
 import QRCode from "qrcode";
@@ -1593,16 +1642,27 @@ import { QrCode } from "lucide-react";
 
 import { fileURLToPath } from "url";
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+type CreateOrderType = typeof createorder.$inferInsert; // Infer from schema for type safety
+
 export interface IStorage {
+  storeOrder(order: {
+    customer_name: string;
+    medicines: unknown;
+    district?: string;
+    place?: string;
+    pincode?: string;
+    mobile_no?: string;
+    status?: string;
+  }): Promise<CreateOrderType | undefined>;
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getValidCompanyUser(slug: string,email: string): Promise<boolean>;
+  getValidCompanyUser(slug: string, email: string): Promise<boolean>;
   createUser(user: InsertUser): Promise<User>;
   getSroreIdBySlug(slug: string): Promise<Store>;
-  getAllStores(): Promise<Store>;
+  getAllStores(): Promise<Store[]>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
   verifyPassword(password: string, hashedPassword: string): Promise<boolean>;
   getAddressesByUserId(userId: number): Promise<Address[]>;
@@ -1720,67 +1780,101 @@ export class DatabaseStorage implements IStorage {
     return prepared;
   }
 
+  async storeOrder(order: {
+    
+    customer_name: string;
+    medicines: unknown;
+    district?: string;
+    place?: string;
+    pincode?: string;
+    mobile_no?: string;
+    status?: string;
+  }): Promise<CreateOrderType | undefined> {
+    // Validate required fields
+    if (!order.customer_name || !order.medicines) {
+      throw new Error('Customer name and medicines are required');
+    }
+
+    // Insert the order into the database
+    const insertResult = await db.insert(createorder).values({
+      customerName: order.customer_name,
+      district: order.district || null,
+      place: order.place || null,
+      pincode: order.pincode || null,
+      mobile_no: order.mobile_no || null,
+      medicines: order.medicines, // Drizzle ORM handles JSON serialization
+      status: order.status || 'confirmed',
+      // created_at and updated_at are handled by schema defaults
+    });
+
+    // Retrieve the newly created order using the insert ID (assuming MySQL returns insertId)
+    const insertedId = insertResult[0]?.insertId;
+    if (!insertedId) {
+      throw new Error('Failed to insert order');
+    }
+
+    const [newOrder] = await db
+      .select()
+      .from(createorder)
+      .where(eq(createorder.id, insertedId));
+
+    if (!newOrder) {
+      throw new Error('Failed to retrieve newly created order');
+    }
+
+    return newOrder;
+  }
+
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async getValidCompanyUser(slug: string, email: string): Promise<boolean> {
-  // Fetch store by slug
-  const [store] = await db.select().from(stores).where(eq(stores.slug, slug));
-  // If store doesn't exist, it's not valid
-
-  if (!store) return false;
-  // Fetch user by email
-  const [user] = await db.select().from(users).where(eq(users.email, email));
-  
-  // If user doesn't exist, it's not valid
-    console.log("user",user);
-  if (!user) return false;
-  // Compare store_id from user with id from store
-  return user.storeId === store.id;
-}
-
+    // Fetch store by slug
+    const [store] = await db.select().from(stores).where(eq(stores.slug, slug));
+    // If store doesn't exist, it's not valid
+    if (!store) return false;
+    // Fetch user by email
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    
+    // If user doesn't exist, it's not valid
+    console.log("user", user);
+    if (!user) return false;
+    // Compare store_id from user with id from store
+    return user.storeId === store.id;
+  }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
   
-  // async createUser(user: InsertUser): Promise<User> {
-  //   const hashedPassword = await bcrypt.hash(user.password, 10);
-  //   await db.insert(users).values({ ...user, password: hashedPassword });
-  //   const [newUser] = await db.select().from(users).where(eq(users.email, user.email));
-  //   return newUser;
-  // }
   async createUser(userData: InsertUser): Promise<User> {
-  // Hash password before storing
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
+    // Hash password before storing
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  // Insert the user
-  const result = await db.insert(users).values({
-    ...userData,
-    password: hashedPassword
-  });
+    // Insert the user
+    const result = await db.insert(users).values({
+      ...userData,
+      password: hashedPassword
+    });
 
-  // MySQL insert returns insertId
-  const insertedId = result[0].insertId;
+    // MySQL insert returns insertId
+    const insertedId = result[0].insertId;
 
-  // Fetch the inserted user
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, insertedId));
+    // Fetch the inserted user
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, insertedId));
 
-  return user;
-}
+    return user;
+  }
 
- 
-
-   async getAllStores(): Promise<string[]> {
-  const result = await db.select({ slug: stores.slug }).from(stores);
-  return result.map(store => store.slug); // ["store-1", "store-2"]
-}
+  async getAllStores(): Promise<Store[]> {
+    return db.select().from(stores);
+  }
 
   async updateUser(id: number, user: Partial<InsertUser>): Promise<User> {
     const updateData = { ...user };
@@ -1796,9 +1890,12 @@ export class DatabaseStorage implements IStorage {
     return bcrypt.compare(password, hashedPassword);
   }
   
-  async getSroreIdBySlug(slug: string): Promise<Store>{
-     return db.select().from(stores).where(eq(stores.slug, slug)).limit(1);;
+  async getSroreIdBySlug(slug: string): Promise<Store> {
+    const [store] = await db.select().from(stores).where(eq(stores.slug, slug)).limit(1);
+    if (!store) throw new Error('Store not found');
+    return store;
   }
+
   async getAddressesByUserId(userId: number): Promise<Address[]> {
     return db.select().from(addresses).where(eq(addresses.userId, userId));
   }
@@ -1823,68 +1920,86 @@ export class DatabaseStorage implements IStorage {
     await db.update(addresses).set({ phone }).where(eq(addresses.userId, userId));
   }
 
-  // async getMedicines(): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
-  //   return db
-  //     .select({
-  //       id: medicines.id,
-  //       name: medicines.name,
-  //       description: medicines.description,
-  //       dosage: medicines.dosage,
-  //       mrp: medicines.mrp,
-  //       discount: medicines.discount,
-  //       discountedPrice: medicines.discountedPrice,
-  //       categoryId: medicines.categoryId,
-  //       manufacturer: medicines.manufacturer,
-  //       requiresPrescription: medicines.requiresPrescription,
-  //       frontImageUrl: medicines.frontImageUrl,
-  //       backImageUrl: medicines.backImageUrl,
-  //       isActive: medicines.isActive,
-  //       createdAt: medicines.createdAt,
-  //       updatedAt: medicines.updatedAt,
-  //       category: medicineCategories,
-  //       totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
-  //         CASE 
-  //           WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH 
-  //           THEN ${medicineInventory.quantity} 
-  //           ELSE 0 
-  //         END
-  //       ), 0) - COALESCE((
-  //         SELECT SUM(${cartItems.quantity}) 
-  //         FROM ${cartItems} 
-  //         WHERE ${cartItems.medicineId} = ${medicines.id}
-  //       ), 0))`,
-  //     })
-  //     .from(medicines)
-  //     .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
-  //     .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
-  //     .where(eq(medicines.isActive, true))
-  //     .groupBy(medicines.id, medicineCategories.id)
-  //     .orderBy(asc(medicines.name)) as any;
-  // }
+  async getMedicines(storeId?: number): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
+    let query = db
+      .select({
+        id: medicines.id,
+        storeId: medicines.storeId,
+        name: medicines.name,
+        description: medicines.description,
+        dosage: medicines.dosage,
+        mrp: medicines.mrp,
+        discount: medicines.discount,
+        discountedPrice: medicines.discountedPrice,
+        categoryId: medicines.categoryId,
+        manufacturer: medicines.manufacturer,
+        requiresPrescription: medicines.requiresPrescription,
+        frontImageUrl: medicines.frontImageUrl,
+        backImageUrl: medicines.backImageUrl,
+        isActive: medicines.isActive,
+        createdAt: medicines.createdAt,
+        updatedAt: medicines.updatedAt,
+        category: medicineCategories,
+        totalStock: sql<number>`
+          GREATEST(
+            0,
+            COALESCE(
+              SUM(
+                CASE
+                  WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(
+                    getShelfLifeInterval()
+                  )} MONTH
+                  THEN ${medicineInventory.quantity}
+                  ELSE 0
+                END
+              ),
+              0
+            ) - COALESCE(
+              (SELECT SUM(${cartItems.quantity})
+               FROM ${cartItems}
+               WHERE ${cartItems.medicineId} = ${medicines.id}),
+              0
+            )
+          )
+        `,
+      })
+      .from(medicines)
+      .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
+      .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
+      .where(eq(medicines.isActive, true))
+      .groupBy(medicines.id, medicineCategories.id)
+      .orderBy(asc(medicines.name));
 
-  // async getMedicineById(id: number): Promise<Medicine | undefined> {
-  //   const [medicine] = await db
-  //     .select({
-  //       id: medicines.id,
-  //       name: medicines.name,
-  //       description: medicines.description,
-  //       dosage: medicines.dosage,
-  //       mrp: medicines.mrp,
-  //       discount: medicines.discount,
-  //       discountedPrice: medicines.discountedPrice,
-  //       categoryId: medicines.categoryId,
-  //       manufacturer: medicines.manufacturer,
-  //       requiresPrescription: medicines.requiresPrescription,
-  //       frontImageUrl: medicines.frontImageUrl,
-  //       backImageUrl: medicines.backImageUrl,
-  //       isActive: medicines.isActive,
-  //       createdAt: medicines.createdAt,
-  //       updatedAt: medicines.updatedAt,
-  //     })
-  //     .from(medicines)
-  //     .where(eq(medicines.id, id));
-  //   return medicine;
-  // }
+    if (storeId) {
+      query = query.where(eq(medicines.storeId, storeId));
+    }
+
+    return query as any;
+  }
+
+  async getMedicineById(id: number): Promise<Medicine | undefined> {
+    const [medicine] = await db
+      .select({
+        id: medicines.id,
+        name: medicines.name,
+        description: medicines.description,
+        dosage: medicines.dosage,
+        mrp: medicines.mrp,
+        discount: medicines.discount,
+        discountedPrice: medicines.discountedPrice,
+        categoryId: medicines.categoryId,
+        manufacturer: medicines.manufacturer,
+        requiresPrescription: medicines.requiresPrescription,
+        frontImageUrl: medicines.frontImageUrl,
+        backImageUrl: medicines.backImageUrl,
+        isActive: medicines.isActive,
+        createdAt: medicines.createdAt,
+        updatedAt: medicines.updatedAt,
+      })
+      .from(medicines)
+      .where(eq(medicines.id, id));
+    return medicine;
+  }
 
   async searchMedicines(query: string): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
     return db
@@ -1905,17 +2020,26 @@ export class DatabaseStorage implements IStorage {
         createdAt: medicines.createdAt,
         updatedAt: medicines.updatedAt,
         category: medicineCategories,
-        totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
-          CASE 
-            WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-            THEN ${medicineInventory.quantity} 
-            ELSE 0 
-          END
-        ), 0) - COALESCE((
-          SELECT SUM(${cartItems.quantity}) 
-          FROM ${cartItems} 
-          WHERE ${cartItems.medicineId} = ${medicines.id}
-        ), 0))`,
+        totalStock: sql<number>`GREATEST(
+          0,
+          COALESCE(
+            SUM(
+              CASE 
+                WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+                THEN ${medicineInventory.quantity} 
+                ELSE 0 
+              END
+            ),
+            0
+          ) - COALESCE(
+            (
+              SELECT SUM(${cartItems.quantity}) 
+              FROM ${cartItems} 
+              WHERE ${cartItems.medicineId} = ${medicines.id}
+            ),
+            0
+          )
+        )`,
       })
       .from(medicines)
       .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
@@ -1923,491 +2047,158 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(medicines.isActive, true),
-          sql`LOWER(${medicines.name}) LIKE LOWER(${`%${query}%`})`
+          sql`${medicines.name} LIKE ${`%${query}%`}` // Removed LOWER() for MySQL case-insensitive search
         )
       )
       .groupBy(medicines.id, medicineCategories.id)
       .orderBy(asc(medicines.name)) as any;
   }
-//   async getMedicines(): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
-//   return db
-//     .select({
-//       id: medicines.id,
-//       storeId:medicines.storeId,
-//       name: medicines.name,
-//       description: medicines.description,
-//       dosage: medicines.dosage,
-//       mrp: medicines.mrp,
-//       discount: medicines.discount,
-//       discountedPrice: medicines.discountedPrice,
-//       categoryId: medicines.categoryId,
-//       manufacturer: medicines.manufacturer,
-//       requiresPrescription: medicines.requiresPrescription,
-//       frontImageUrl: medicines.frontImageUrl,
-//       backImageUrl: medicines.backImageUrl,
-//       isActive: medicines.isActive,
-//       createdAt: medicines.createdAt,
-//       updatedAt: medicines.updatedAt,
-//       category: medicineCategories,
-//       totalStock: sql<number>`GREATEST(
-//         0,
-//         COALESCE(
-//           SUM(
-//             CASE 
-//               WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH 
-//               THEN ${medicineInventory.quantity} 
-//               ELSE 0 
-//             END
-//           ),
-//           0
-//         ) - COALESCE(
-//           (
-//             SELECT SUM(${cartItems.quantity}) 
-//             FROM ${cartItems} 
-//             WHERE ${cartItems.medicineId} = ${medicines.id}
-//           ),
-//           0
-//         )
-//       )`,
-//     })
-//     .from(medicines)
-//     .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
-//     .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
-//     .where(eq(medicines.isActive, true))
-//     .groupBy(medicines.id, medicineCategories.id)
-//     .orderBy(asc(medicines.name)) as any;
-// }
-async getMedicines(
-  storeId: number
+
+  async getMedicineCategories(storeId?: number): Promise<MedicineCategory[]> {
+    let query = db
+      .select()
+      .from(medicineCategories)
+      .orderBy(asc(medicineCategories.name));
     
-): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
-  return db
-    .select({
-      id: medicines.id,
-      storeId: medicines.storeId,
-      name: medicines.name,
-      description: medicines.description,
-      dosage: medicines.dosage,
-      mrp: medicines.mrp,
-      discount: medicines.discount,
-      discountedPrice: medicines.discountedPrice,
-      categoryId: medicines.categoryId,
-      manufacturer: medicines.manufacturer,
-      requiresPrescription: medicines.requiresPrescription,
-      frontImageUrl: medicines.frontImageUrl,
-      backImageUrl: medicines.backImageUrl,
-      isActive: medicines.isActive,
-      createdAt: medicines.createdAt,
-      updatedAt: medicines.updatedAt,
-      category: medicineCategories,
-      totalStock: sql<number>`
-        GREATEST(
-          0,
-          COALESCE(
-            SUM(
-              CASE
-                WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(
-                  getShelfLifeInterval()
-                )} MONTH
-                THEN ${medicineInventory.quantity}
-                ELSE 0
-              END
-            ),
-            0
-          ) - COALESCE(
-            (SELECT SUM(${cartItems.quantity})
-             FROM ${cartItems}
-             WHERE ${cartItems.medicineId} = ${medicines.id}),
-            0
-          )
+    if (storeId) {
+      query = query.where(eq(medicineCategories.storeId, storeId));
+    }
+
+    return query;
+  }
+
+  async createMedicineCategory(
+    name: string,
+    description?: string,
+    isScheduleH?: boolean,
+    storeId?: number
+  ): Promise<MedicineCategory> {
+    await db.insert(medicineCategories).values({
+      name,
+      description,
+      isScheduleH: isScheduleH || false,
+      storeId: storeId || null
+    });
+
+    const [category] = await db
+      .select()
+      .from(medicineCategories)
+      .where(eq(medicineCategories.name, name));
+
+    return category;
+  }
+
+  async getMedicineInventory(medicineId: number, storeId?: number): Promise<MedicineInventory[]> {
+    let query = db
+      .select()
+      .from(medicineInventory)
+      .where(eq(medicineInventory.medicineId, medicineId))
+      .orderBy(asc(medicineInventory.expiryDate));
+
+    if (storeId) {
+      query = query.where(eq(medicineInventory.storeId, storeId));
+    }
+
+    return query;
+  }
+
+  async createMedicineInventory(inventory: InsertMedicineInventory, storeId?: number): Promise<MedicineInventory> {
+    await db.insert(medicineInventory).values({
+      ...inventory,
+      storeId: storeId || null
+    });
+
+    const [newInventory] = await db
+      .select()
+      .from(medicineInventory)
+      .where(
+        and(
+          eq(medicineInventory.medicineId, inventory.medicineId),
+          eq(medicineInventory.batchNumber, inventory.batchNumber)
         )
-      `,
-    })
-    .from(medicines)
-    .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
-    .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
-    .where(and(eq(medicines.isActive, true), eq(medicines.storeId, storeId))) // ✅ filter by store
-    .groupBy(medicines.id, medicineCategories.id)
-    .orderBy(asc(medicines.name)) as any;
-    
-}
+      );
 
+    return newInventory;
+  }
 
-// async getMedicines(storeId: number): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
-//   return db
-//     .select({
-//       id: medicines.id,
-//       name: medicines.name,
-//       description: medicines.description,
-//       dosage: medicines.dosage,
-//       mrp: medicines.mrp,
-//       discount: medicines.discount,
-//       discountedPrice: medicines.discountedPrice,
-//       categoryId: medicines.categoryId,
-//       manufacturer: medicines.manufacturer,
-//       requiresPrescription: medicines.requiresPrescription,
-//       frontImageUrl: medicines.frontImageUrl,
-//       backImageUrl: medicines.backImageUrl,
-//       isActive: medicines.isActive,
-//       createdAt: medicines.createdAt,
-//       updatedAt: medicines.updatedAt,
-//       // include category info + storeId
-//       category: {
-//         id: medicineCategories.id,
-//         name: medicineCategories.name,
-//         description: medicineCategories.description,
-//         isScheduleH: medicineCategories.isScheduleH,
-//         storeId: medicineCategories.storeId,
-//       },
-//       totalStock: sql<number>`
-//         GREATEST(
-//           0,
-//           COALESCE(
-//             SUM(
-//               CASE
-//                 WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-//                 THEN ${medicineInventory.quantity}
-//                 ELSE 0
-//               END
-//             ),
-//             0
-//           ) - COALESCE(
-//             (
-//               SELECT SUM(${cartItems.quantity})
-//               FROM ${cartItems}
-//               WHERE ${cartItems.medicineId} = ${medicines.id}
-//             ),
-//             0
-//           )
-//         )
-//       `,
-//     })
-//     .from(medicines)
-//     .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
-//     .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
-//     .where(
-//       and(
-//         eq(medicines.isActive, true),
-//         eq(medicineCategories.storeId, storeId) // ✅ filter store-wise
-//       )
-//     )
-//     .groupBy(medicines.id, medicineCategories.id)
-//     .orderBy(asc(medicines.name)) as any;
-// }
+  async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInventory>, storeId?: number): Promise<MedicineInventory> {
+    let updateQuery = db
+      .update(medicineInventory)
+      .set({ ...inventory, updatedAt: new Date() })
+      .where(eq(medicineInventory.id, id));
 
+    if (storeId) {
+      updateQuery = updateQuery.where(eq(medicineInventory.storeId, storeId));
+    }
 
-async getMedicineById(id: number): Promise<Medicine | undefined> {
-  const [medicine] = await db
-    .select({
-      id: medicines.id,
-      name: medicines.name,
-      description: medicines.description,
-      dosage: medicines.dosage,
-      mrp: medicines.mrp,
-      discount: medicines.discount,
-      discountedPrice: medicines.discountedPrice,
-      categoryId: medicines.categoryId,
-      manufacturer: medicines.manufacturer,
-      requiresPrescription: medicines.requiresPrescription,
-      frontImageUrl: medicines.frontImageUrl,
-      backImageUrl: medicines.backImageUrl,
-      isActive: medicines.isActive,
-      createdAt: medicines.createdAt,
-      updatedAt: medicines.updatedAt,
-    })
-    .from(medicines)
-    .where(eq(medicines.id, id));
-  return medicine;
-}
+    await updateQuery;
 
-async searchMedicines(query: string): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
-  return db
-    .select({
-      id: medicines.id,
-      name: medicines.name,
-      description: medicines.description,
-      dosage: medicines.dosage,
-      mrp: medicines.mrp,
-      discount: medicines.discount,
-      discountedPrice: medicines.discountedPrice,
-      categoryId: medicines.categoryId,
-      manufacturer: medicines.manufacturer,
-      requiresPrescription: medicines.requiresPrescription,
-      frontImageUrl: medicines.frontImageUrl,
-      backImageUrl: medicines.backImageUrl,
-      isActive: medicines.isActive,
-      createdAt: medicines.createdAt,
-      updatedAt: medicines.updatedAt,
-      category: medicineCategories,
-      totalStock: sql<number>`GREATEST(
-        0,
-        COALESCE(
-          SUM(
-            CASE 
-              WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-              THEN ${medicineInventory.quantity} 
-              ELSE 0 
-            END
-          ),
-          0
-        ) - COALESCE(
-          (
-            SELECT SUM(${cartItems.quantity}) 
-            FROM ${cartItems} 
-            WHERE ${cartItems.medicineId} = ${medicines.id}
-          ),
-          0
+    const [updatedInventory] = await db
+      .select()
+      .from(medicineInventory)
+      .where(eq(medicineInventory.id, id));
+
+    return updatedInventory;
+  }
+
+  async createMedicine(medicine: InsertMedicine, storeId?: number): Promise<Medicine> {
+    const preparedMedicine = this.prepareMedicineData(medicine);
+
+    await db.insert(medicines).values({
+      ...preparedMedicine,
+      storeId: storeId || null
+    });
+
+    const [newMedicine] = await db
+      .select()
+      .from(medicines)
+      .where(
+        and(
+          eq(medicines.name, medicine.name),
+          eq(medicines.storeId, storeId)
         )
-      )`,
-    })
-    .from(medicines)
-    .leftJoin(medicineCategories, eq(medicines.categoryId, medicineCategories.id))
-    .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
-    .where(
-      and(
-        eq(medicines.isActive, true),
-        sql`${medicines.name} LIKE ${`%${query}%`}` // Removed LOWER() for MySQL case-insensitive search
-      )
-    )
-    .groupBy(medicines.id, medicineCategories.id)
-    .orderBy(asc(medicines.name)) as any;
-}
+      );
 
+    return newMedicine;
+  }
 
-  // async createMedicine(medicine: InsertMedicine): Promise<Medicine> {
-  //   const preparedMedicine = this.prepareMedicineData(medicine);
-  //   await db.insert(medicines).values(preparedMedicine);
-  //   const [newMedicine] = await db.select().from(medicines).where(eq(medicines.name, medicine.name));
-  //   return newMedicine;
-  // }
+  async updateMedicine(id: number, medicine: Partial<InsertMedicine>, storeId?: number): Promise<Medicine> {
+    const preparedMedicine = this.prepareMedicineData(medicine);
 
-  // async updateMedicine(id: number, medicine: Partial<InsertMedicine>): Promise<Medicine> {
-  //   const preparedMedicine = this.prepareMedicineData(medicine);
-  //   await db.update(medicines).set({ ...preparedMedicine, updatedAt: new Date() }).where(eq(medicines.id, id));
-  //   const [updatedMedicine] = await db.select().from(medicines).where(eq(medicines.id, id));
-  //   return updatedMedicine;
-  // }
+    let updateQuery = db
+      .update(medicines)
+      .set({ ...preparedMedicine, updatedAt: new Date() })
+      .where(eq(medicines.id, id));
 
-  // async deleteMedicine(id: number): Promise<void> {
-  //   await db.update(medicines).set({ isActive: false }).where(eq(medicines.id, id));
-  // }
+    if (storeId) {
+      updateQuery = updateQuery.where(eq(medicines.storeId, storeId));
+    }
 
-  // async getMedicineCategories(): Promise<MedicineCategory[]> {
-  //   return db.select().from(medicineCategories).orderBy(asc(medicineCategories.name));
-  // }
-  async getMedicineCategories(storeId: number): Promise<MedicineCategory[]> {
-  return db
-    .select()
-    .from(medicineCategories)
-    .where(eq(medicineCategories.storeId, storeId))
-    .orderBy(asc(medicineCategories.name));
-}
-async getAllOrders2() {
-  return db
-    .select({
-      order: {
-        id: orders.id,
-        orderNumber: orders.orderNumber,
-        status: orders.status,
-        total: orders.total,
-        createdAt: orders.createdAt,
-      },
-      user: {
-        id: users.id,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-      },
-    })
-    .from(orders)
-    .leftJoin(users, eq(users.id, orders.userId));
-}
+    await updateQuery;
 
-async createMedicineCategory(
-  name: string,
-  description: string | undefined,
-  isScheduleH: boolean | undefined,
-  storeId: number
-): Promise<MedicineCategory> {
-  await db.insert(medicineCategories).values({
-    name,
-    description,
-    isScheduleH: isScheduleH || false,
-    storeId
-  });
+    const [updatedMedicine] = await db
+      .select()
+      .from(medicines)
+      .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId)));
 
-  const [category] = await db
-    .select()
-    .from(medicineCategories)
-    .where(eq(medicineCategories.name, name))
-    .where(eq(medicineCategories.storeId, storeId));
+    return updatedMedicine;
+  }
 
-  return category;
-}
+  async deleteMedicine(id: number, storeId?: number): Promise<void> {
+    let updateQuery = db
+      .update(medicines)
+      .set({ isActive: false })
+      .where(eq(medicines.id, id));
 
-  // async createMedicineCategory(name: string, description?: string, isScheduleH?: boolean): Promise<MedicineCategory> {
-  //   await db.insert(medicineCategories).values({ name, description, isScheduleH: isScheduleH || false });
-  //   const [category] = await db.select().from(medicineCategories).where(eq(medicineCategories.name, name));
-  //   return category;
-  // }
+    if (storeId) {
+      updateQuery = updateQuery.where(eq(medicines.storeId, storeId));
+    }
 
-//   async getMedicineInventory(medicineId: number): Promise<MedicineInventory[]> {
-//     return db
-//       .select()
-//       .from(medicineInventory)
-//       .where(eq(medicineInventory.medicineId, medicineId))
-//       .orderBy(asc(medicineInventory.expiryDate));
-//   }
+    await updateQuery;
+  }
 
- 
-//   async createMedicineInventory(inventory: InsertMedicineInventory): Promise<MedicineInventory> {
-//   await db.insert(medicineInventory).values({
-//     medicineId: inventory.medicineId,
-//     batchNumber: inventory.batchNumber,
-//     expiryDate: inventory.expiryDate,  // must be 'YYYY-MM-DD' or JS Date
-//     quantity: inventory.quantity,
-//     isDisposed: inventory.isDisposed ?? 0, // default to 0
-//     disposalReason: inventory.disposalReason ?? null,
-//     disposedAt: inventory.disposedAt ?? null,
-//     disposedBy: inventory.disposedBy ?? null
-//   });
-
-//   const [newInventory] = await db
-//     .select()
-//     .from(medicineInventory)
-//     .where(
-//       and(
-//         eq(medicineInventory.medicineId, inventory.medicineId),
-//         eq(medicineInventory.batchNumber, inventory.batchNumber)
-//       )
-//     );
-
-//   return newInventory;
-// }
-
-
-//   async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInventory>): Promise<MedicineInventory> {
-//     await db.update(medicineInventory).set({ ...inventory, updatedAt: new Date() }).where(eq(medicineInventory.id, id));
-//     const [updatedInventory] = await db.select().from(medicineInventory).where(eq(medicineInventory.id, id));
-//     return updatedInventory;
-//   }
-async getOrdersByUserIdAndStore(userId: number, storeId: number) {
-  return db
-    .select()
-    .from(orders)
-    .where(
-      and(
-        eq(orders.userId, userId),
-        eq(orders.storeId, storeId) // assuming you already store storeId in orders table
-      )
-    );
-}
-
-async getOrdersByStoreId(storeId: number) {
-  return db
-    .select({
-      id: orders.id,
-      orderNumber: orders.orderNumber,
-      status: orders.status,
-      total: orders.total,
-      createdAt: orders.createdAt,
-      // 👇 nested user
-      user: {
-        id: users.id,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-      },
-    })
-    .from(orders)
-    .leftJoin(users, eq(users.id, orders.userId))
-    .where(eq(orders.storeId, storeId));
-}
-
-
-async createMedicine(medicine: InsertMedicine): Promise<Medicine> {
-  const preparedMedicine = this.prepareMedicineData(medicine);
-
-  await db.insert(medicines).values(preparedMedicine);
-
-  const [newMedicine] = await db
-    .select()
-    .from(medicines)
-    .where(
-      and(
-        eq(medicines.name, medicine.name),
-        eq(medicines.storeId, medicine.storeId) // ✅ only this store
-      )
-    );
-
-  return newMedicine;
-}
-async updateMedicine(id: number, medicine: Partial<InsertMedicine>, storeId: number): Promise<Medicine> {
-  const preparedMedicine = this.prepareMedicineData(medicine);
-
-  await db
-    .update(medicines)
-    .set({ ...preparedMedicine, updatedAt: new Date() })
-    .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId))); // ✅ secure
-
-  const [updatedMedicine] = await db
-    .select()
-    .from(medicines)
-    .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId)));
-
-  return updatedMedicine;
-}
-async deleteMedicine(id: number, storeId: number): Promise<void> {
-  await db
-    .update(medicines)
-    .set({ isActive: false })
-    .where(and(eq(medicines.id, id), eq(medicines.storeId, storeId))); // ✅ secure
-}
-async getMedicineInventory(medicineId: number, storeId: number): Promise<MedicineInventory[]> {
-  return db
-    .select()
-    .from(medicineInventory)
-    .where(and(eq(medicineInventory.medicineId, medicineId), eq(medicineInventory.storeId, storeId))) // ✅ secure
-    .orderBy(asc(medicineInventory.expiryDate));
-}
-async createMedicineInventory(inventory: InsertMedicineInventory, storeId: number): Promise<MedicineInventory> {
-  await db.insert(medicineInventory).values({
-    ...inventory,
-    storeId // ✅ link inventory to store
-  });
-
-  const [newInventory] = await db
-    .select()
-    .from(medicineInventory)
-    .where(
-      and(
-        eq(medicineInventory.medicineId, inventory.medicineId),
-        eq(medicineInventory.batchNumber, inventory.batchNumber),
-        eq(medicineInventory.storeId, storeId) // ✅ scoped
-      )
-    );
-
-  return newInventory;
-}
-async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInventory>, storeId: number): Promise<MedicineInventory> {
-  await db
-    .update(medicineInventory)
-    .set({ ...inventory, updatedAt: new Date() })
-    .where(and(eq(medicineInventory.id, id), eq(medicineInventory.storeId, storeId))); // ✅ secure
-
-  const [updatedInventory] = await db
-    .select()
-    .from(medicineInventory)
-    .where(and(eq(medicineInventory.id, id), eq(medicineInventory.storeId, storeId)));
-
-  return updatedInventory;
-}
-
-
-
-
-  async getLowStockMedicines(): Promise<(Medicine & { totalStock: number })[]> {
-    return db
+  async getLowStockMedicines(storeId?: number): Promise<(Medicine & { totalStock: number })[]> {
+    let query = db
       .select({
         id: medicines.id,
         name: medicines.name,
@@ -2425,7 +2216,6 @@ async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInven
         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
           CASE 
             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-            
             THEN ${medicineInventory.quantity} 
             ELSE 0 
           END
@@ -2439,55 +2229,36 @@ async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInven
       .leftJoin(medicineInventory, eq(medicines.id, medicineInventory.medicineId))
       .where(eq(medicines.isActive, true))
       .groupBy(medicines.id)
-      // .having(sql`GREATEST(0, COALESCE(SUM(
-      //   CASE 
-      //     WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
-      //     THEN ${medicineInventory.quantity} 
-      //     ELSE 0 
-      //   END
-      // ), 0) - COALESCE((
-      //   SELECT SUM(${cartItems.quantity}) 
-      //   FROM ${cartItems} 
-      //   WHERE ${cartItems.medicineId} = ${medicines.id}
-      // ), 0)) < 20`)
       .having(sql`GREATEST(0, COALESCE(SUM(
-  CASE 
-    WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-    THEN ${medicineInventory.quantity} 
-    ELSE 0 
-  END
-), 0) - COALESCE((
-  SELECT SUM(${cartItems.quantity}) 
-  FROM ${cartItems} 
-  WHERE ${cartItems.medicineId} = ${medicines.id}
-), 0)) < 20`)
-      // .orderBy(sql`GREATEST(0, COALESCE(SUM(
-      //   CASE 
-      //     WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL '${sql.raw(getShelfLifeInterval())}' 
-      //     THEN ${medicineInventory.quantity} 
-      //     ELSE 0 
-      //   END
-      // ), 0) - COALESCE((
-      //   SELECT SUM(${cartItems.quantity}) 
-      //   FROM ${cartItems} 
-      //   WHERE ${cartItems.medicineId} = ${medicines.id}
-      // ), 0))`) as any;
+        CASE 
+          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+          THEN ${medicineInventory.quantity} 
+          ELSE 0 
+        END
+      ), 0) - COALESCE((
+        SELECT SUM(${cartItems.quantity}) 
+        FROM ${cartItems} 
+        WHERE ${cartItems.medicineId} = ${medicines.id}
+      ), 0)) < 20`)
       .orderBy(sql`GREATEST(0, COALESCE(SUM(
-  CASE 
-    WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-    THEN ${medicineInventory.quantity} 
-    ELSE 0 
-  END
-), 0) - COALESCE((
-  SELECT SUM(${cartItems.quantity}) 
-  FROM ${cartItems} 
-  WHERE ${cartItems.medicineId} = ${medicines.id}
-), 0))`)
+        CASE 
+          WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
+          THEN ${medicineInventory.quantity} 
+          ELSE 0 
+        END
+      ), 0) - COALESCE((
+        SELECT SUM(${cartItems.quantity}) 
+        FROM ${cartItems} 
+        WHERE ${cartItems.medicineId} = ${medicines.id}
+      ), 0))`);
+
+    if (storeId) {
+      query = query.where(eq(medicines.storeId, storeId));
+    }
+
+    return query as any;
   }
 
-
-
-  
   async getPrescriptionsByUserId(userId: number): Promise<Prescription[]> {
     return db
       .select()
@@ -2611,364 +2382,170 @@ async updateMedicineInventory(id: number, inventory: Partial<InsertMedicineInven
     await db.delete(cartItems).where(eq(cartItems.userId, userId));
   }
 
-  // async getOrdersByUserId(userId: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; shippingAddress?: Address; billingAddress?: Address })[]> {
-  //   const ordersData = await db
-  //     .select({
-  //       order: orders,
-  //       user: users,
-  //       item: orderItems,
-  //       medicine: medicines,
-  //       shippingAddress: sql`shipping_addr`,
-  //       billingAddress: sql`billing_addr`,
-  //     })
-  //     .from(orders)
-  //     .innerJoin(users, eq(orders.userId, users.id))
-  //     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-  //     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-  //     .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
-  //     .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
-  //     .where(eq(orders.userId, userId))
-  //     .orderBy(desc(orders.placedAt));
+  async getOrdersByUserId(userId: number): Promise<(Order & { 
+    user: User; 
+    items: (OrderItem & { medicine: Medicine })[]; 
+    shippingAddress?: Address; 
+    billingAddress?: Address 
+  })[]> {
+    const ordersData = await db
+      .select({
+        order: orders,
+        user: users,
+        item: orderItems,
+        medicine: medicines,
+        shippingAddress: {
+          id: sql`shipping_addr.id`,
+          userId: sql`shipping_addr.user_id`,
+          type: sql`shipping_addr.type`,
+          fullName: sql`shipping_addr.full_name`,
+          addressLine1: sql`shipping_addr.address_line_1`,
+          addressLine2: sql`shipping_addr.address_line_2`,
+          city: sql`shipping_addr.city`,
+          state: sql`shipping_addr.state`,
+          postalCode: sql`shipping_addr.postal_code`,
+          phone: sql`shipping_addr.phone`,
+          isDefault: sql`shipping_addr.is_default`,
+          createdAt: sql`shipping_addr.created_at`,
+        },
+        billingAddress: {
+          id: sql`billing_addr.id`,
+          userId: sql`billing_addr.user_id`,
+          type: sql`billing_addr.type`,
+          fullName: sql`billing_addr.full_name`,
+          addressLine1: sql`billing_addr.address_line_1`,
+          addressLine2: sql`billing_addr.address_line_2`,
+          city: sql`billing_addr.city`,
+          state: sql`billing_addr.state`,
+          postalCode: sql`billing_addr.postal_code`,
+          phone: sql`billing_addr.phone`,
+          isDefault: sql`billing_addr.is_default`,
+          createdAt: sql`billing_addr.created_at`,
+        },
+      })
+      .from(orders)
+      .innerJoin(users, eq(orders.userId, users.id)) 
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+      .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
+      .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.placedAt));
 
-  //   const orderMap = new Map();
-  //   ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
-  //     if (!orderMap.has(order.id)) {
-  //       orderMap.set(order.id, {
-  //         ...order,
-  //         user,
-  //         items: [],
-  //         shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
-  //         billingAddress: billingAddress?.id ? billingAddress : undefined,
-  //       });
-  //     }
-  //     if (item && medicine) {
-  //       orderMap.get(order.id).items.push({ ...item, medicine });
-  //     }
-  //   });
+    const orderMap = new Map();
+    ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
+      if (!orderMap.has(order.id)) {
+        orderMap.set(order.id, { 
+          ...order, 
+          user, 
+          items: [], 
+          shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
+          billingAddress: billingAddress?.id ? billingAddress : undefined,
+        });
+      }
+      if (item && medicine) {
+        orderMap.get(order.id).items.push({ ...item, medicine });
+      }
+    });
 
-  //   return Array.from(orderMap.values());
-  // }
-
-  // async getAllOrders(): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; prescription?: Prescription })[]> {
-  //   const ordersData = await db
-  //     .select({
-  //       order: orders,
-  //       user: users,
-  //       item: orderItems,
-  //       medicine: medicines,
-  //       prescription: prescriptions,
-  //     })
-  //     .from(orders)
-  //     .innerJoin(users, eq(orders.userId, users.id))
-  //     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-  //     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-  //     .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-  //     .orderBy(desc(orders.placedAt));
-
-  //   const orderMap = new Map();
-  //   ordersData.forEach(({ order, user, item, medicine, prescription }) => {
-  //     if (!orderMap.has(order.id)) {
-  //       orderMap.set(order.id, { ...order, user, items: [], prescription: prescription || undefined });
-  //     }
-  //     if (item && medicine) {
-  //       orderMap.get(order.id).items.push({ ...item, medicine });
-  //     }
-  //   });
-
-  //   return Array.from(orderMap.values());
-  // }
-  
-  // async getOrdersByUserId(userId: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; shippingAddress?: Address; billingAddress?: Address })[]> {
-  //   const ordersData = await db
-  //     .select({
-  //       order: orders,
-  //       user: users,
-  //       item: orderItems,
-  //       medicine: medicines,
-  //       shippingAddress: {
-  //         id: sql`shipping_addr.id`,
-  //         userId: sql`shipping_addr.user_id`,
-  //         type: sql`shipping_addr.type`,
-  //         fullName: sql`shipping_addr.full_name`,
-  //         addressLine1: sql`shipping_addr.address_line_1`,
-  //         addressLine2: sql`shipping_addr.address_line_2`,
-  //         city: sql`shipping_addr.city`,
-  //         state: sql`shipping_addr.state`,
-  //         postalCode: sql`shipping_addr.postal_code`,
-  //         phone: sql`shipping_addr.phone`,
-  //         isDefault: sql`shipping_addr.is_default`,
-  //         createdAt: sql`shipping_addr.created_at`,
-  //       },
-  //       billingAddress: {
-  //         id: sql`billing_addr.id`,
-  //         userId: sql`billing_addr.user_id`,
-  //         type: sql`billing_addr.type`,
-  //         fullName: sql`billing_addr.full_name`,
-  //         addressLine1: sql`billing_addr.address_line_1`,
-  //         addressLine2: sql`billing_addr.address_line_2`,
-  //         city: sql`billing_addr.city`,
-  //         state: sql`billing_addr.state`,
-  //         postalCode: sql`billing_addr.postal_code`,
-  //         phone: sql`billing_addr.phone`,
-  //         isDefault: sql`billing_addr.is_default`,
-  //         createdAt: sql`billing_addr.created_at`,
-  //       },
-  //     })
-  //     .from(orders)
-  //     .innerJoin(users, eq(orders.userId, users.id)) // Always fetch current user data
-  //     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-  //     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-  //     .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
-  //     .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
-  //     .where(eq(orders.userId, userId))
-  //     .orderBy(desc(orders.placedAt));
-
-  //   // Group by order
-  //   const orderMap = new Map();
-  //   ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
-  //     if (!orderMap.has(order.id)) {
-  //       orderMap.set(order.id, { 
-  //         ...order, 
-  //         user, 
-  //         items: [], 
-  //         shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
-  //         billingAddress: billingAddress?.id ? billingAddress : undefined
-  //       });
-  //     }
-  //     if (item && medicine) {
-  //       orderMap.get(order.id).items.push({ ...item, medicine });
-  //     }
-  //   });
-    
-
-  //   return Array.from(orderMap.values());
-  // }
-async getOrdersByUserId(userId: number): Promise<(Order & { 
-  user: User; 
-  items: (OrderItem & { medicine: Medicine })[]; 
-  shippingAddress?: Address; 
-  billingAddress?: Address 
-})[]> {
-  const ordersData = await db
-    .select({
-      order: orders,
-      user: users,
-      item: orderItems,
-      medicine: medicines,
-      shippingAddress: {
-        id: sql`shipping_addr.id`,
-        userId: sql`shipping_addr.user_id`,
-        type: sql`shipping_addr.type`,
-        fullName: sql`shipping_addr.full_name`,
-        addressLine1: sql`shipping_addr.address_line_1`,
-        addressLine2: sql`shipping_addr.address_line_2`,
-        city: sql`shipping_addr.city`,
-        state: sql`shipping_addr.state`,
-        postalCode: sql`shipping_addr.postal_code`,
-        phone: sql`shipping_addr.phone`,
-        isDefault: sql`shipping_addr.is_default`,
-        createdAt: sql`shipping_addr.created_at`,
-      },
-      billingAddress: {
-        id: sql`billing_addr.id`,
-        userId: sql`billing_addr.user_id`,
-        type: sql`billing_addr.type`,
-        fullName: sql`billing_addr.full_name`,
-        addressLine1: sql`billing_addr.address_line_1`,
-        addressLine2: sql`billing_addr.address_line_2`,
-        city: sql`billing_addr.city`,
-        state: sql`billing_addr.state`,
-        postalCode: sql`billing_addr.postal_code`,
-        phone: sql`billing_addr.phone`,
-        isDefault: sql`billing_addr.is_default`,
-        createdAt: sql`billing_addr.created_at`,
-      },
-    })
-    .from(orders)
-    .innerJoin(users, eq(orders.userId, users.id)) 
-    .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-    .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-    .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
-    .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
-    .where(eq(orders.userId, userId))
-    .orderBy(desc(orders.placedAt));
-
-  const orderMap = new Map();
-  ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
-    if (!orderMap.has(order.id)) {
-      orderMap.set(order.id, { 
-        ...order, 
-        user, 
-        items: [], 
-        shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
-        billingAddress: billingAddress?.id ? billingAddress : undefined,
-      });
-    }
-    if (item && medicine) {
-      orderMap.get(order.id).items.push({ ...item, medicine });
-    }
-  });
-
-  return Array.from(orderMap.values());
-}
-
-
-// async getAllOrders(): Promise<(Order & { 
-//   user: User; 
-//   items: (OrderItem & { medicine: Medicine })[]; 
-//   prescription?: Prescription 
-// })[]> {
-//   const ordersData = await db
-//     .select({
-//       order: orders,
-//       user: users,
-//       item: orderItems,
-//       medicine: medicines,
-//       prescription: prescriptions,
-//     })
-//     .from(orders)
-//     .innerJoin(users, eq(orders.userId, users.id)) 
-//     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-//     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-//     .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-//     .orderBy(desc(orders.placedAt));
-
-//   const orderMap = new Map();
-//   ordersData.forEach(({ order, user, item, medicine, prescription }) => {
-//     if (!orderMap.has(order.id)) {
-//       orderMap.set(order.id, {
-//         ...order,
-//         user,
-//         items: [],
-//         prescription: prescription?.id ? prescription : undefined,
-//       });
-//     }
-//     if (item && medicine) {
-//       orderMap.get(order.id).items.push({ ...item, medicine });
-//     }
-//   });
-
-//   return Array.from(orderMap.values());
-// }
-async getAllOrders(storeId: number): Promise<(Order & { 
-  user: User; 
-  items: (OrderItem & { medicine: Medicine })[]; 
-  prescription?: Prescription 
-})[]> {
-  const ordersData = await db
-    .select({
-      order: orders,
-      user: users,
-      item: orderItems,
-      medicine: medicines,
-      prescription: prescriptions,
-    })
-    .from(orders)
-    .innerJoin(users, eq(orders.userId, users.id)) 
-    .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-    .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-    .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-    .where(eq(orders.storeId, storeId))   // ✅ filter store wise
-    .orderBy(desc(orders.placedAt));
-
-  const orderMap = new Map();
-  ordersData.forEach(({ order, user, item, medicine, prescription }) => {
-    if (!orderMap.has(order.id)) {
-      orderMap.set(order.id, {
-        ...order,
-        user,
-        items: [],
-        prescription: prescription?.id ? prescription : undefined,
-      });
-    }
-    if (item && medicine) {
-      orderMap.get(order.id).items.push({ ...item, medicine });
-    }
-  });
-
-  return Array.from(orderMap.values());
-}
-
-  
-  // async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-  //   const timestamp = Date.now().toString();
-  //   const orderNumber = `SMD${timestamp.slice(-8)}`;
-  //   await db.insert(orders).values({ ...order, orderNumber });
-  //   const [newOrder] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
-
-  //   const orderItemsWithBatches = [];
-  //   for (const item of items) {
-  //     const batchAllocations = await this.allocateBatchesForOrder(item.medicineId, item.quantity);
-  //     for (const allocation of batchAllocations) {
-  //       await db
-  //         .update(medicineInventory)
-  //         .set({ quantity: sql`${medicineInventory.quantity} - ${allocation.quantity}` })
-  //         .where(eq(medicineInventory.id, allocation.batchId));
-  //       const totalPrice = allocation.quantity * parseFloat(item.unitPrice.toString());
-  //       orderItemsWithBatches.push({
-  //         orderId: newOrder.id,
-  //         medicineId: item.medicineId,
-  //         quantity: allocation.quantity,
-  //         unitPrice: item.unitPrice,
-  //         totalPrice: totalPrice.toString(),
-  //         batchId: allocation.batchId,
-  //       });
-  //     }
-  //   }
-  //   await db.insert(orderItems).values(orderItemsWithBatches);
-  //   return newOrder;
-  // }
-async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-  const timestamp = Date.now().toString();
-  const orderNumber = `SMD${timestamp.slice(-8)}`;
-
-  let storeId: number | null = order.storeId ?? null;
-
-  const orderItemsWithBatches = [];
-
-  for (const item of items) {
-    const batchAllocations = await this.allocateBatchesForOrder(item.medicineId, item.quantity);
-
-    // derive storeId from the first allocated batch if not already set
-    if (!storeId && batchAllocations.length > 0) {
-      const [batchInfo] = await db
-        .select({ storeId: medicineInventory.storeId })
-        .from(medicineInventory)
-        .where(eq(medicineInventory.id, batchAllocations[0].batchId));
-      storeId = batchInfo?.storeId ?? null;
-    }
-
-    for (const allocation of batchAllocations) {
-      await db
-        .update(medicineInventory)
-        .set({ quantity: sql`${medicineInventory.quantity} - ${allocation.quantity}` })
-        .where(eq(medicineInventory.id, allocation.batchId));
-
-      const totalPrice = allocation.quantity * parseFloat(item.unitPrice.toString());
-
-      orderItemsWithBatches.push({
-        orderId: 0, // placeholder, will set after order insert
-        medicineId: item.medicineId,
-        quantity: allocation.quantity,
-        unitPrice: item.unitPrice,
-        totalPrice: totalPrice.toString(),
-        batchId: allocation.batchId,
-      });
-    }
+    return Array.from(orderMap.values());
   }
 
-  // Insert order with storeId
-  await db.insert(orders).values({ ...order, orderNumber, storeId });
-  const [newOrder] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+  async getAllOrders(storeId?: number): Promise<(Order & { 
+    user: User; 
+    items: (OrderItem & { medicine: Medicine })[]; 
+    prescription?: Prescription 
+  })[]> {
+    let query = db
+      .select({
+        order: orders,
+        user: users,
+        item: orderItems,
+        medicine: medicines,
+        prescription: prescriptions,
+      })
+      .from(orders)
+      .innerJoin(users, eq(orders.userId, users.id)) 
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+      .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
+      .orderBy(desc(orders.placedAt));
 
-  // Update orderId in items and insert
-  for (const item of orderItemsWithBatches) {
-    item.orderId = newOrder.id;
+    if (storeId) {
+      query = query.where(eq(orders.storeId, storeId));
+    }
+
+    const ordersData = await query;
+
+    const orderMap = new Map();
+    ordersData.forEach(({ order, user, item, medicine, prescription }) => {
+      if (!orderMap.has(order.id)) {
+        orderMap.set(order.id, {
+          ...order,
+          user,
+          items: [],
+          prescription: prescription?.id ? prescription : undefined,
+        });
+      }
+      if (item && medicine) {
+        orderMap.get(order.id).items.push({ ...item, medicine });
+      }
+    });
+
+    return Array.from(orderMap.values());
   }
-  await db.insert(orderItems).values(orderItemsWithBatches);
 
-  return newOrder;
-}
+  async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
+    const timestamp = Date.now().toString();
+    const orderNumber = `SMD${timestamp.slice(-8)}`;
+
+    let storeId: number | null = order.storeId ?? null;
+
+    const orderItemsWithBatches = [];
+
+    for (const item of items) {
+      const batchAllocations = await this.allocateBatchesForOrder(item.medicineId, item.quantity);
+
+      // derive storeId from the first allocated batch if not already set
+      if (!storeId && batchAllocations.length > 0) {
+        const [batchInfo] = await db
+          .select({ storeId: medicineInventory.storeId })
+          .from(medicineInventory)
+          .where(eq(medicineInventory.id, batchAllocations[0].batchId));
+        storeId = batchInfo?.storeId ?? null;
+      }
+
+      for (const allocation of batchAllocations) {
+        await db
+          .update(medicineInventory)
+          .set({ quantity: sql`${medicineInventory.quantity} - ${allocation.quantity}` })
+          .where(eq(medicineInventory.id, allocation.batchId));
+
+        const totalPrice = allocation.quantity * parseFloat(item.unitPrice.toString());
+
+        orderItemsWithBatches.push({
+          orderId: 0, // placeholder, will set after order insert
+          medicineId: item.medicineId,
+          quantity: allocation.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: totalPrice.toString(),
+          batchId: allocation.batchId,
+        });
+      }
+    }
+
+    // Insert order with storeId
+    await db.insert(orders).values({ ...order, orderNumber, storeId });
+    const [newOrder] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+
+    // Update orderId in items and insert
+    for (const item of orderItemsWithBatches) {
+      item.orderId = newOrder.id;
+    }
+    await db.insert(orderItems).values(orderItemsWithBatches);
+
+    return newOrder;
+  }
 
   async updateOrderStatus(id: number, status: string): Promise<Order> {
     const updateData: any = { status };
@@ -2980,85 +2557,49 @@ async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> 
     return updatedOrder;
   }
 
-  // async getOrderById(id: number): Promise<(Order & { user: User; items: (OrderItem & { medicine: Medicine })[]; billingAddress: Address; shippingAddress: Address; prescription?: Prescription }) | undefined> {
-  //   const orderData = await db
-  //     .select({
-  //       order: orders,
-  //       user: users,
-  //       item: orderItems,
-  //       medicine: medicines,
-  //       billingAddress: sql`billing_addr`,
-  //       shippingAddress: sql`shipping_addr`,
-  //       prescription: prescriptions,
-  //     })
-  //     .from(orders)
-  //     .innerJoin(users, eq(orders.userId, users.id))
-  //     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-  //     .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-  //     .leftJoin(sql`${addresses} AS billing_addr`, sql`billing_addr.id = ${orders.billingAddressId}`)
-  //     .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
-  //     .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-  //     .where(eq(orders.id, id));
+  async getOrderById(id: number): Promise<(Order & {
+    user: User;
+    items: (OrderItem & { medicine: Medicine })[];
+    billingAddress: Address;
+    shippingAddress: Address;
+    prescription?: Prescription;
+  }) | undefined> {
+    const orderData = await db
+      .select({
+        order: orders,
+        user: users,
+        item: orderItems,
+        medicine: medicines,
+        billingAddress: billingAddr,   // ✅ use alias
+        shippingAddress: shippingAddr, // ✅ use alias
+        prescription: prescriptions,
+      })
+      .from(orders)
+      .innerJoin(users, eq(orders.userId, users.id))
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
+      .leftJoin(billingAddr, eq(billingAddr.id, orders.billingAddressId))
+      .leftJoin(shippingAddr, eq(shippingAddr.id, orders.shippingAddressId))
+      .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
+      .where(eq(orders.id, id));
 
-  //   if (orderData.length === 0) return undefined;
+    if (orderData.length === 0) return undefined;
 
-  //   const { order, user, billingAddress, shippingAddress, prescription } = orderData[0];
-  //   const items = orderData
-  //     .filter(({ item, medicine }) => item && medicine)
-  //     .map(({ item, medicine }) => ({ ...item, medicine }));
+    const { order, user, billingAddress, shippingAddress, prescription } = orderData[0];
 
-  //   return {
-  //     ...order,
-  //     user,
-  //     items,
-  //     billingAddress: billingAddress as Address,
-  //     shippingAddress: shippingAddress as Address,
-  //     prescription: prescription || undefined,
-  //   } as any;
-  // }
-async getOrderById(id: number): Promise<(Order & {
-  user: User;
-  items: (OrderItem & { medicine: Medicine })[];
-  billingAddress: Address;
-  shippingAddress: Address;
-  prescription?: Prescription;
-}) | undefined> {
-  const orderData = await db
-    .select({
-      order: orders,
-      user: users,
-      item: orderItems,
-      medicine: medicines,
-      billingAddress: billingAddr,   // ✅ use alias
-      shippingAddress: shippingAddr, // ✅ use alias
-      prescription: prescriptions,
-    })
-    .from(orders)
-    .innerJoin(users, eq(orders.userId, users.id))
-    .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-    .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
-    .leftJoin(billingAddr, eq(billingAddr.id, orders.billingAddressId))
-    .leftJoin(shippingAddr, eq(shippingAddr.id, orders.shippingAddressId))
-    .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))
-    .where(eq(orders.id, id));
+    const items = orderData
+      .filter(({ item, medicine }) => item && medicine)
+      .map(({ item, medicine }) => ({ ...item, medicine }));
 
-  if (orderData.length === 0) return undefined;
-
-  const { order, user, billingAddress, shippingAddress, prescription } = orderData[0];
-
-  const items = orderData
-    .filter(({ item, medicine }) => item && medicine)
-    .map(({ item, medicine }) => ({ ...item, medicine }));
-
-  return {
-    ...order,
-    user,
-    items,
-    billingAddress: billingAddress as Address,
-    shippingAddress: shippingAddress as Address,
-    prescription: prescription || undefined,
-  } as any;
-}
+    return {
+      ...order,
+      user,
+      items,
+      billingAddress: billingAddress as Address,
+      shippingAddress: shippingAddress as Address,
+      prescription: prescription || undefined,
+    } as any;
+  }
 
   async getNotificationsByUserId(userId: number): Promise<Notification[]> {
     return db
@@ -3298,7 +2839,6 @@ async getOrderById(id: number): Promise<(Order & {
           eq(medicineInventory.medicineId, medicineId),
           gte(medicineInventory.quantity, 1),
           sql`${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH`
-
         )
       )
       .orderBy(asc(medicineInventory.expiryDate));
@@ -3424,20 +2964,8 @@ async getOrderById(id: number): Promise<(Order & {
   async getStores(): Promise<Store[]> {
     return db.select().from(stores).orderBy(desc(stores.createdAt));
   }
-  async getStores2(): Promise<Store[]> {
-    return db.select().from(stores).orderBy(desc(stores.createdAt));
-  }
 
-
-  // async updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<Order> {
-  //   const [updatedOrder] = await db
-  //     .update(orders)
-  //     .set({ paymentStatus })
-  //     .where(eq(orders.id, id))
-  //     .returning();
-  //   return updatedOrder;
-  // }
- async updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<void> {
+  async updateOrderPaymentStatus(id: number, paymentStatus: string): Promise<void> {
     await db
       .update(orders)
       .set({ paymentStatus })   // Drizzle maps TS -> `payment_status` column
@@ -3445,257 +2973,79 @@ async getOrderById(id: number): Promise<(Order & {
       .execute();               // ✅ required for MySQL
   }
 
-  // async onboardStore(data: any): Promise<{ store: Store; admin: User }> {
-  //   await db.insert(stores).values({
-  //     name: data.storeName,
-  //     email: data.storeEmail,
-  //     phone: data.storePhone,
-  //     address: data.address,
-  //     city: data.city,
-  //     state: data.state,
-  //     pincode: data.pincode,
-  //     licenseNumber: data.licenseNumber,
-  //     gstNumber: data.gstNumber,
-  //     isActive: true,
-  //   });
-  //   const [store] = await db.select().from(stores).where(eq(stores.email, data.storeEmail));
+  async onboardStore(data: any): Promise<{ store: Store; admin: User }> {
+    // Create slug from storeName
+    const slug = data.storeName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
-  //   const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
-  //   await db.insert(users).values({
-  //     email: data.adminEmail,
-  //     password: hashedPassword,
-  //     role: 1,
-  //     storeId: store.id,
-  //     firstName: data.adminFirstName,
-  //     lastName: data.adminLastName,
-  //     phone: data.adminPhone,
-  //     isActive: true,
-  //   });
-  //   const [admin] = await db.select().from(users).where(eq(users.email, data.adminEmail));
+    // ✅ Generate QR Code URL (link to store page or slug)
+    const qrData = `http://localhost:5000/${slug}/customer/login`;
+    const qrCodeUrl = await QRCode.toDataURL(qrData);
 
-  //   return { store, admin };
-  // }
-//   async onboardStore(data: any): Promise<{ store: Store; admin: User }> {
-//   // Create slug from storeName
-//   const slug = data.storeName
-//     .toLowerCase()
-//     .trim()
-//     .replace(/[^a-z0-9]+/g, "-") // replace spaces/special chars with dash
-//     .replace(/^-+|-+$/g, "");    // remove leading/trailing dash
+    // Insert store
+    const [storeResult] = await db.insert(stores).values({
+      name: data.storeName,
+      slug,
+      email: data.storeEmail,
+      phone: data.storePhone,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      pincode: data.pincode,
+      licenseNumber: data.licenseNumber || null,
+      gstNumber: data.gstNumber || null,
+      logoUrl: data.logoUrl || null,
+      qrCodeUrl, // ✅ Save QR code in DB
+      isActive: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-//   // Insert store
-//   const [storeResult] = await db.insert(stores).values({
-//     name: data.storeName,
-//     slug: slug,
-//     email: data.storeEmail,
-//     phone: data.storePhone,
-//     address: data.address,
-//     city: data.city,
-//     state: data.state,
-//     pincode: data.pincode,
-//     licenseNumber: data.licenseNumber || null,
-//     gstNumber: data.gstNumber || null,
-//     isActive: 1, // MySQL tinyint
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//   });
+    // Fetch inserted store
+    const [store] = await db
+      .select()
+      .from(stores)
+      .where(eq(stores.email, data.storeEmail))
+      .limit(1);
 
-//   // Fetch inserted store
-//   const [store] = await db
-//     .select()
-//     .from(stores)
-//     .where(eq(stores.email, data.storeEmail))
-//     .limit(1);
+    if (!store) {
+      throw new Error("Store creation failed");
+    }
 
-//   if (!store) {
-//     throw new Error("Store creation failed");
-//   }
+    // Hash admin password
+    const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
 
-//   // Hash admin password
-//   const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
+    // Insert admin user linked to this store
+    await db.insert(users).values({
+      email: data.adminEmail,
+      password: hashedPassword,
+      role: 1, // Super admin = 1
+      storeId: store.id,
+      firstName: data.adminFirstName,
+      lastName: data.adminLastName,
+      phone: data.adminPhone,
+      isActive: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-//   // Insert admin user linked to this store
-//   await db.insert(users).values({
-//     email: data.adminEmail,
-//     password: hashedPassword,
-//     role: 1, // Super admin = 1
-//     storeId: store.id,
-//     firstName: data.adminFirstName,
-//     lastName: data.adminLastName,
-//     phone: data.adminPhone,
-//     isActive: 1,
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//   });
+    // Fetch inserted admin
+    const [admin] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, data.adminEmail))
+      .limit(1);
 
-//   // Fetch inserted admin
-//   const [admin] = await db
-//     .select()
-//     .from(users)
-//     .where(eq(users.email, data.adminEmail))
-//     .limit(1);
+    if (!admin) {
+      throw new Error("Admin creation failed");
+    }
 
-//   if (!admin) {
-//     throw new Error("Admin creation failed");
-//   }
-
-//   return { store, admin };
-// }
-
-
-
-// async onboardStore(data: any): Promise<{ store: Store; admin: User; qrCode: string }> {
-//   // Create slug from storeName
-//   const slug = data.storeName
-//     .toLowerCase()
-//     .trim()
-//     .replace(/[^a-z0-9]+/g, "-")
-//     .replace(/^-+|-+$/g, "");
-
-//   // Insert store
-//   const [storeResult] = await db.insert(stores).values({
-//     name: data.storeName,
-//     slug: slug,
-//     email: data.storeEmail,
-//     phone: data.storePhone,
-//     address: data.address,
-//     city: data.city,
-//     state: data.state,
-//     pincode: data.pincode,
-//     licenseNumber: data.licenseNumber || null,
-//     gstNumber: data.gstNumber || null,
-//     isActive: 1,
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//   });
-
-//   // Fetch inserted store
-//   const [store] = await db
-//     .select()
-//     .from(stores)
-//     .where(eq(stores.email, data.storeEmail))
-//     .limit(1);
-
-//   if (!store) {
-//     throw new Error("Store creation failed");
-//   }
-
-//   // Hash admin password
-//   const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
-
-//   // Insert admin user linked to this store
-//   await db.insert(users).values({
-//     email: data.adminEmail,
-//     password: hashedPassword,
-//     role: 1,
-//     storeId: store.id,
-//     firstName: data.adminFirstName,
-//     lastName: data.adminLastName,
-//     phone: data.adminPhone,
-//     isActive: 1,
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//   });
-
-//   // Fetch inserted admin
-//   const [admin] = await db
-//     .select()
-//     .from(users)
-//     .where(eq(users.email, data.adminEmail))
-//     .limit(1);
-
-//   if (!admin) {
-//     throw new Error("Admin creation failed");
-//   }
-
-//   // ---- Generate QR Code for this store ----
-//   const qrData = `http://localhost:5000/${store.slug}/customer/login`; // link or unique ID
-
-//   const qrDir = path.join(__dirname, "../qrcodes");
-//   if (!fs.existsSync(qrDir)) {
-//     fs.mkdirSync(qrDir, { recursive: true });
-//   }
-
-//   const qrPath = path.join(qrDir, `store_${store.id}.png`);
-//   await QRCode.toFile(qrPath, qrData);
-
-//   // Optionally return QR code as Base64 (for API response)
-//   const qrBase64 = await QRCode.toDataURL(qrData);
-
-//   return { store, admin, qrCode: qrBase64 };
-// }
-async onboardStore(data: any): Promise<{ store: any; admin: any }> {
-  // Create slug from storeName
-  const slug = data.storeName
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
-  // ✅ Generate QR Code URL (link to store page or slug)
-const qrData = `http://localhost:5000/${slug}/customer/login`;
-const qrCodeUrl = await QRCode.toDataURL(qrData);
-
-  // Insert store
-  const [storeResult] = await db.insert(stores).values({
-    name: data.storeName,
-    slug,
-    email: data.storeEmail,
-    phone: data.storePhone,
-    address: data.address,
-    city: data.city,
-    state: data.state,
-    pincode: data.pincode,
-    licenseNumber: data.licenseNumber || null,
-    gstNumber: data.gstNumber || null,
-    logoUrl: data.logoUrl || null,
-    qrCodeUrl, // ✅ Save QR code in DB
-    isActive: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
-  // Fetch inserted store
-  const [store] = await db
-    .select()
-    .from(stores)
-    .where(eq(stores.email, data.storeEmail))
-    .limit(1);
-
-  if (!store) {
-    throw new Error("Store creation failed");
+    return { store, admin };
   }
 
-  // Hash admin password
-  const hashedPassword = await bcrypt.hash(data.adminPassword, 10);
-
-  // Insert admin user linked to this store
-  await db.insert(users).values({
-    email: data.adminEmail,
-    password: hashedPassword,
-    role: 1, // Super admin = 1
-    storeId: store.id,
-    firstName: data.adminFirstName,
-    lastName: data.adminLastName,
-    phone: data.adminPhone,
-    isActive: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
-  // Fetch inserted admin
-  const [admin] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, data.adminEmail))
-    .limit(1);
-
-  if (!admin) {
-    throw new Error("Admin creation failed");
-  }
-
-  return { store, admin };
-}
   async updateStore(storeId: number, data: Partial<Store>): Promise<Store> {
     await db.update(stores).set(data).where(eq(stores.id, storeId));
     const [updatedStore] = await db.select().from(stores).where(eq(stores.id, storeId));
@@ -3715,119 +3065,6 @@ const qrCodeUrl = await QRCode.toDataURL(qrData);
   async initializeData(): Promise<void> {
     const existingUsers = await db.select().from(users).limit(1);
     if (existingUsers.length > 0) return;
-
-    // const adminUser = await this.createUser({
-    //   email: "admin@test.com",
-    //   password: "admin123",
-    //   role: 0,
-    //   firstName: "Admin",
-    //   lastName: "User",
-    //   phone: "9876543210",
-    // });
-
-    // const customerUser = await this.createUser({
-    //   email: "customer@test.com",
-    //   password: "password123",
-    //   role: 2,
-    //   firstName: "John",
-    //   lastName: "Doe",
-    //   phone: "9876543211",
-    //   gender: "male",
-    //   dateOfBirth: "1990-01-01",
-    // });
-
-    // const generalCategory = await this.createMedicineCategory("General", "General medicines", false);
-    // const scheduleHCategory = await this.createMedicineCategory("Schedule H", "Prescription required medicines", true);
-    // const ayurvedicCategory = await this.createMedicineCategory("Ayurvedic", "Traditional Indian medicines", false);
-
-    // const medicinesData = [
-    //   {
-    //     name: "Paracetamol 500mg",
-    //     description: "Pain relief and fever reducer",
-    //     dosage: "500mg",
-    //     mrp: "60.00",
-    //     discount: "25.00",
-    //     categoryId: scheduleHCategory.id,
-    //     manufacturer: "Cipla Ltd",
-    //     requiresPrescription: true,
-    //   },
-    //   {
-    //     name: "Vitamin D3 Tablets",
-    //     description: "Essential vitamin supplement",
-    //     dosage: "60000 IU",
-    //     mrp: "150.00",
-    //     discount: "16.67",
-    //     categoryId: generalCategory.id,
-    //     manufacturer: "Sun Pharma",
-    //     requiresPrescription: false,
-    //   },
-    //   {
-    //     name: "Cough Syrup",
-    //     description: "Cough relief formula",
-    //     dosage: "100ml",
-    //     mrp: "100.00",
-    //     discount: "11.00",
-    //     categoryId: generalCategory.id,
-    //     manufacturer: "Dabur",
-    //     requiresPrescription: false,
-    //   },
-    //   {
-    //     name: "Antibiotic Tablets",
-    //     description: "Bacterial infection treatment",
-    //     dosage: "250mg",
-    //     mrp: "220.00",
-    //     discount: "15.68",
-    //     categoryId: scheduleHCategory.id,
-    //     manufacturer: "Dr. Reddy's",
-    //     requiresPrescription: true,
-    //   },
-    //   {
-    //     name: "Ashwagandha Capsules",
-    //     description: "Stress relief and immunity booster",
-    //     dosage: "300mg",
-    //     mrp: "350.00",
-    //     discount: "14.57",
-    //     categoryId: ayurvedicCategory.id,
-    //     manufacturer: "Himalaya",
-    //     requiresPrescription: false,
-    //   },
-    // ];
-
-    // for (const medicine of medicinesData) {
-    //   const newMedicine = await this.createMedicine(medicine);
-    //   await this.createMedicineInventory({
-    //     medicineId: newMedicine.id,
-    //     batchNumber: `BATCH${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-    //     expiryDate: "2025-12-31",
-    //     quantity: Math.floor(Math.random() * 100) + 50,
-    //   });
-    // }
-
-    // await this.createAddress({
-    //   userId: customerUser.id,
-    //   type: "billing",
-    //   fullName: "John Doe",
-    //   phone: "9876543211",
-    //   addressLine1: "123 Main Street",
-    //   addressLine2: "Apartment 4B",
-    //   city: "Mumbai",
-    //   state: "Maharashtra",
-    //   postalCode: "400001",
-    //   isDefault: true,
-    // });
-
-    // await this.createAddress({
-    //   userId: customerUser.id,
-    //   type: "shipping",
-    //   fullName: "John Doe",
-    //   phone: "9876543211",
-    //   addressLine1: "123 Main Street",
-    //   addressLine2: "Apartment 4B",
-    //   city: "Mumbai",
-    //   state: "Maharashtra",
-    //   postalCode: "400001",
-    //   isDefault: true,
-    // });
   }
 }
 

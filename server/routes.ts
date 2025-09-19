@@ -1995,6 +1995,51 @@ app.post(
    app.use('/uploads/prescriptions/', express.static('uploads'));
   //  app.use('/uploads/', express.static('uploads'));
 
+  app.post('/api/createorders', isAuthenticated, async (req: Request, res: Response) => {
+  try {
+    const { customer_name, district, place, pincode, mobile_no, medicines } = req.body;
+ 
+ 
+    // Validate required fields
+    if (!customer_name || !medicines) {
+      return res.status(400).json({
+        success: false,
+        error: 'Customer name and medicines are required'
+      });
+    }
+ 
+    // Optional: Add additional validation for medicines
+    // if (!Array.isArray(medicines) || medicines.length === 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     error: 'Medicines must be a non-empty array'
+    //   });
+    // }
+ 
+    const newOrder = await storage.storeOrder({
+      customer_name,
+      district,
+      place,
+      pincode,
+      mobile_no,
+      medicines,
+      status: 'confirmed',
+    });
+ 
+    res.status(201).json({
+      success: true,
+      orderId: newOrder.id,
+      message: 'Order created successfully',
+    });
+  } catch (error: any) {
+    console.error('Create order error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Error creating order',
+    });
+  }
+});
+
 
   const httpServer = createServer(app);
   return httpServer;

@@ -64,15 +64,15 @@
 // //         {/* Public routes */}
 // //         <Route path="/" component={getHomeComponent()} />
 // //           <Route path="/customer/login">
-             
+
 // //                 <CustomerLogin/>
-             
+
 // //             </Route>
-        
+
 // //         {/* Medicines route - only for customers (role 2) */}
 // //         {(user?.role === 2 || user?.role === "customer") && <Route path="/medicines" component={Medicines} />}
 // //         <Route path="/login" component={Login} />
-        
+
 // //         {/* Protected customer routes - only for customers (role 2) */}
 // //         {(user?.role === 2 || user?.role === "customer") && (
 // //           <>
@@ -81,7 +81,7 @@
 // //                 <Cart />
 // //               </ProtectedRoute>
 // //             </Route>
-           
+
 // //             <Route path="/checkout">
 // //               <ProtectedRoute>
 // //                 <Checkout />
@@ -109,7 +109,7 @@
 // //             </Route>
 // //           </>
 // //         )}
-        
+
 // //         {/* Protected admin routes */}
 // //         <Route path="/admin/dashboard">
 // //           <ProtectedRoute requiredRole="admin">
@@ -156,7 +156,7 @@
 // //             <SystemConfig />
 // //           </ProtectedRoute>
 // //         </Route>
-        
+
 // //         {/* Super Admin routes */}
 // //         <Route path="/superadmin/dashboard">
 // //           <ProtectedRoute requiredRole="super_admin">
@@ -193,7 +193,7 @@
 // //             <AdminNotifications />
 // //           </ProtectedRoute>
 // //         </Route>
-        
+
 // //         {/* Fallback to 404 */}
 // //         <Route component={NotFound} />
 // //       </Switch>
@@ -263,7 +263,7 @@
 // } else {
 //   console.log("Store slugs:", slugArray);
 // }
-    
+
 
 //   if (isLoading) {
 //     return (
@@ -474,7 +474,8 @@ import AdminNotifications from "@/pages/admin/Notifications";
 import NotFound from "@/pages/not-found";
 import useStoreSlugs from "@/useStoreSlugs";
 import CreateOrder from "@/pages/admin/CreateOrder";
-
+import SupervisorDashboard from "@/pages/supervisor/Dashboard";
+import GenerateReport from "@/pages/supervisor/GenerateReport";
 
 function Router() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -499,6 +500,8 @@ function Router() {
     if (!isAuthenticated) return Landing;
     if (user?.role === 0 || user?.role === "super_admin") return SuperAdminDashboard; // Super admin
     if (user?.role === 1 || user?.role === "admin") return Dashboard; // Admin
+    if (user?.role === 3 || user?.role === "supervisor") return SupervisorDashboard;
+    ;
     return Home; // Customer (role 2)
   };
 
@@ -599,9 +602,9 @@ function Router() {
             <SystemConfig />
           </ProtectedRoute>
         </Route>
-         <Route path="/admin/create-order">
+        <Route path="/admin/create-order">
           <ProtectedRoute requiredRole="admin">
-            <CreateOrder/>
+            <CreateOrder />
           </ProtectedRoute>
         </Route>
 
@@ -641,6 +644,27 @@ function Router() {
             <AdminNotifications />
           </ProtectedRoute>
         </Route>
+
+
+
+        {/* Supervisor routes */}
+        <Route path="/supervisor/dashboard">
+          <ProtectedRoute requiredRole="supervisor">
+            <SupervisorDashboard />
+          </ProtectedRoute>
+        </Route>
+
+        <Route path="/supervisor/orders">
+          <ProtectedRoute requiredRole="supervisor">
+            <AdminOrders />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/supervisor/generate-report">
+          <ProtectedRoute requiredRole="supervisor">
+            <GenerateReport/>
+          </ProtectedRoute>
+        </Route>        
+
 
         {/* Fallback to 404 */}
         <Route component={NotFound} />

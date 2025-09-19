@@ -29,8 +29,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Login() {
-  const [, setLocation] = useLocation();
-  // const { t } = useTranslation();
+  const [ setLocation] = useLocation();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
