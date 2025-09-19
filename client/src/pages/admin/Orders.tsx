@@ -1707,7 +1707,22 @@
 
 
 
-import { useState, useMemo } from "react";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -1751,7 +1766,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 interface OrderManagementProps {
-  userRole?: string; // "admin" | "supervisor"
+  userRole?: string; 
 }
 
 // Dummy data for development
@@ -1765,12 +1780,9 @@ const generateDummyOrders = (count = 12, userRole = "admin") => {
     "cancelled"
   ];
   
-  const paymentStatuses = ["pending", "paid"];
-  
+
   const firstNames = ["John", "Jane", "Mike", "Sarah", "David", "Emily", "Chris", "Lisa", "Tom", "Anna"];
   const lastNames = ["Smith", "Johnson", "Brown", "Davis", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson"];
-  const emails = ["john.smith@email.com", "jane.doe@email.com", "mike.wilson@email.com", "sarah.brown@email.com"];
-  
   const medicines = [
     "Paracetamol 500mg",
     "Ibuprofen 400mg",
@@ -1826,13 +1838,12 @@ const generateDummyOrders = (count = 12, userRole = "admin") => {
         id: i + 1,
         firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
         lastName: lastNames[Math.floor(Math.random() * lastNames.length)],
-        email: emails[Math.floor(Math.random() * emails.length)],
         phone: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`
       },
       items,
       totalAmount: totalAmount.toFixed(2),
       status,
-      paymentStatus: paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)],
+      // paymentStatus: paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)],
       placedAt: placedAt.toISOString(),
       storeId,
       store: userRole === "supervisor" 
@@ -1871,6 +1882,29 @@ const generateDummyOrders = (count = 12, userRole = "admin") => {
 };
 
 export default function AdminOrders({ userRole = "admin" }: OrderManagementProps) {
+
+
+
+  const [ods, setOrders] = useState([]);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/orders2");
+        console.log(response);
+        
+        const data = await response.json();
+        console.log("data");
+        console.log(data);
+        setOrders(data.orders);
+      } catch (error) {
+       
+        console.error("Error fetching orders:", error);
+      } 
+    };
+
+    fetchOrders();
+  }, []);
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -2114,7 +2148,8 @@ export default function AdminOrders({ userRole = "admin" }: OrderManagementProps
         return <Clock className="h-4 w-4" />;
     }
   };
-
+console.log("ods");
+console.log(ods);
   const handleStatusUpdate = (orderId: number, newStatus: string, order?: any) => {
     if (isStatusDisabled(order?.status, newStatus)) {
       toast({
@@ -2196,28 +2231,27 @@ export default function AdminOrders({ userRole = "admin" }: OrderManagementProps
         </TableRow>
       </TableHeader>
       <TableBody>
-        {orders.map((order: any) => (
+        {ods.map((order: any) => (
           <TableRow key={order.id}>
             <TableCell className="font-medium">
               <div className="flex items-center gap-2">
-                {order.orderNumber}
+                {order.id}
                 {order.prescription && (
                   <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
                     <FileText className="h-3 w-3 mr-1" />
                     RX
                   </Badge>
                 )}
-                {isSupervisor && order.store && (
+                { order.medicine && (
                   <Badge variant="secondary" className="text-xs">
-                    {order.store.name}
+                    {ods.store.name}
                   </Badge>
                 )}
               </div>
             </TableCell>
             <TableCell>
               <div>
-                <p className="font-medium">{order.user.firstName} {order.user.lastName}</p>
-                <p className="text-sm text-muted-foreground">{order.user.email}</p>
+                <p className="font-medium">{order.customerName}</p>
               </div>
             </TableCell>
             <TableCell>
@@ -2250,29 +2284,28 @@ export default function AdminOrders({ userRole = "admin" }: OrderManagementProps
                   <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-hidden">
                     <DialogHeader>
                       <DialogTitle className="text-base sm:text-lg">
-                        {isSupervisor ? "Store Order Details" : "Order Details"} - {order.orderNumber}
+                        {order.id}
                       </DialogTitle>
                     </DialogHeader>
                     <div className="space-y-3 sm:space-y-4 overflow-y-auto max-h-[75vh]">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                           <Label className="text-sm">Customer</Label>
-                          <p className="font-medium text-sm sm:text-base">{order.user.firstName} {order.user.lastName}</p>
-                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{order.user.email}</p>
-                          <p className="text-xs text-muted-foreground">+91 {order.user.phone}</p>
+                          <p className="font-medium text-sm sm:text-base">{order.customerName} </p>
+                          <p className="text-xs text-muted-foreground">+91 {order.mobile_no}</p>
                         </div>
                         <div>
                           <Label className="text-sm">Delivery Address</Label>
                           <div className="text-xs space-y-1">
-                            <p className="font-medium">{order.deliveryAddress.fullName}</p>
-                            <p className="truncate">{order.deliveryAddress.address}</p>
-                            <p className="truncate">{order.deliveryAddress.city}, {order.deliveryAddress.state} - {order.deliveryAddress.pincode}</p>
+                            <p className="font-medium">{order.customerName}</p>
+                            <p className="truncate">{order.place}</p>
+                            <p className="truncate">{order.district}</p>
                           </div>
                         </div>
                         <div>
                           <Label className="text-sm">Store</Label>
-                          <p className="font-medium text-sm sm:text-base">{order.store.name}</p>
-                          <p className="text-xs text-muted-foreground">Store ID: {order.store.id}</p>
+                          <p className="font-medium text-sm sm:text-base">{order.customerName}</p>
+                          <p className="text-xs text-muted-foreground">Store ID: {order.id}</p>
                         </div>
                         <div>
                           <Label className="text-sm">Current Status</Label>
@@ -2763,3 +2796,4 @@ export default function AdminOrders({ userRole = "admin" }: OrderManagementProps
     </div>
   );
 }
+

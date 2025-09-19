@@ -2086,6 +2086,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
+//working
+
+app.patch('/api/orders2/:id/status', async (req: Request, res: Response) => {
+  try {
+    // Validate order ID (same as GET)
+    const orderId = parseInt(req.params.id, 10);
+    if (isNaN(orderId)) {
+      return res.status(400).json({ success: false, error: 'Invalid order ID' });
+    }
+
+    // Validate status in request body
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ success: false, error: 'Status is required' });
+    }
+
+    // Get current order (same pattern as GET)
+    const order = await storage.getOrder(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    // Update the order status
+    const updatedOrder = await storage.updateOrderStatus(orderId, status);
+    if (!updatedOrder) {
+      return res.status(500).json({ success: false, error: 'Failed to update order status' });
+    }
+
+    // Same response pattern as GET
+    res.status(200).json({
+      success: true,
+      order: updatedOrder,
+    });
+
+  } catch (error: any) {
+    console.error('Update order status error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Error updating order status',
+    });
+  }
+});
   const httpServer = createServer(app);
   return httpServer;
 }
