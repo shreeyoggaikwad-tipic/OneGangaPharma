@@ -2614,6 +2614,48 @@ export class DatabaseStorage implements IStorage {
     return updatedOrder;
   }
 
+  async updateOrderStatuss(orderId, status) {
+    try {
+      console.log('🔄 Updating order status:', { orderId, status });
+      
+      // Validation
+      if (!orderId || !status) {
+        throw new Error('Order ID and status are required');
+      }
+
+      // Validate status
+      const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'failed'];
+      if (!validStatuses.includes(status)) {
+        throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`);
+      }
+
+      // Update using Drizzle ORM
+      const updatedOrder = await this.db
+        .update(createorder)
+        .set({ 
+          status: status, 
+          updated_at: new Date() // MySQL uses Date objects
+        })
+        .where(eq(createorder.id, orderId))
+        .returning();
+
+      // Drizzle returns an array, so check length
+      if (!updatedOrder || updatedOrder.length === 0) {
+        console.log('❌ Order not found for ID:', orderId);
+        return null;
+      }
+
+      const result = updatedOrder[0];
+      console.log('✅ Order updated successfully:', result.id);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Error updating order status:', error);
+      throw error;
+    }
+  }
+
   async getOrderById(id: number): Promise<(Order & {
     user: User;
     items: (OrderItem & { medicine: Medicine })[];

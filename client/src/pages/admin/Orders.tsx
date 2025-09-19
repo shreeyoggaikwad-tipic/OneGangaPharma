@@ -2255,10 +2255,10 @@ console.log(ods);
               </div>
             </TableCell>
             <TableCell>
-              {order.items?.length || 0} item(s)
+              {order.medicines?.length || 0} item(s)
             </TableCell>
             <TableCell>
-              ₹{parseFloat(order.totalAmount).toLocaleString()}
+              ₹{parseFloat(order.medicines.reduce((sum, item) => sum + (item.quantity * item.mrp), 0)).toLocaleString()}
             </TableCell>
             <TableCell>
               <Badge className={`${getStatusColor(order.status)} flex items-center gap-1 w-fit`}>
@@ -2505,19 +2505,19 @@ console.log(ods);
                         <Label className="text-sm">Order Items ({order.items?.length || 0})</Label>
                         <div className="border rounded-lg mt-2">
                           <div className="max-h-48 overflow-y-auto p-2 sm:p-3">
-                            {order.items?.map((item: any, index: number) => (
+                            {order.medicines?.map((item: any, index: number) => (
                               <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-xs sm:text-sm truncate">{item.medicine?.name}</p>
-                                  <p className="text-xs text-muted-foreground">Qty: {item.quantity} × ₹{parseFloat(item.unitPrice).toLocaleString()}</p>
+                                  <p className="font-medium text-xs sm:text-sm truncate">{item.name}</p>
+                                  <p className="text-xs text-muted-foreground">Qty: {item.quantity} × ₹{parseFloat(item.mrp).toLocaleString()}</p>
                                 </div>
-                                <p className="font-medium text-xs sm:text-sm">₹{parseFloat(item.total).toLocaleString()}</p>
+                                <p className="font-medium text-xs sm:text-sm">₹{parseFloat(item.mrp*item.quantity).toLocaleString()}</p>
                               </div>
                             ))}
                           </div>
                           <div className="flex justify-between items-center p-2 sm:p-3 border-t font-semibold bg-gray-50">
                             <span className="text-sm">Total Amount</span>
-                            <span className="text-sm sm:text-base">₹{parseFloat(order.totalAmount).toLocaleString()}</span>
+                            <span className="text-sm sm:text-base">₹{parseFloat(order.medicines.reduce((sum, item) => sum + (item.quantity * item.mrp), 0)).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>

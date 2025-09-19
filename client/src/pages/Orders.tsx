@@ -250,7 +250,7 @@ const { data: orders = [], isLoading } = useQuery({
       <CardHeader className="bg-muted/50 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-base sm:text-lg truncate">Order #{order.orderNumber}</CardTitle>
+            <CardTitle className="text-base sm:text-lg truncate">Order #{order.id}</CardTitle>
             <p className="text-xs sm:text-sm text-muted-foreground">
               Placed on {new Date(order.placedAt).toLocaleDateString("en-IN", {
                 year: "numeric",

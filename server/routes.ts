@@ -2109,7 +2109,7 @@ app.patch('/api/orders2/:id/status', async (req: Request, res: Response) => {
     }
 
     // Update the order status
-    const updatedOrder = await storage.updateOrderStatus(orderId, status);
+    const updatedOrder = await storage.updateOrderStatuss(orderId, status);
     if (!updatedOrder) {
       return res.status(500).json({ success: false, error: 'Failed to update order status' });
     }
