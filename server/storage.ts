@@ -212,7 +212,7 @@
 //   if (!store) return false;
 //   // Fetch user by email
 //   const [user] = await db.select().from(users).where(eq(users.email, email));
-  
+
 //   // If user doesn't exist, it's not valid
 //     console.log("user",user);
 //   if (!user) return false;
@@ -225,7 +225,7 @@
 //     const [user] = await db.select().from(users).where(eq(users.email, email));
 //     return user;
 //   }
-  
+
 //   async createUser(userData: InsertUser): Promise<User> {
 //   // Hash password before storing
 //   const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -248,7 +248,7 @@
 //   return user;
 // }
 
- 
+
 
 //    async getAllStores(): Promise<string[]> {
 //   const result = await db.select({ slug: stores.slug }).from(stores);
@@ -268,7 +268,7 @@
 //   async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
 //     return bcrypt.compare(password, hashedPassword);
 //   }
-  
+
 //   async getSroreIdBySlug(slug: string): Promise<Store>{
 //      return db.select().from(stores).where(eq(stores.slug, slug)).limit(1);;
 //   }
@@ -296,7 +296,7 @@
 //     await db.update(addresses).set({ phone }).where(eq(addresses.userId, userId));
 //   }
 
-  
+
 //   async searchMedicines(query: string): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
 //     return db
 //       .select({
@@ -343,7 +343,7 @@
 
 // async getMedicines(
 //   storeId: number
-    
+
 // ): Promise<(Medicine & { category: MedicineCategory; totalStock: number })[]> {
 //   return db
 //     .select({
@@ -393,7 +393,7 @@
 //     .where(and(eq(medicines.isActive, true), eq(medicines.storeId, storeId))) // ✅ filter by store
 //     .groupBy(medicines.id, medicineCategories.id)
 //     .orderBy(asc(medicines.name)) as any;
-    
+
 // }
 
 
@@ -528,7 +528,7 @@
 //   return category;
 // }
 
-  
+
 // async getOrdersByUserIdAndStore(userId: number, storeId: number) {
 //   return db
 //     .select()
@@ -663,7 +663,7 @@
 //         totalStock: sql<number>`GREATEST(0, COALESCE(SUM(
 //           CASE 
 //             WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(getShelfLifeInterval())} MONTH
-            
+
 //             THEN ${medicineInventory.quantity} 
 //             ELSE 0 
 //           END
@@ -725,7 +725,7 @@
 
 
 
-  
+
 //   async getPrescriptionsByUserId(userId: number): Promise<Prescription[]> {
 //     return db
 //       .select()
@@ -849,7 +849,7 @@
 //     await db.delete(cartItems).where(eq(cartItems.userId, userId));
 //   }
 
-  
+
 // async getOrdersByUserId(userId: number): Promise<(Order & { 
 //   user: User; 
 //   items: (OrderItem & { medicine: Medicine })[]; 
@@ -960,7 +960,7 @@
 //   return Array.from(orderMap.values());
 // }
 
- 
+
 // async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
 //   const timestamp = Date.now().toString();
 //   const orderNumber = `SMD${timestamp.slice(-8)}`;
@@ -1023,7 +1023,7 @@
 //     return updatedOrder;
 //   }
 
- 
+
 // async getOrderById(id: number): Promise<(Order & {
 //   user: User;
 //   items: (OrderItem & { medicine: Medicine })[];
@@ -1585,7 +1585,7 @@
 // }
 
 
-    
+
 //   }
 // }
 
@@ -1648,6 +1648,7 @@ const __dirname = path.dirname(__filename);
 type CreateOrderType = typeof createorder.$inferInsert; // Infer from schema for type safety
 
 export interface IStorage {
+  getAllOrdersFromCreateOrder(): Promise<CreateOrderType[]>;
   storeOrder(order: {
     customer_name: string;
     medicines: unknown;
@@ -1656,7 +1657,7 @@ export interface IStorage {
     pincode?: string;
     mobile_no?: string;
     status?: string;
-    age?:string;
+    age?: string;
   }): Promise<CreateOrderType | undefined>;
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -1752,7 +1753,7 @@ export interface IStorage {
 
 
 
- 
+
 
 export class DatabaseStorage implements IStorage {
   private calculateDiscountedPrice(mrp: number, discount: number): number {
@@ -1803,19 +1804,39 @@ export class DatabaseStorage implements IStorage {
       })
       .from(createorder)
       .where(eq(createorder.id, id));
- 
+
     return order;
   }
- 
- 
- 
+
+
+
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
+  async getAllOrdersFromCreateOrder(): Promise<CreateOrderType[]> {
+    return db
+      .select({
+        id: createorder.id,
+        customerName: createorder.customerName,
+        age: createorder.age,
+        district: createorder.district,
+        place: createorder.place,
+        pincode: createorder.pincode,
+        mobile_no: createorder.mobile_no,
+        medicines: createorder.medicines,
+        totalPrice: createorder.totalPrice,
+        status: createorder.status,
+        createdAt: createorder.createdAt,
+        updatedAt: createorder.updatedAt,
+      })
+      .from(createorder)
+      .orderBy(desc(createorder.createdAt));
+  }
+
   async storeOrder(order: {
-    
+
     customer_name: string;
     medicines: unknown;
     district?: string;
@@ -1823,7 +1844,7 @@ export class DatabaseStorage implements IStorage {
     pincode?: string;
     mobile_no?: string;
     status?: string;
-    age?:string;
+    age?: string;
   }): Promise<CreateOrderType | undefined> {
     // Validate required fields
     if (!order.customer_name || !order.medicines) {
@@ -1873,7 +1894,7 @@ export class DatabaseStorage implements IStorage {
     if (!store) return false;
     // Fetch user by email
     const [user] = await db.select().from(users).where(eq(users.email, email));
-    
+
     // If user doesn't exist, it's not valid
     console.log("user", user);
     if (!user) return false;
@@ -1885,7 +1906,7 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
   }
-  
+
   async createUser(userData: InsertUser): Promise<User> {
     // Hash password before storing
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -1925,7 +1946,7 @@ export class DatabaseStorage implements IStorage {
   async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
-  
+
   async getSroreIdBySlug(slug: string): Promise<Store> {
     const [store] = await db.select().from(stores).where(eq(stores.slug, slug)).limit(1);
     if (!store) throw new Error('Store not found');
@@ -1983,8 +2004,8 @@ export class DatabaseStorage implements IStorage {
               SUM(
                 CASE
                   WHEN ${medicineInventory.expiryDate} >= CURRENT_DATE + INTERVAL ${sql.raw(
-                    getShelfLifeInterval()
-                  )} MONTH
+          getShelfLifeInterval()
+        )} MONTH
                   THEN ${medicineInventory.quantity}
                   ELSE 0
                 END
@@ -2095,7 +2116,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(medicineCategories)
       .orderBy(asc(medicineCategories.name));
-    
+
     if (storeId) {
       query = query.where(eq(medicineCategories.storeId, storeId));
     }
@@ -2418,11 +2439,11 @@ export class DatabaseStorage implements IStorage {
     await db.delete(cartItems).where(eq(cartItems.userId, userId));
   }
 
-  async getOrdersByUserId(userId: number): Promise<(Order & { 
-    user: User; 
-    items: (OrderItem & { medicine: Medicine })[]; 
-    shippingAddress?: Address; 
-    billingAddress?: Address 
+  async getOrdersByUserId(userId: number): Promise<(Order & {
+    user: User;
+    items: (OrderItem & { medicine: Medicine })[];
+    shippingAddress?: Address;
+    billingAddress?: Address
   })[]> {
     const ordersData = await db
       .select({
@@ -2460,7 +2481,7 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .from(orders)
-      .innerJoin(users, eq(orders.userId, users.id)) 
+      .innerJoin(users, eq(orders.userId, users.id))
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
       .leftJoin(sql`${addresses} AS shipping_addr`, sql`shipping_addr.id = ${orders.shippingAddressId}`)
@@ -2471,10 +2492,10 @@ export class DatabaseStorage implements IStorage {
     const orderMap = new Map();
     ordersData.forEach(({ order, user, item, medicine, shippingAddress, billingAddress }) => {
       if (!orderMap.has(order.id)) {
-        orderMap.set(order.id, { 
-          ...order, 
-          user, 
-          items: [], 
+        orderMap.set(order.id, {
+          ...order,
+          user,
+          items: [],
           shippingAddress: shippingAddress?.id ? shippingAddress : undefined,
           billingAddress: billingAddress?.id ? billingAddress : undefined,
         });
@@ -2487,10 +2508,10 @@ export class DatabaseStorage implements IStorage {
     return Array.from(orderMap.values());
   }
 
-  async getAllOrders(storeId?: number): Promise<(Order & { 
-    user: User; 
-    items: (OrderItem & { medicine: Medicine })[]; 
-    prescription?: Prescription 
+  async getAllOrders(storeId?: number): Promise<(Order & {
+    user: User;
+    items: (OrderItem & { medicine: Medicine })[];
+    prescription?: Prescription
   })[]> {
     let query = db
       .select({
@@ -2501,7 +2522,7 @@ export class DatabaseStorage implements IStorage {
         prescription: prescriptions,
       })
       .from(orders)
-      .innerJoin(users, eq(orders.userId, users.id)) 
+      .innerJoin(users, eq(orders.userId, users.id))
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
       .leftJoin(medicines, eq(orderItems.medicineId, medicines.id))
       .leftJoin(prescriptions, eq(orders.prescriptionId, prescriptions.id))

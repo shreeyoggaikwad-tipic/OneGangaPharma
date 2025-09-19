@@ -2040,30 +2040,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
- app.get('/api/orders2/:id', async (req: Request, res: Response) => {
-  try {
-    const orderId = parseInt(req.params.id, 10);
-    if (isNaN(orderId)) {
-      return res.status(400).json({ success: false, error: 'Invalid order ID' });
+  app.get('/api/orders2/:id', async (req: Request, res: Response) => {
+    try {
+      const orderId = parseInt(req.params.id, 10);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ success: false, error: 'Invalid order ID' });
+      }
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ success: false, error: 'Order not found' });
+      }
+
+      res.status(200).json({
+        success: true,
+        order,
+      });
+    } catch (error: any) {
+      console.error('Get order error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Error retrieving order',
+      });
     }
- 
-    const order = await storage.getOrder(orderId);
-    if (!order) {
-      return res.status(404).json({ success: false, error: 'Order not found' });
+  });
+
+  app.get('/api/orders2', async (req: Request, res: Response) => {
+    try {
+      const user = req.user; // Assuming isAuthenticated attaches user to req
+      // if (user.role !== 1) { // Assuming role 1 is admin
+      //   return res.status(403).json({ success: false, error: 'Unauthorized' });
+      // }
+      const orders = await storage.getAllOrdersFromCreateOrder();
+      res.status(200).json({
+        success: true,
+        orders,
+      });
+    } catch (error: any) {
+      console.error('Get all orders error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Error retrieving orders',
+      });
     }
- 
-    res.status(200).json({
-      success: true,
-      order,
-    });
-  } catch (error: any) {
-    console.error('Get order error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Error retrieving order',
-    });
-  }
-});
+  });
 
 
   const httpServer = createServer(app);
