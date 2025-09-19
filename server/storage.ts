@@ -1750,6 +1750,10 @@ export interface IStorage {
   initializeData(): Promise<void>;
 }
 
+
+
+ 
+
 export class DatabaseStorage implements IStorage {
   private calculateDiscountedPrice(mrp: number, discount: number): number {
     return Number((mrp - (mrp * discount / 100)).toFixed(2));
@@ -1779,6 +1783,35 @@ export class DatabaseStorage implements IStorage {
       prepared.discountedPrice = this.calculateDiscountedPrice(mrp, discount).toString();
     }
     return prepared;
+  }
+
+  async getOrder(id: number): Promise<CreateOrderType | undefined> {
+    const [order] = await db
+      .select({
+        id: createorder.id,
+        customerName: createorder.customerName,
+        age: createorder.age,
+        district: createorder.district,
+        place: createorder.place,
+        pincode: createorder.pincode,
+        mobile_no: createorder.mobile_no,
+        medicines: createorder.medicines,
+        totalPrice: createorder.totalPrice,
+        status: createorder.status,
+        createdAt: createorder.createdAt,
+        updatedAt: createorder.updatedAt,
+      })
+      .from(createorder)
+      .where(eq(createorder.id, id));
+ 
+    return order;
+  }
+ 
+ 
+ 
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async storeOrder(order: {
