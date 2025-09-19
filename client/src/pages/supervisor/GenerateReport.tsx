@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, User, ShoppingBag, IndianRupee, Calendar, Phone, MapPin, Mail, ChevronDown, Download, FileText } from 'lucide-react';
+import { Search, User, ShoppingBag, IndianRupee, Calendar, Phone, MapPin, ChevronDown, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -9,96 +9,82 @@ const CustomerReport = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const reportRef = useRef<HTMLDivElement>(null);
+  const reportRef = useRef(null);
+  const [customers, setCustomers] = useState([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [customerOrders, setCustomerOrders] = useState([]);
 
-  // Mock customer data - in real app, this would come from API
-  const customers = [
-    {
-      id: 1,
-      name: 'Rajesh Kumar',
-      email: 'rajesh.kumar@email.com',
-      phone: '+91 98765 43210',
-      address: 'Shop No. 15, Main Market, Pimpri, Pune - 411018',
-      joinDate: '2023-01-15',
-      totalOrders: 24,
-      totalSales: 18750.50,
-      orders: [
-        { id: 'ORD-001', date: '2024-09-15', amount: 1250.00, items: 5 },
-        { id: 'ORD-002', date: '2024-09-10', amount: 850.75, items: 3 },
-        { id: 'ORD-003', date: '2024-09-05', amount: 2100.25, items: 8 }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Priya Sharma',
-      email: 'priya.sharma@email.com',
-      phone: '+91 87654 32109',
-      address: 'Flat 203, Sunrise Apartments, Chinchwad, Pune - 411033',
-      joinDate: '2023-03-20',
-      totalOrders: 18,
-      totalSales: 12300.75,
-      orders: [
-        { id: 'ORD-004', date: '2024-09-18', amount: 750.00, items: 2 },
-        { id: 'ORD-005', date: '2024-09-12', amount: 1450.50, items: 6 },
-        { id: 'ORD-006', date: '2024-09-08', amount: 900.25, items: 4 }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Amit Patel',
-      email: 'amit.patel@email.com',
-      phone: '+91 76543 21098',
-      address: 'House No. 45, Sector 12, Akurdi, Pune - 411035',
-      joinDate: '2023-06-10',
-      totalOrders: 31,
-      totalSales: 25600.25,
-      orders: [
-        { id: 'ORD-007', date: '2024-09-19', amount: 1800.00, items: 7 },
-        { id: 'ORD-008', date: '2024-09-16', amount: 950.75, items: 3 },
-        { id: 'ORD-009', date: '2024-09-13', amount: 1200.50, items: 5 }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Suresh Kumar',
-      email: 'suresh.kumar@email.com',
-      phone: '+91 98765 43211',
-      address: 'Shop No. 22, Market Road, Hadapsar, Pune - 411028',
-      joinDate: '2023-04-05',
-      totalOrders: 15,
-      totalSales: 9800.00,
-      orders: [
-        { id: 'ORD-010', date: '2024-09-17', amount: 650.00, items: 3 },
-        { id: 'ORD-011', date: '2024-09-14', amount: 1200.00, items: 5 }
-      ]
-    },
-    {
-      id: 5,
-      name: 'Anita Desai',
-      email: 'anita.desai@email.com',
-      phone: '+91 87654 32108',
-      address: 'Apartment 5B, Green Valley, Kothrud, Pune - 411038',
-      joinDate: '2023-07-12',
-      totalOrders: 22,
-      totalSales: 15400.75,
-      orders: [
-        { id: 'ORD-012', date: '2024-09-19', amount: 850.50, items: 4 },
-        { id: 'ORD-013', date: '2024-09-17', amount: 1300.25, items: 6 },
-        { id: 'ORD-014', date: '2024-09-15', amount: 950.00, items: 3 }
-      ]
+  // Fetch all orders and unique customers
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        setLoadingCustomers(true);
+        const response = await fetch("http://localhost:5000/api/orders2");
+        const result = await response.json();
+
+        const orders = result.orders ?? [];
+        setOrders(orders);
+
+        const uniqueCustomers = Array.from(
+          new Map(
+            orders.map((order, index) => [
+              order.customerName,
+              {
+                id: index + 1,
+                name: order.customerName,
+                phone: order.mobile_no,
+                district: order.district,
+                place: order.place,
+                joinDate: order.createdAt,
+                mobile_no : order.mobile_no,
+                totalOrders: orders.filter(o => o.customerName === order.customerName).length,
+              },
+            ])
+          ).values()
+        );
+
+        setCustomers(uniqueCustomers);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      } finally {
+        setLoadingCustomers(false);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
+  // Fetch orders for the selected customer from existing orders state
+  useEffect(() => {
+    if (selectedCustomer) {
+      const filteredOrders = orders
+        .filter(order => order.customerName === selectedCustomer.name)
+        .map((order, index) => ({
+          id: order.orderId || `ORD${index + 1}`,
+          date: order.createdAt,
+          items: order.medicines || [], // Expecting array of { name, quantity, price }
+          amount: order.totalPrice || 0,
+        }));
+
+      setCustomerOrders(filteredOrders);
+    } else {
+      setCustomerOrders([]);
     }
-  ];
+  }, [selectedCustomer, orders]);
 
-  // Filter customers based on search term
+  useEffect(() => {
+    console.log("Selected Customer Orders:", customerOrders);
+  }, [customerOrders]);
+
   const filteredCustomers = useMemo(() => {
     if (!searchTerm) return [];
-    
+
     return customers.filter(customer =>
       customer.name.toLowerCase().includes(searchTerm.toLowerCase())
     ).slice(0, 5);
-  }, [searchTerm]);
+  }, [searchTerm, customers]);
 
-  // Handle input change with debouncing
   useEffect(() => {
     if (searchTerm) {
       setShowDropdown(true);
@@ -109,11 +95,10 @@ const CustomerReport = () => {
     }
   }, [searchTerm]);
 
-  // Hide dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (selectedCustomer || !showDropdown) return;
-      
+
       const searchContainer = document.getElementById('search-container');
       if (searchContainer && !searchContainer.contains(event.target)) {
         setShowDropdown(false);
@@ -138,7 +123,6 @@ const CustomerReport = () => {
     }
   };
 
-  // PDF Generation Function
   const generatePDF = async () => {
     if (!selectedCustomer || !reportRef.current) {
       alert('Please select a customer first');
@@ -147,13 +131,11 @@ const CustomerReport = () => {
 
     setIsGeneratingPDF(true);
     try {
-      // Hide the download button temporarily to avoid capturing it
       const downloadBtn = document.querySelector('.download-btn');
       if (downloadBtn) {
         downloadBtn.style.visibility = 'hidden';
       }
 
-      // Capture the report section
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         useCORS: true,
@@ -165,7 +147,6 @@ const CustomerReport = () => {
         height: reportRef.current.scrollHeight,
       });
 
-      // Create PDF
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -173,30 +154,27 @@ const CustomerReport = () => {
         format: 'a4',
       });
 
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
+      const imgWidth = 210;
+      const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
 
       let position = 0;
 
-      // Add header to PDF
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
       pdf.text('Customer Report', 20, 20);
-      
+
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
       pdf.text(`Generated on: ${new Date().toLocaleDateString('en-IN')} ${new Date().toLocaleTimeString('en-IN')}`, 20, 30);
       pdf.text(`Customer: ${selectedCustomer.name}`, 20, 40);
 
-      position = 50; // Start content after header
+      position = 50;
 
-      // Add the captured image
       pdf.addImage(imgData, 'PNG', 10, position, imgWidth - 20, heightLeft);
       heightLeft -= pageHeight;
 
-      // Add additional pages if content overflows
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
@@ -204,22 +182,17 @@ const CustomerReport = () => {
         heightLeft -= pageHeight;
       }
 
-      // Generate filename
       const customerName = selectedCustomer.name.replace(/\s+/g, '_').toLowerCase();
       const filename = `customer_report_${customerName}_${Date.now()}.pdf`;
 
-      // Download PDF
       pdf.save(filename);
 
-      // Show notification
       showNotification('PDF downloaded successfully!', 'success');
-
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
       showNotification('Failed to generate PDF', 'error');
     } finally {
-      // Restore the download button
       if (downloadBtn) {
         downloadBtn.style.visibility = 'visible';
       }
@@ -227,26 +200,20 @@ const CustomerReport = () => {
     }
   };
 
-  // Notification system
-  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    // Create notification element
+  const showNotification = (message, type = 'info') => {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white transform transition-all duration-300 ${
-      type === 'success' ? 'bg-green-500' : 
-      type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+      type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
     }`;
     notification.textContent = message;
-    
-    // Add animation
+
     notification.style.transform = 'translateX(100%)';
     document.body.appendChild(notification);
-    
-    // Animate in
+
     setTimeout(() => {
       notification.style.transform = 'translateX(0)';
     }, 100);
-    
-    // Remove after 3 seconds
+
     setTimeout(() => {
       notification.style.transform = 'translateX(100%)';
       setTimeout(() => {
@@ -258,7 +225,7 @@ const CustomerReport = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'INR'
+      currency: 'INR',
     }).format(amount);
   };
 
@@ -266,17 +233,17 @@ const CustomerReport = () => {
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   const getHighlightedName = (name, searchTerm) => {
     if (!searchTerm) return name;
-    
+
     const regex = new RegExp(`(${searchTerm})`, 'gi');
     const parts = name.split(regex);
-    
-    return parts.map((part, index) => 
+
+    return parts.map((part, index) =>
       regex.test(part) ? (
         <span key={index} className="bg-yellow-200 font-semibold">
           {part}
@@ -287,115 +254,173 @@ const CustomerReport = () => {
     );
   };
 
-  // PDF-friendly version of the report (without interactive elements)
-  const PDFReportContent = () => (
-    <div className="pdf-report p-6 space-y-6">
-      {/* Customer Info Card - PDF Version */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="flex items-center space-x-4 mb-6 border-b pb-4">
-          <div className="bg-teal-100 p-3 rounded-full">
-            <User className="w-8 h-8 text-teal-600" />
+ const PDFReportContent = () => {
+    const totalSales = customerOrders.reduce((sum, order) => 
+        sum + (order.items && order.items.length > 0 
+            ? order.items.reduce((itemSum, item) => itemSum + (item.quantity * item.mrp), 0) 
+            : 0), 
+    0);
+
+    return (
+      <div className="pdf-report p-6 space-y-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center space-x-4 mb-6 border-b pb-4">
+            <div className="bg-teal-100 p-3 rounded-full">
+              <User className="w-8 h-8 text-teal-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{selectedCustomer.name}</h2>
+              <p className="text-gray-600">Customer ID: #{selectedCustomer.id.toString().padStart(4, '0')}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{selectedCustomer.name}</h2>
-            <p className="text-gray-600">Customer ID: #{selectedCustomer.id.toString().padStart(4, '0')}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <span className="text-gray-700">{selectedCustomer.mobile_no}</span>
+              </div>
+              <div className="flex items-start space-x-3">
+                <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-700 break-words">{`${selectedCustomer.place}, ${selectedCustomer.district}`}</span>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Calendar className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <span className="text-gray-700">Joined: {formatDate(selectedCustomer.joinDate)}</span>
+              </div>
+            </div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <Mail className="w-5 h-5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700">{selectedCustomer.email}</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700">{selectedCustomer.phone}</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-              <span className="text-gray-700 break-words">{selectedCustomer.address}</span>
+          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white border border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm font-medium">Total Sales</p>
+                <p className="text-3xl font-bold mt-1">{formatCurrency(totalSales)}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 p-3 rounded-full">
+                <IndianRupee className="w-8 h-8" />
+              </div>
             </div>
           </div>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700">Joined: {formatDate(selectedCustomer.joinDate)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Stats Cards - PDF Version */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white border border-green-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Total Sales</p>
-              <p className="text-3xl font-bold mt-1">{formatCurrency(selectedCustomer.totalSales)}</p>
-            </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-full">
-              <IndianRupee className="w-8 h-8" />
+          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white border border-purple-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm font-medium">Total Orders</p>
+                <p className="text-3xl font-bold mt-1">{selectedCustomer.totalOrders}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 p-3 rounded-full">
+                <ShoppingBag className="w-8 h-8" />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white border border-purple-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Total Orders</p>
-              <p className="text-3xl font-bold mt-1">{selectedCustomer.totalOrders}</p>
-            </div>
-            <div className="bg-white bg-opacity-20 p-3 rounded-full">
-              <ShoppingBag className="w-8 h-8" />
-            </div>
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gray-50 px-6 py-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-900">Order Details</h3>
           </div>
-        </div>
-      </div>
-
-      {/* Recent Orders Table - PDF Version */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left py-3 px-6 font-medium text-gray-700 border-b">Order ID</th>
-                <th className="text-left py-3 px-6 font-medium text-gray-700 border-b">Date</th>
-                <th className="text-left py-3 px-6 font-medium text-gray-700 border-b">Items</th>
-                <th className="text-right py-3 px-6 font-medium text-gray-700 border-b">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedCustomer.orders.map((order, index) => (
-                <tr key={order.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                  <td className="py-3 px-6 font-medium text-teal-600 border-b">{order.id}</td>
-                  <td className="py-3 px-6 text-gray-700 border-b">{formatDate(order.date)}</td>
-                  <td className="py-3 px-6 text-gray-700 border-b">{order.items} items</td>
-                  <td className="py-3 px-6 text-right font-semibold text-gray-900 border-b">
-                    {formatCurrency(order.amount)}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-left py-3 px-6 font-medium text-gray-700 border-b">Order ID</th>
+                  <th className="text-left py-3 px-6 font-medium text-gray-700 border-b">Date</th>
+                  <th className="text-left py-3 px-6 font-medium text-gray-700 border-b">Item Name</th>
+                  <th className="text-right py-3 px-6 font-medium text-gray-700 border-b">Quantity</th>
+                  <th className="text-right py-3 px-6 font-medium text-gray-700 border-b">Price</th>
+                  <th className="text-right py-3 px-6 font-medium text-gray-700 border-b">Total</th>
+                  <th className="text-right py-3 px-6 font-medium text-gray-700 border-b">Grand Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {customerOrders.length > 0 ? (
+                  customerOrders.map((order, orderIndex) =>
+                    order.items && order.items.length > 0 ? (
+                      order.items.map((item, itemIndex) => (
+                        <tr
+                          key={`${order.id}-${itemIndex}`}
+                          className={orderIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                        >
+                          {itemIndex === 0 && (
+                            <>
+                              <td
+                                className="py-3 px-6 font-medium text-teal-600 border-b"
+                                rowSpan={order.items.length}
+                              >
+                                {order.id}
+                              </td>
+                              <td
+                                className="py-3 px-6 text-gray-700 border-b"
+                                rowSpan={order.items.length}
+                              >
+                                {formatDate(order.date)}
+                              </td>
+                            </>
+                          )}
+                          <td className="py-3 px-6 text-gray-700 border-b">{item.name}</td>
+                          <td className="py-3 px-6 text-right text-gray-700 border-b">{item.quantity}</td>
+                          <td className="py-3 px-6 text-right text-gray-700 border-b">
+                            {formatCurrency(item.mrp)}
+                          </td>
+                          <td className="py-3 px-6 text-right font-semibold text-gray-900 border-b">
+                            {formatCurrency(item.quantity * item.mrp)}
+                          </td>
+                          {itemIndex === 0 && (
+                            <td
+                              className="py-3 px-6 text-right font-semibold text-gray-900 border-b"
+                              rowSpan={order.items.length}
+                            >
+                              {formatCurrency(
+                                order.items.reduce((sum, item) => sum + (item.quantity * item.mrp), 0)
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr key={order.id} className={orderIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                        <td className="py-3 px-6 font-medium text-teal-600 border-b">{order.id}</td>
+                        <td className="py-3 px-6 text-gray-700 border-b">{formatDate(order.date)}</td>
+                        <td className="py-3 px-6 text-gray-700 border-b" colSpan={3}>
+                          No items available
+                        </td>
+                        <td className="py-3 px-6 text-right font-semibold text-gray-900 border-b">
+                          {formatCurrency(0)}
+                        </td>
+                        <td className="py-3 px-6 text-right font-semibold text-gray-900 border-b">
+                          {formatCurrency(0)}
+                        </td>
+                      </tr>
+                    )
+                  )
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-3 px-6 text-center text-gray-500">
+                      No orders found for this customer.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="border-t pt-4 text-center text-sm text-gray-500">
+          <p>Generated by Pharmacy Management System</p>
+          <p>{new Date().toLocaleDateString('en-IN')} {new Date().toLocaleTimeString('en-IN')}</p>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="border-t pt-4 text-center text-sm text-gray-500">
-        <p>Generated by Pharmacy Management System</p>
-        <p>{new Date().toLocaleDateString('en-IN')} {new Date().toLocaleTimeString('en-IN')}</p>
-      </div>
-    </div>
-  );
+    );
+};
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -404,7 +429,7 @@ const CustomerReport = () => {
             </div>
             <div className="flex items-center space-x-3">
               <span className="text-sm text-gray-500">Last updated</span>
-              <span className="text-sm font-medium text-gray-700">3:36:06 pm</span>
+              <span className="text-sm font-medium text-gray-700">{new Date().toLocaleTimeString('en-IN')}</span>
               <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -415,7 +440,6 @@ const CustomerReport = () => {
           </div>
         </div>
 
-        {/* Search Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Search Customer</h2>
           <div id="search-container" className="relative">
@@ -454,7 +478,6 @@ const CustomerReport = () => {
               </button>
             </div>
 
-            {/* Dropdown Results */}
             {showDropdown && filteredCustomers.length > 0 && (
               <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
                 <div className="py-2">
@@ -484,7 +507,7 @@ const CustomerReport = () => {
                           {customer.phone}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5 truncate">
-                          {customer.totalOrders} orders • {formatCurrency(customer.totalSales)}
+                          {customer.totalOrders} orders
                         </p>
                       </div>
                     </div>
@@ -498,7 +521,6 @@ const CustomerReport = () => {
               </div>
             )}
 
-            {/* No Results Message */}
             {showDropdown && searchTerm && filteredCustomers.length === 0 && (
               <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="px-4 py-4 text-center">
@@ -513,16 +535,20 @@ const CustomerReport = () => {
               </div>
             )}
           </div>
-
         </div>
 
-        {/* Customer Report */}
         {selectedCustomer && (
           <div className="space-y-6">
-            {/* Back Button and Download Button */}
             <div className="flex items-center justify-between">
-              
-              {/* Download PDF Button */}
+              <button
+                onClick={() => {
+                  setSelectedCustomer(null);
+                  setSearchTerm('');
+                }}
+                className="flex items-center space-x-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <span>Back to Search</span>
+              </button>
               <button
                 onClick={generatePDF}
                 disabled={isGeneratingPDF}
@@ -542,7 +568,6 @@ const CustomerReport = () => {
               </button>
             </div>
 
-            {/* Report Content - Reference for PDF */}
             <div ref={reportRef} className="print-section">
               <PDFReportContent />
             </div>
