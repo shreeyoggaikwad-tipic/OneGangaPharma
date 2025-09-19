@@ -1656,6 +1656,7 @@ export interface IStorage {
     pincode?: string;
     mobile_no?: string;
     status?: string;
+    age?:string;
   }): Promise<CreateOrderType | undefined>;
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -1789,6 +1790,7 @@ export class DatabaseStorage implements IStorage {
     pincode?: string;
     mobile_no?: string;
     status?: string;
+    age?:string;
   }): Promise<CreateOrderType | undefined> {
     // Validate required fields
     if (!order.customer_name || !order.medicines) {
@@ -1804,6 +1806,7 @@ export class DatabaseStorage implements IStorage {
       mobile_no: order.mobile_no || null,
       medicines: order.medicines, // Drizzle ORM handles JSON serialization
       status: order.status || 'confirmed',
+      age: order.age || null,
       // created_at and updated_at are handled by schema defaults
     });
 

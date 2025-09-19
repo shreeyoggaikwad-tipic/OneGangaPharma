@@ -1997,7 +1997,7 @@ app.post(
 
   app.post('/api/createorders', isAuthenticated, async (req: Request, res: Response) => {
   try {
-    const { customer_name, district, place, pincode, mobile_no, medicines } = req.body;
+    const { customer_name, district, place, age, mobile_no, medicines } = req.body;
  
  
     // Validate required fields
@@ -2020,7 +2020,7 @@ app.post(
       customer_name,
       district,
       place,
-      pincode,
+      age,
       mobile_no,
       medicines,
       status: 'confirmed',

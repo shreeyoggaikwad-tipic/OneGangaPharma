@@ -92,7 +92,6 @@ const CreateOrderForm: React.FC = () => {
     setOrderMedicines([
       ...orderMedicines,
       {
-        medicineId: null,
         name: "", 
         quantity: 1,
         mrp: 0,
@@ -126,8 +125,10 @@ const CreateOrderForm: React.FC = () => {
           customer_name: customerName,
           district: address,
           place: place,
+          age:age,
           mobile_no: mobile,
           medicines: orderMedicines,
+          
         }),
       });
 

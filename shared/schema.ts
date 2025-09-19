@@ -447,12 +447,14 @@ export const createorder = mysqlTable("createorder", {
   district: varchar("district", { length: 255 }),
   place: varchar("place", { length: 255 }),
   pincode: varchar("pincode", { length: 20 }),
-  mobileNo: varchar("mobile_no", { length: 20 }),
+  mobile_no: varchar("mobile_no", { length: 20 }),
   medicines: json("medicines").notNull(), // store array of medicines as JSON
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }), // ✅ nullable by default
   status: varchar("status", { length: 50 }).default("confirmed"), // pending, confirmed, delivered
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
+
 
 // Orders
 export const orders = mysqlTable("orders", {
