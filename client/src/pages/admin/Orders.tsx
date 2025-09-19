@@ -2267,7 +2267,7 @@ console.log(ods);
               </Badge>
             </TableCell>
             <TableCell>
-              {new Date(order.placedAt).toLocaleDateString("en-IN")}
+              {new Date(order.createdAt).toLocaleDateString("en-IN")}
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
